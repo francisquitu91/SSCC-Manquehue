@@ -118,7 +118,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   };
 
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md border-b border-gray-200/10">
+    <nav className="absolute top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-gray-200/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <div className="flex justify-between items-center h-20">
           {/* Logo */}
@@ -240,7 +240,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white/60 backdrop-blur-md border-t border-gray-200/30 shadow-lg">
+        <div className="lg:hidden bg-white/10 backdrop-blur-md border-t border-gray-200/30 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {menuItems.map((item) => (
               <div key={item.name}>
