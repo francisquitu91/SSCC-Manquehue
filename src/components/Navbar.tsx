@@ -1,0 +1,326 @@
+import React, { useState } from 'react';
+import { ChevronDown, Menu, X, Instagram, Facebook } from 'lucide-react';
+
+interface NavbarProps {
+  onPageChange: (page: string) => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null);
+
+  const menuItems = [
+    {
+      name: 'COLEGIO',
+      href: '#',
+      dropdown: [
+        'QUIÉNES SOMOS',
+        'PROYECTO EDUCATIVO',
+        'ÁREA ACADÉMICA',
+        'TOUR VIRTUAL',
+        'FORMACIÓN',
+        'DOCUMENTOS INSTITUCIONALES'
+      ]
+    },
+    {
+      name: 'COMUNIDAD ESCOLAR',
+      href: '#',
+      dropdown: [
+        'CEAL',
+        'PASTORAL JUVENIL',
+        'PROFESORES',
+        'ANUARIOS',
+        'FUNDACIÓN PENTÉCOSTES'
+      ]
+    },
+    { name: 'ADMISIÓN', href: '#' },
+    {
+      name: 'INFORMACIÓN',
+      href: '#',
+      dropdown: [
+        'BIBLIOTECA',
+        'ÚTILES ESCOLARES',
+        'CASINO',
+        'UNIFORMES ESCOLARES',
+        'HORARIOS',
+        'FECHAS IMPORTANTES'
+      ]
+    }
+  ];
+
+  const handleDropdownToggle = (itemName: string) => {
+    setActiveDropdown(activeDropdown === itemName ? null : itemName);
+  };
+
+  const handleMenuClick = (itemName: string) => {
+    if (itemName === 'QUIÉNES SOMOS') {
+      onPageChange('historia');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'PROYECTO EDUCATIVO') {
+      onPageChange('proyecto-educativo');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'TOUR VIRTUAL') {
+      onPageChange('tour-virtual');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'DOCUMENTOS INSTITUCIONALES') {
+      onPageChange('documentos-institucionales');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'CEAL') {
+      onPageChange('ceal');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'PASTORAL JUVENIL') {
+      onPageChange('pastoral-juvenil');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'FUNDACIÓN PENTÉCOSTES') {
+      onPageChange('fundacion-pentecostes');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'ADMISIÓN') {
+      onPageChange('admision');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'ACLES') {
+      onPageChange('acles');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'GESTIÓN DE NOTICIAS') {
+      onPageChange('news-management');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'GESTIÓN DE EDITORIAL') {
+      onPageChange('editorial-management');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'ADMIN') {
+      onPageChange('admin');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    }
+  };
+
+  return (
+    <nav className="absolute top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md border-b border-gray-200/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <div className="flex items-center flex-shrink-0">
+            <img
+              src="https://colegiosagradafamilia.cl/www/wp-content/uploads/2022/04/cropped-logo-hd-1.png"
+              alt="Colegio Sagrada Familia Logo"
+              className="h-16 w-auto object-contain"
+            />
+          </div>
+
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center space-x-1 flex-1 justify-end">
+            {menuItems.map((item) => (
+              <div key={item.name} className="relative group">
+                <button
+                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-800 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 rounded whitespace-nowrap"
+                  onClick={() => !item.dropdown && handleMenuClick(item.name)}
+                  onMouseEnter={() => item.dropdown && setActiveDropdown(item.name)}
+                  onMouseLeave={() => !item.dropdown && setActiveDropdown(null)}
+                >
+                  {item.name}
+                  {item.dropdown && (
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                {item.dropdown && (
+                  <div
+                    className={`absolute top-full left-0 mt-0 w-80 bg-white shadow-lg z-[9999] transition-all duration-200 border border-gray-200 ${
+                      activeDropdown === item.name ? 'opacity-100 visible' : 'opacity-0 invisible'
+                    }`}
+                    onMouseEnter={() => setActiveDropdown(item.name)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                  >
+                    <div className="py-2">
+                      {item.dropdown.map((subItem) => (
+                        <div key={subItem} className="relative">
+                          <button
+                            onClick={() => handleMenuClick(subItem)}
+                            onMouseEnter={() => subItem === 'ÁREA ACADÉMICA' ? setActiveSubDropdown(subItem) : setActiveSubDropdown(null)}
+                            className="flex items-center justify-between w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200 border-b border-gray-200 last:border-b-0"
+                          >
+                            {subItem}
+                            {subItem === 'ÁREA ACADÉMICA' && (
+                              <ChevronDown className="ml-1 h-4 w-4 rotate-[-90deg]" />
+                            )}
+                          </button>
+                          
+                          {/* Sub-dropdown for Área Académica */}
+                          {subItem === 'ÁREA ACADÉMICA' && (
+                            <div
+                              className={`absolute left-full top-0 w-60 bg-white shadow-lg border border-gray-200 transition-all duration-200 ${
+                                activeSubDropdown === 'ÁREA ACADÉMICA' ? 'opacity-100 visible' : 'opacity-0 invisible'
+                              }`}
+                              onMouseEnter={() => setActiveSubDropdown('ÁREA ACADÉMICA')}
+                              onMouseLeave={() => setActiveSubDropdown(null)}
+                            >
+                              <div className="py-2">
+                                <button
+                                  onClick={() => handleMenuClick('ACLES')}
+                                  className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200"
+                                >
+                                  ACLES
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {/* Social Media Icons */}
+            <div className="flex items-center space-x-3 ml-6">
+              <a
+                href="https://www.instagram.com/colegiosagradafamilia_oficial/?hl=es"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.facebook.com/pages/Colegio-Sagrada-Familia-Re%C3%B1aca/170422360190468"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="lg:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-800 hover:text-red-300 focus:outline-none focus:text-red-300"
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+        
+  {/* Horizontal white line delimiter: full width */}
+  <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200/40"></div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="lg:hidden bg-white/60 backdrop-blur-md border-t border-gray-200/30 shadow-lg">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            {menuItems.map((item) => (
+              <div key={item.name}>
+                <button
+                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 rounded"
+                  onClick={() => item.dropdown ? handleDropdownToggle(item.name) : handleMenuClick(item.name)}
+                >
+                  {item.name}
+                  {item.dropdown && (
+                    <ChevronDown 
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        activeDropdown === item.name ? 'rotate-180' : ''
+                      }`} 
+                    />
+                  )}
+                </button>
+
+                {/* Mobile Dropdown */}
+                {item.dropdown && activeDropdown === item.name && (
+                  <div className="pl-4 space-y-1">
+                    {item.dropdown.map((subItem) => (
+                      <div key={subItem}>
+                        <button
+                          onClick={() => subItem === 'ÁREA ACADÉMICA' ? setActiveSubDropdown(activeSubDropdown === 'ÁREA ACADÉMICA' ? null : 'ÁREA ACADÉMICA') : handleMenuClick(subItem)}
+                          className="flex items-center justify-between w-full text-left px-3 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 transition-colors duration-200 rounded"
+                        >
+                          {subItem}
+                          {subItem === 'ÁREA ACADÉMICA' && (
+                            <ChevronDown 
+                              className={`h-4 w-4 transition-transform duration-200 ${
+                                activeSubDropdown === 'ÁREA ACADÉMICA' ? 'rotate-180' : ''
+                              }`} 
+                            />
+                          )}
+                        </button>
+                        
+                        {/* Mobile Sub-dropdown for Área Académica */}
+                        {subItem === 'ÁREA ACADÉMICA' && activeSubDropdown === 'ÁREA ACADÉMICA' && (
+                          <div className="pl-4 space-y-1">
+                            <button
+                              onClick={() => handleMenuClick('ACLES')}
+                              className="block w-full text-left px-3 py-2 text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors duration-200 rounded"
+                            >
+                              ACLES
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {/* Social Media Icons for Mobile */}
+            <div className="flex items-center justify-center space-x-4 pt-4 border-t border-gray-200/30 mt-4">
+              <a
+                href="https://www.instagram.com/colegiosagradafamilia_oficial/?hl=es"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
+              <a
+                href="https://www.facebook.com/pages/Colegio-Sagrada-Familia-Re%C3%B1aca/170422360190468"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;

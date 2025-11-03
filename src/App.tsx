@@ -1,0 +1,296 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronRight } from 'lucide-react';
+import Navbar from './components/Navbar';
+import AdminLogin from './components/AdminLogin';
+import Historia from './components/Historia';
+import VisionMision from './components/VisionMision';
+import NewsSection from './components/NewsSection';
+import EditorialSection from './components/EditorialSection';
+import NewsManagement from './components/NewsManagement';
+import EditorialManagement from './components/EditorialManagement';
+import DirectoryManagement from './components/DirectoryManagement';
+import ProyectoEducativo from './components/ProyectoEducativo';
+import ProyectoEducativoManagement from './components/ProyectoEducativoManagement';
+import StudentWithdrawalControl from './components/StudentWithdrawalControl';
+import AdminDashboard from './components/AdminDashboard';
+import Tour360Section from './components/Tour360Section';
+import ACLESSection from './components/ACLESSection';
+import InstitutionalDocuments from './components/InstitutionalDocuments';
+import InstitutionalDocumentsManagement from './components/InstitutionalDocumentsManagement';
+import CEALSection from './components/CEALSection';
+import PastoralJuvenilSection from './components/PastoralJuvenilSection';
+import CEALManagement from './components/CEALManagement';
+import PastoralManagement from './components/PastoralManagement';
+import FundacionPentecostes from './components/FundacionPentecostes';
+import AdmisionSection from './components/AdmisionSection';
+import AdmisionManagement from './components/AdmisionManagement';
+import MapSection from './components/MapSection';
+import Footer from './components/Footer';
+
+const backgroundImages = [
+  'https://i.ibb.co/fzCd8Qrj/Dise-o-sin-t-tulo-4.png'
+];
+
+function App() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState('home');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % backgroundImages.length
+      );
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePageChange = (page: string) => {
+    setCurrentPage(page);
+  };
+
+  const handleBackToHome = () => {
+    setCurrentPage('home');
+  };
+
+  const handleAdminLogin = () => {
+    setIsAdminAuthenticated(true);
+    setCurrentPage('admin');
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminAuthenticated(false);
+    setCurrentPage('home');
+  };
+
+  const handleBackToAdmin = () => {
+    setCurrentPage('admin');
+  };
+
+  if (currentPage === 'historia') {
+    return <Historia onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'vision-mision') {
+    return <VisionMision onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'acles') {
+    return <ACLESSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'tour-virtual') {
+    return <Tour360Section onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'documentos-institucionales') {
+    return <InstitutionalDocuments onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'ceal') {
+    return <CEALSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'pastoral-juvenil') {
+    return <PastoralJuvenilSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'institutional-documents-management') {
+    return <InstitutionalDocumentsManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'ceal-management') {
+    return <CEALManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'pastoral-management') {
+    return <PastoralManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'fundacion-pentecostes') {
+    return <FundacionPentecostes onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'admision') {
+    return <AdmisionSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'admision-management') {
+    return <AdmisionManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'news-management') {
+    return <NewsManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'editorial-management') {
+    return <EditorialManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'directory-management') {
+    return <DirectoryManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'proyecto-educativo') {
+    return <ProyectoEducativo onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'proyecto-educativo-management') {
+    return <ProyectoEducativoManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'admin') {
+    if (!isAdminAuthenticated) {
+      return <AdminLogin onLogin={handleAdminLogin} />;
+    }
+    return <AdminDashboard onNavigate={handlePageChange} onLogout={handleAdminLogout} />;
+  }
+
+  if (currentPage === 'student-withdrawal') {
+    return <StudentWithdrawalControl onBack={handleBackToHome} />;
+  }
+
+  return (
+    <div className="min-h-screen overflow-x-hidden">
+      {/* Navigation - Static at top */}
+      <Navbar onPageChange={handlePageChange} />
+
+      {/* Hero Section with Background */}
+      <div className="relative min-h-screen overflow-hidden">
+      {/* Background Images with Slideshow */}
+      <div className="absolute inset-0">
+        {backgroundImages.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
+              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{ backgroundImage: `url(${image})` }}
+          />
+        ))}
+        
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black bg-opacity-40" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col justify-center min-h-screen pt-48">
+        {/* Hero Section */}
+        <main className="flex items-center justify-center px-6 md:px-8 py-16">
+          <div className="text-center max-w-5xl mx-auto">
+            <p className="text-white text-xl md:text-2xl mb-12 leading-relaxed font-light">
+              Combinamos excelencia académica y tecnología de vanguardia para preparar a nuestros alumnos para el futuro.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => handlePageChange('proyecto-educativo')}
+                className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-red-600 rounded-full overflow-hidden transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-xl hover:shadow-2xl"
+              >
+                <span className="relative z-10 flex items-center">
+                  Descubre Nuestro Proyecto
+                  <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </button>
+              
+              <button
+                onClick={() => handlePageChange('admision')}
+                className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-white/20 backdrop-blur-sm rounded-full overflow-hidden transition-all duration-300 hover:bg-white/30 hover:scale-105 shadow-xl hover:shadow-2xl border-2 border-white/50"
+              >
+                <span className="relative z-10 flex items-center">
+                  Proceso de Admisión
+                  <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </button>
+            </div>
+          </div>
+        </main>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      {/* Quiénes Somos Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Left Content */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 text-red-600 font-medium">
+                <div className="w-8 h-0.5 bg-red-600"></div>
+                <span>Quiénes Somos</span>
+              </div>
+              
+              <h2 className="text-3xl lg:text-4xl font-bold text-blue-900 leading-tight">
+                Una comunidad educativa católica, a semejanza de María
+              </h2>
+              
+              <p className="text-gray-600 text-base leading-relaxed">
+                El Colegio Sagrada Familia inició sus actividades en 1992, junto al Santuario de Schoenstatt, 
+                ubicado en Reñaca, Viña del Mar. Nació porque el cambio de siglo mostró la necesidad de fomentar 
+                valores familiares y sociales y ante esta urgencia, un grupo de laicos y sacerdotes de este 
+                Movimiento de Iglesia se vieron motivados a crear una institución, con estilo familiar, orientada 
+                por los principios del Evangelio y fundamentada en el modelo pedagógico del P. José Kentenich 
+                (1885 – 1968), fundador de Schoenstatt.
+              </p>
+              
+              <button 
+                onClick={() => handlePageChange('historia')}
+                className="inline-flex items-center bg-blue-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-300 group"
+              >
+                Ver Más
+                <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Right Image */}
+            <div className="relative">
+              <div className="relative">
+                {/* Decorative blue circle background */}
+                <div className="absolute -top-6 -right-6 w-72 h-72 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-20"></div>
+                
+                {/* Main image with circular crop */}
+                <div className="relative w-80 h-80 mx-auto rounded-full overflow-hidden shadow-2xl">
+                  <img
+                    src="https://colegiosagradafamilia.cl/www/wp-content/uploads/2024/10/padre-victor-misa-1030x438.jpg"
+                    alt="Padre Victor celebrando misa"
+                    className="w-full h-full object-cover object-center scale-110"
+                  />
+                </div>
+                
+                {/* Additional decorative elements */}
+                <div className="absolute -bottom-3 -left-3 w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-30 -z-10"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* News Section */}
+      <NewsSection />
+
+      {/* Editorial Section */}
+      <EditorialSection />
+
+      {/* 360 Tour Section */}
+      <Tour360Section />
+
+      {/* Map Section */}
+      <MapSection />
+
+      {/* Footer */}
+      <Footer onPageChange={handlePageChange} />
+    </div>
+
+  );
+}
+
+export default App;
