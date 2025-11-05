@@ -28,6 +28,8 @@ import MapSection from './components/MapSection';
 import Footer from './components/Footer';
 
 const backgroundImages = [
+  'https://costamagazine.cl/wp-content/uploads/2020/12/Isabel-Silva-Sofia-Vallejo-Constanza-Larenas-2048x1365.jpg',
+  'https://costamagazine.cl/wp-content/uploads/2020/12/Piti-Soria-Galvarro-Agustina-Paonessa-Renzo-Paonessa-1200x800.jpg',
   'https://i.ibb.co/fzCd8Qrj/Dise-o-sin-t-tulo-4.png'
 ];
 
@@ -41,7 +43,7 @@ function App() {
       setCurrentImageIndex((prevIndex) => 
         (prevIndex + 1) % backgroundImages.length
       );
-    }, 5000); // Change image every 5 seconds
+    }, 4000); // Change image every 4 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -163,44 +165,46 @@ function App() {
         {backgroundImages.map((image, index) => (
           <div
             key={index}
-            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
-              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1500 ease-in-out ${
+              index === currentImageIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
             }`}
             style={{ backgroundImage: `url(${image})` }}
           />
         ))}
         
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-40" />
+        {/* Light Overlay for text readability */}
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col justify-center min-h-screen pt-48">
+      <div className="relative z-10 flex flex-col justify-end min-h-screen pt-24 pb-20">
         {/* Hero Section */}
-        <main className="flex items-center justify-center px-6 md:px-8 py-16">
-          <div className="text-center max-w-5xl mx-auto">
-            <p className="text-white text-xl md:text-2xl mb-12 leading-relaxed font-light">
-              Combinamos excelencia académica y tecnología de vanguardia para preparar a nuestros alumnos para el futuro.
+        <main className="px-8 md:px-12 lg:px-16">
+          <div className="text-left max-w-4xl">
+            <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight tracking-wide drop-shadow-lg">
+              ¿POR QUÉ ELEGIR<br />SAGRADA FAMILIA?
+            </h1>
+            
+            <p className="text-white text-base md:text-lg lg:text-xl mb-6 leading-relaxed font-medium max-w-2xl drop-shadow-md">
+              EDUCACIÓN PERSONALIZADA – PADRES, PRIMEROS EDUCADORES – PROFESORES COMPROMETIDOS
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
                 onClick={() => handlePageChange('proyecto-educativo')}
-                className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-red-600 rounded-full overflow-hidden transition-all duration-300 hover:bg-red-700 hover:scale-105 shadow-xl hover:shadow-2xl"
+                className="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold text-white bg-transparent border-2 border-white rounded-none overflow-hidden transition-all duration-300 hover:bg-white hover:text-gray-800 drop-shadow-lg uppercase tracking-wide"
               >
                 <span className="relative z-10 flex items-center">
-                  Descubre Nuestro Proyecto
-                  <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  VER MÁS
                 </span>
               </button>
               
               <button
                 onClick={() => handlePageChange('admision')}
-                className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-white/20 backdrop-blur-sm rounded-full overflow-hidden transition-all duration-300 hover:bg-white/30 hover:scale-105 shadow-xl hover:shadow-2xl border-2 border-white/50"
+                className="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold text-white bg-transparent border-2 border-white rounded-none overflow-hidden transition-all duration-300 hover:bg-white hover:text-gray-800 drop-shadow-lg uppercase tracking-wide"
               >
                 <span className="relative z-10 flex items-center">
-                  Proceso de Admisión
-                  <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  NOTICIAS
                 </span>
               </button>
             </div>

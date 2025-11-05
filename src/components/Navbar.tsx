@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, Menu, X, Instagram, Facebook } from 'lucide-react';
 
 interface NavbarProps {
@@ -9,6 +9,17 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const menuItems = [
     {
@@ -118,15 +129,19 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   };
 
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-gray-200/10">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-red-600/85 backdrop-blur-lg shadow-lg' 
+        : ''
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center flex-shrink-0 ml-8">
             <img
-              src="https://colegiosagradafamilia.cl/www/wp-content/uploads/2022/04/cropped-logo-hd-1.png"
+              src="https://i.postimg.cc/FN3R296R/1.png"
               alt="Colegio Sagrada Familia Logo"
-              className="h-16 w-auto object-contain"
+              className="h-32 w-auto object-contain"
             />
           </div>
 
@@ -135,7 +150,11 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
             {menuItems.map((item) => (
               <div key={item.name} className="relative group">
                 <button
-                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-800 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 rounded whitespace-nowrap"
+                  className={`flex items-center px-3 py-2 text-sm font-medium transition-colors duration-300 rounded whitespace-nowrap ${
+                    isScrolled 
+                      ? 'text-white hover:bg-white/20 hover:text-white' 
+                      : 'text-white hover:bg-red-600 hover:text-white'
+                  }`}
                   onClick={() => !item.dropdown && handleMenuClick(item.name)}
                   onMouseEnter={() => item.dropdown && setActiveDropdown(item.name)}
                   onMouseLeave={() => !item.dropdown && setActiveDropdown(null)}
@@ -202,7 +221,9 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                 href="https://www.instagram.com/colegiosagradafamilia_oficial/?hl=es"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                className={`transition-colors duration-300 ${
+                  isScrolled ? 'text-white hover:text-red-200' : 'text-white hover:text-red-300'
+                }`}
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5" />
@@ -211,7 +232,9 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                 href="https://www.facebook.com/pages/Colegio-Sagrada-Familia-Re%C3%B1aca/170422360190468"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                className={`transition-colors duration-300 ${
+                  isScrolled ? 'text-white hover:text-red-200' : 'text-white hover:text-red-300'
+                }`}
                 aria-label="Facebook"
               >
                 <Facebook className="w-5 h-5" />
@@ -223,7 +246,11 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
           <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-800 hover:text-red-300 focus:outline-none focus:text-red-300"
+              className={`transition-colors duration-300 focus:outline-none ${
+                isScrolled 
+                  ? 'text-white hover:text-red-200 focus:text-red-200' 
+                  : 'text-white hover:text-red-300 focus:text-red-300'
+              }`}
             >
               {isMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -234,18 +261,20 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
           </div>
         </div>
         
-  {/* Horizontal white line delimiter: full width */}
-  <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200/40"></div>
+  {/* Horizontal line delimiter: full width */}
+  <div className={`absolute bottom-0 left-0 right-0 h-px transition-colors duration-300 ${
+    isScrolled ? 'bg-white/20' : 'bg-white/30'
+  }`}></div>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden bg-white/10 backdrop-blur-md border-t border-gray-200/30 shadow-lg">
+        <div className="lg:hidden border-t border-gray-200/30 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {menuItems.map((item) => (
               <div key={item.name}>
                 <button
-                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-gray-800 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 rounded"
+                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-white hover:bg-red-600 hover:text-white transition-colors duration-200 rounded"
                   onClick={() => item.dropdown ? handleDropdownToggle(item.name) : handleMenuClick(item.name)}
                 >
                   {item.name}
@@ -265,7 +294,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                       <div key={subItem}>
                         <button
                           onClick={() => subItem === 'ÁREA ACADÉMICA' ? setActiveSubDropdown(activeSubDropdown === 'ÁREA ACADÉMICA' ? null : 'ÁREA ACADÉMICA') : handleMenuClick(subItem)}
-                          className="flex items-center justify-between w-full text-left px-3 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 transition-colors duration-200 rounded"
+                          className="flex items-center justify-between w-full text-left px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
                         >
                           {subItem}
                           {subItem === 'ÁREA ACADÉMICA' && (
@@ -282,7 +311,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                           <div className="pl-4 space-y-1">
                             <button
                               onClick={() => handleMenuClick('ACLES')}
-                              className="block w-full text-left px-3 py-2 text-xs text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors duration-200 rounded"
+                              className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
                             >
                               ACLES
                             </button>
@@ -301,7 +330,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                 href="https://www.instagram.com/colegiosagradafamilia_oficial/?hl=es"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                className="text-white hover:text-red-300 transition-colors duration-200"
                 aria-label="Instagram"
               >
                 <Instagram className="w-6 h-6" />
@@ -310,7 +339,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                 href="https://www.facebook.com/pages/Colegio-Sagrada-Familia-Re%C3%B1aca/170422360190468"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-800 hover:text-red-300 transition-colors duration-200"
+                className="text-white hover:text-red-300 transition-colors duration-200"
                 aria-label="Facebook"
               >
                 <Facebook className="w-6 h-6" />
