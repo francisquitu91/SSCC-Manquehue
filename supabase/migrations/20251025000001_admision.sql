@@ -48,22 +48,35 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('admision-images', 'admision-images', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage policies (public access)
-CREATE POLICY "Public Access for admision-images"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'admision-images');
+-- Storage policies (public access) - Drop if exists and recreate
+DO $$ 
+BEGIN
+    -- Drop existing policies if they exist
+    DROP POLICY IF EXISTS "Public Access for admision-images" ON storage.objects;
+    DROP POLICY IF EXISTS "Public Insert for admision-images" ON storage.objects;
+    DROP POLICY IF EXISTS "Public Update for admision-images" ON storage.objects;
+    DROP POLICY IF EXISTS "Public Delete for admision-images" ON storage.objects;
+    
+    -- Create policies
+    CREATE POLICY "Public Access for admision-images"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'admision-images');
 
-CREATE POLICY "Public Insert for admision-images"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'admision-images');
+    CREATE POLICY "Public Insert for admision-images"
+    ON storage.objects FOR INSERT
+    WITH CHECK (bucket_id = 'admision-images');
 
-CREATE POLICY "Public Update for admision-images"
-ON storage.objects FOR UPDATE
-USING (bucket_id = 'admision-images');
+    CREATE POLICY "Public Update for admision-images"
+    ON storage.objects FOR UPDATE
+    USING (bucket_id = 'admision-images');
 
-CREATE POLICY "Public Delete for admision-images"
-ON storage.objects FOR DELETE
-USING (bucket_id = 'admision-images');
+    CREATE POLICY "Public Delete for admision-images"
+    ON storage.objects FOR DELETE
+    USING (bucket_id = 'admision-images');
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if policies already exist
+END $$;
 
 -- Insert default info cards
 INSERT INTO admision_info_cards (title, description, icon_name, color, image_url, order_index)

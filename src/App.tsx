@@ -24,6 +24,24 @@ import PastoralManagement from './components/PastoralManagement';
 import FundacionPentecostes from './components/FundacionPentecostes';
 import AdmisionSection from './components/AdmisionSection';
 import AdmisionManagement from './components/AdmisionManagement';
+import BibliotecaSection from './components/BibliotecaSection';
+import BibliotecaManagement from './components/BibliotecaManagement';
+import UtilesEscolaresSection from './components/UtilesEscolaresSection';
+import UtilesEscolaresManagement from './components/UtilesEscolaresManagement';
+import CasinoModal from './components/CasinoModal';
+import CasinoManagement from './components/CasinoManagement';
+import UniformesEscolaresSection from './components/UniformesEscolaresSection';
+import UniformesEscolaresManagement from './components/UniformesEscolaresManagement';
+import HorariosSection from './components/HorariosSection';
+import HorariosManagement from './components/HorariosManagement';
+import PagosSection from './components/PagosSection';
+import PagosManagement from './components/PagosManagement';
+import RecursosDigitalesSection from './components/RecursosDigitalesSection';
+import RecursosDigitalesManagement from './components/RecursosDigitalesManagement';
+import FechasImportantesSection from './components/FechasImportantesSection';
+import FechasImportantesManagement from './components/FechasImportantesManagement';
+import AnnouncementPopup from './components/AnnouncementPopup';
+import AnnouncementManagement from './components/AnnouncementManagement';
 import MapSection from './components/MapSection';
 import Footer from './components/Footer';
 
@@ -37,6 +55,7 @@ function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState('home');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [showCasinoModal, setShowCasinoModal] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,7 +68,11 @@ function App() {
   }, []);
 
   const handlePageChange = (page: string) => {
-    setCurrentPage(page);
+    if (page === 'casino') {
+      setShowCasinoModal(true);
+    } else {
+      setCurrentPage(page);
+    }
   };
 
   const handleBackToHome = () => {
@@ -118,8 +141,72 @@ function App() {
     return <AdmisionSection onBack={handleBackToHome} />;
   }
 
+  if (currentPage === 'biblioteca') {
+    return <BibliotecaSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'utiles-escolares') {
+    return <UtilesEscolaresSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'uniformes-escolares') {
+    return <UniformesEscolaresSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'horarios') {
+    return <HorariosSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'pagos') {
+    return <PagosSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'recursos-digitales') {
+    return <RecursosDigitalesSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'fechas-importantes') {
+    return <FechasImportantesSection onBack={handleBackToHome} />;
+  }
+
   if (currentPage === 'admision-management') {
     return <AdmisionManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'biblioteca-management') {
+    return <BibliotecaManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'utiles-escolares-management') {
+    return <UtilesEscolaresManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'casino-management') {
+    return <CasinoManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'uniformes-escolares-management') {
+    return <UniformesEscolaresManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'horarios-management') {
+    return <HorariosManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'pagos-management') {
+    return <PagosManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'recursos-digitales-management') {
+    return <RecursosDigitalesManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'fechas-importantes-management') {
+    return <FechasImportantesManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'announcement-management') {
+    return <AnnouncementManagement onBack={handleBackToAdmin} />;
   }
 
   if (currentPage === 'news-management') {
@@ -155,6 +242,9 @@ function App() {
 
   return (
     <div className="min-h-screen overflow-x-hidden">
+      {/* Announcement Popup */}
+      <AnnouncementPopup />
+      
       {/* Navigation - Static at top */}
       <Navbar onPageChange={handlePageChange} />
 
@@ -200,7 +290,12 @@ function App() {
               </button>
               
               <button
-                onClick={() => handlePageChange('admision')}
+                onClick={() => {
+                  const newsSection = document.getElementById('news-section');
+                  if (newsSection) {
+                    newsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
                 className="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold text-white bg-transparent border-2 border-white rounded-none overflow-hidden transition-all duration-300 hover:bg-white hover:text-gray-800 drop-shadow-lg uppercase tracking-wide"
               >
                 <span className="relative z-10 flex items-center">
@@ -292,6 +387,9 @@ function App() {
 
       {/* Footer */}
       <Footer onPageChange={handlePageChange} />
+
+      {/* Casino Modal */}
+      <CasinoModal isOpen={showCasinoModal} onClose={() => setShowCasinoModal(false)} />
     </div>
 
   );

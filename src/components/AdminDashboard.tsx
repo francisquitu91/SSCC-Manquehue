@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Edit3, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart } from 'lucide-react';
+import { FileText, Edit3, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell } from 'lucide-react';
 
 interface AdminDashboardProps {
   onNavigate: (page: string) => void;
@@ -71,6 +71,78 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       icon: <Users className="w-8 h-8" />,
       color: 'bg-indigo-600 hover:bg-indigo-700',
       iconBg: 'bg-indigo-100 text-indigo-600'
+    },
+    {
+      id: 'biblioteca-management',
+      title: 'Gestión de Biblioteca',
+      description: 'Administrar planes lectores y recursos',
+      icon: <BookOpen className="w-8 h-8" />,
+      color: 'bg-amber-600 hover:bg-amber-700',
+      iconBg: 'bg-amber-100 text-amber-600'
+    },
+    {
+      id: 'utiles-escolares-management',
+      title: 'Gestión de Útiles Escolares',
+      description: 'Administrar listas de útiles por nivel',
+      icon: <ShoppingBag className="w-8 h-8" />,
+      color: 'bg-teal-600 hover:bg-teal-700',
+      iconBg: 'bg-teal-100 text-teal-600'
+    },
+    {
+      id: 'casino-management',
+      title: 'Gestión de Casino',
+      description: 'Administrar menú del casino',
+      icon: <UtensilsCrossed className="w-8 h-8" />,
+      color: 'bg-orange-600 hover:bg-orange-700',
+      iconBg: 'bg-orange-100 text-orange-600'
+    },
+    {
+      id: 'uniformes-escolares-management',
+      title: 'Gestión de Uniformes Escolares',
+      description: 'Administrar especificaciones de uniformes',
+      icon: <Shirt className="w-8 h-8" />,
+      color: 'bg-indigo-600 hover:bg-indigo-700',
+      iconBg: 'bg-indigo-100 text-indigo-600'
+    },
+    {
+      id: 'horarios-management',
+      title: 'Gestión de Horarios',
+      description: 'Administrar horarios por curso',
+      icon: <Clock className="w-8 h-8" />,
+      color: 'bg-green-600 hover:bg-green-700',
+      iconBg: 'bg-green-100 text-green-600'
+    },
+    {
+      id: 'pagos-management',
+      title: 'Gestión de Pagos',
+      description: 'Configurar link de plataforma de pagos',
+      icon: <CreditCard className="w-8 h-8" />,
+      color: 'bg-blue-600 hover:bg-blue-700',
+      iconBg: 'bg-blue-100 text-blue-600'
+    },
+    {
+      id: 'recursos-digitales-management',
+      title: 'Gestión de Recursos Digitales',
+      description: 'Administrar instructivos de ClassRoom',
+      icon: <Monitor className="w-8 h-8" />,
+      color: 'bg-purple-600 hover:bg-purple-700',
+      iconBg: 'bg-purple-100 text-purple-600'
+    },
+    {
+      id: 'fechas-importantes-management',
+      title: 'Gestión de Fechas Importantes',
+      description: 'Administrar calendario de actividades y eventos',
+      icon: <Calendar className="w-8 h-8" />,
+      color: 'bg-amber-600 hover:bg-amber-700',
+      iconBg: 'bg-amber-100 text-amber-600'
+    },
+    {
+      id: 'announcement-management',
+      title: 'Anuncio Popup',
+      description: 'Gestionar anuncio emergente para usuarios',
+      icon: <Bell className="w-8 h-8" />,
+      color: 'bg-red-600 hover:bg-red-700',
+      iconBg: 'bg-red-100 text-red-600'
     }
   ];
 

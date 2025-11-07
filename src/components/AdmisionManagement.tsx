@@ -1,49 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Trash2, Plus, Upload, X } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Plus, X, Edit } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface AdmisionManagementProps {
   onBack: () => void;
 }
 
-interface InfoCard {
+interface InfoSection {
   id?: number;
   title: string;
-  description: string;
-  icon_name: string;
-  color: string;
-  image_url: string;
-  order_index: number;
-}
-
-interface ProcessStep {
-  id?: number;
-  step_number: number;
-  step_label: string;
-  title: string;
-  description: string;
+  content: string;
   icon_name: string;
   color: string;
   order_index: number;
 }
 
-interface ContactInfo {
+interface Vacante {
   id?: number;
-  name: string;
-  role: string;
-  email: string;
-  phone: string;
-  address: string;
-  photo_url: string;
+  curso: string;
+  vacantes: number;
+  order_index: number;
+}
+
+interface VacanteFecha {
+  id?: number;
+  fecha_actualizacion: string;
 }
 
 const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
-  const [infoCards, setInfoCards] = useState<InfoCard[]>([]);
-  const [processSteps, setProcessSteps] = useState<ProcessStep[]>([]);
-  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+  const [infoSections, setInfoSections] = useState<InfoSection[]>([]);
+  const [vacantes, setVacantes] = useState<Vacante[]>([]);
+  const [fechaActualizacion, setFechaActualizacion] = useState('');
+  const [fechaId, setFechaId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [activeTab, setActiveTab] = useState<'cards' | 'steps' | 'contact'>('cards');
+  const [activeTab, setActiveTab] = useState<'sections' | 'vacantes' | 'fecha'>('sections');
+  const [editingSection, setEditingSection] = useState<InfoSection | null>(null);
+  const [editingVacante, setEditingVacante] = useState<Vacante | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -52,26 +45,29 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch info cards
-      const { data: cardsData } = await supabase
-        .from('admision_info_cards')
+      // Fetch info sections
+      const { data: sectionsData } = await supabase
+        .from('admision_info_sections')
         .select('*')
         .order('order_index');
-      if (cardsData) setInfoCards(cardsData);
+      if (sectionsData) setInfoSections(sectionsData);
 
-      // Fetch process steps
-      const { data: stepsData } = await supabase
-        .from('admision_process_steps')
+      // Fetch vacantes
+      const { data: vacantesData } = await supabase
+        .from('admision_vacantes')
         .select('*')
         .order('order_index');
-      if (stepsData) setProcessSteps(stepsData);
+      if (vacantesData) setVacantes(vacantesData);
 
-      // Fetch contact info
-      const { data: contactData } = await supabase
-        .from('admision_contact')
+      // Fetch fecha actualización
+      const { data: fechaData } = await supabase
+        .from('admision_vacantes_fecha')
         .select('*')
         .single();
-      if (contactData) setContactInfo(contactData);
+      if (fechaData) {
+        setFechaActualizacion(fechaData.fecha_actualizacion);
+        setFechaId(fechaData.id);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setMessage('Error al cargar datos');
@@ -80,129 +76,129 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
     }
   };
 
-  const uploadImage = async (file: File, folder: string): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${folder}/${Math.random().toString(36).substring(2)}.${fileExt}`;
-    
-    const { data, error } = await supabase.storage
-      .from('admision-images')
-      .upload(fileName, file);
 
-    if (error) throw error;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('admision-images')
-      .getPublicUrl(fileName);
-
-    return publicUrl;
-  };
-
-  const handleSaveCard = async (card: InfoCard) => {
+  const handleSaveSection = async (section: InfoSection) => {
     setLoading(true);
     try {
-      if (card.id) {
+      if (section.id) {
         await supabase
-          .from('admision_info_cards')
-          .update(card)
-          .eq('id', card.id);
+          .from('admision_info_sections')
+          .update({
+            title: section.title,
+            content: section.content,
+            icon_name: section.icon_name,
+            color: section.color,
+            order_index: section.order_index
+          })
+          .eq('id', section.id);
       } else {
         await supabase
-          .from('admision_info_cards')
-          .insert([card]);
+          .from('admision_info_sections')
+          .insert([section]);
       }
-      setMessage('Tarjeta guardada exitosamente');
+      setMessage('Sección guardada exitosamente');
+      setEditingSection(null);
       fetchData();
     } catch (error) {
-      console.error('Error saving card:', error);
-      setMessage('Error al guardar tarjeta');
+      console.error('Error saving section:', error);
+      setMessage('Error al guardar sección');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteCard = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar esta tarjeta?')) return;
+  const handleDeleteSection = async (id: number) => {
+    if (!confirm('¿Estás seguro de eliminar esta sección?')) return;
     
     setLoading(true);
     try {
       await supabase
-        .from('admision_info_cards')
+        .from('admision_info_sections')
         .delete()
         .eq('id', id);
-      setMessage('Tarjeta eliminada');
+      setMessage('Sección eliminada');
       fetchData();
     } catch (error) {
-      console.error('Error deleting card:', error);
-      setMessage('Error al eliminar tarjeta');
+      console.error('Error deleting section:', error);
+      setMessage('Error al eliminar sección');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSaveStep = async (step: ProcessStep) => {
+  const handleSaveVacante = async (vacante: Vacante) => {
     setLoading(true);
     try {
-      if (step.id) {
+      if (vacante.id) {
         await supabase
-          .from('admision_process_steps')
-          .update(step)
-          .eq('id', step.id);
+          .from('admision_vacantes')
+          .update({
+            curso: vacante.curso,
+            vacantes: vacante.vacantes,
+            order_index: vacante.order_index
+          })
+          .eq('id', vacante.id);
       } else {
         await supabase
-          .from('admision_process_steps')
-          .insert([step]);
+          .from('admision_vacantes')
+          .insert([vacante]);
       }
-      setMessage('Etapa guardada exitosamente');
+      setMessage('Vacante guardada exitosamente');
+      setEditingVacante(null);
       fetchData();
     } catch (error) {
-      console.error('Error saving step:', error);
-      setMessage('Error al guardar etapa');
+      console.error('Error saving vacante:', error);
+      setMessage('Error al guardar vacante');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteStep = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar esta etapa?')) return;
+  const handleDeleteVacante = async (id: number) => {
+    if (!confirm('¿Estás seguro de eliminar esta vacante?')) return;
     
     setLoading(true);
     try {
       await supabase
-        .from('admision_process_steps')
+        .from('admision_vacantes')
         .delete()
         .eq('id', id);
-      setMessage('Etapa eliminada');
+      setMessage('Vacante eliminada');
       fetchData();
     } catch (error) {
-      console.error('Error deleting step:', error);
-      setMessage('Error al eliminar etapa');
+      console.error('Error deleting vacante:', error);
+      setMessage('Error al eliminar vacante');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSaveContact = async (contact: ContactInfo) => {
+  const handleSaveFecha = async () => {
     setLoading(true);
     try {
-      if (contact.id) {
+      if (fechaId) {
         await supabase
-          .from('admision_contact')
-          .update(contact)
-          .eq('id', contact.id);
+          .from('admision_vacantes_fecha')
+          .update({ fecha_actualizacion: fechaActualizacion })
+          .eq('id', fechaId);
       } else {
-        await supabase
-          .from('admision_contact')
-          .insert([contact]);
+        const { data } = await supabase
+          .from('admision_vacantes_fecha')
+          .insert([{ fecha_actualizacion: fechaActualizacion }])
+          .select()
+          .single();
+        if (data) setFechaId(data.id);
       }
-      setMessage('Contacto guardado exitosamente');
+      setMessage('Fecha actualizada exitosamente');
       fetchData();
     } catch (error) {
-      console.error('Error saving contact:', error);
-      setMessage('Error al guardar contacto');
+      console.error('Error saving fecha:', error);
+      setMessage('Error al actualizar fecha');
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -217,7 +213,7 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
 
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Gestión de Admisión</h1>
-          <p className="text-gray-600">Administra las tarjetas informativas, etapas del proceso y datos de contacto</p>
+          <p className="text-gray-600">Administra las secciones de información, vacantes disponibles y fecha de actualización</p>
         </div>
 
         {message && (
@@ -233,156 +229,343 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
         <div className="mb-8 border-b border-gray-200">
           <div className="flex space-x-8">
             <button
-              onClick={() => setActiveTab('cards')}
+              onClick={() => setActiveTab('sections')}
               className={`pb-4 px-2 font-semibold transition-colors ${
-                activeTab === 'cards'
+                activeTab === 'sections'
                   ? 'border-b-2 border-blue-600 text-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Tarjetas Informativas
+              Secciones de Información
             </button>
             <button
-              onClick={() => setActiveTab('steps')}
+              onClick={() => setActiveTab('vacantes')}
               className={`pb-4 px-2 font-semibold transition-colors ${
-                activeTab === 'steps'
+                activeTab === 'vacantes'
                   ? 'border-b-2 border-blue-600 text-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Etapas del Proceso
+              Tabla de Vacantes
             </button>
             <button
-              onClick={() => setActiveTab('contact')}
+              onClick={() => setActiveTab('fecha')}
               className={`pb-4 px-2 font-semibold transition-colors ${
-                activeTab === 'contact'
+                activeTab === 'fecha'
                   ? 'border-b-2 border-blue-600 text-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Datos de Contacto
+              Fecha de Actualización
             </button>
           </div>
         </div>
 
         {/* Content based on active tab */}
-        {activeTab === 'cards' && (
+        {activeTab === 'sections' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-2xl font-bold mb-4">Tarjetas Informativas (Flip 3D)</h2>
-              <p className="text-gray-600 mb-4">
-                Gestiona las 3 tarjetas principales que se muestran con animación 3D
-              </p>
-              <div className="text-sm text-gray-500 mb-4">
-                <strong>Iconos disponibles:</strong> FileText, Users, CheckCircle, Calendar, Award
-                <br />
-                <strong>Colores:</strong> from-blue-600 to-blue-800, from-green-600 to-green-800, from-purple-600 to-purple-800
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Secciones de Información</h2>
+                <button
+                  onClick={() => setEditingSection({
+                    title: '',
+                    content: '',
+                    icon_name: 'FileText',
+                    color: 'from-blue-600 to-blue-800',
+                    order_index: infoSections.length + 1
+                  })}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Nueva Sección</span>
+                </button>
               </div>
-              {/* Card editing interface would go here */}
-              <p className="text-gray-500 italic">Interfaz de edición de tarjetas...</p>
-            </div>
-          </div>
-        )}
 
-        {activeTab === 'steps' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-2xl font-bold mb-4">Etapas del Proceso</h2>
-              <p className="text-gray-600 mb-4">
-                Gestiona las etapas horizontales que se expanden suavemente al pasar el mouse
-              </p>
-              {/* Steps editing interface would go here */}
-              <p className="text-gray-500 italic">Interfaz de edición de etapas...</p>
-            </div>
-          </div>
-        )}
+              <div className="text-sm text-gray-600 mb-4 space-y-1">
+                <p><strong>Iconos disponibles:</strong> FileText, Users, CheckCircle, Calendar, DollarSign, Award, BookOpen</p>
+                <p><strong>Colores disponibles:</strong> from-blue-600 to-blue-800, from-green-600 to-green-800, from-purple-600 to-purple-800, from-red-600 to-red-800, from-orange-600 to-orange-800, from-teal-600 to-teal-800, from-indigo-600 to-indigo-800</p>
+                <p><strong>Nota:</strong> Para mostrar la tabla de vacantes en una sección, incluye [TABLA_VACANTES] en el contenido</p>
+              </div>
 
-        {activeTab === 'contact' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-2xl font-bold mb-4">Datos de Contacto</h2>
-              <p className="text-gray-600 mb-4">
-                Actualiza la información de la persona encargada de admisión
-              </p>
-              {contactInfo && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre
-                    </label>
-                    <input
-                      type="text"
-                      value={contactInfo.name}
-                      onChange={(e) => setContactInfo({ ...contactInfo, name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
+              {editingSection && (
+                <div className="mb-6 p-6 bg-gray-50 rounded-lg border-2 border-blue-500">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {editingSection.id ? 'Editar Sección' : 'Nueva Sección'}
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Título</label>
+                      <input
+                        type="text"
+                        value={editingSection.title}
+                        onChange={(e) => setEditingSection({ ...editingSection, title: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Ej: Criterios Generales de Admisión"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Contenido</label>
+                      <textarea
+                        value={editingSection.content}
+                        onChange={(e) => setEditingSection({ ...editingSection, content: e.target.value })}
+                        rows={8}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Contenido de la sección... Usa \n para saltos de línea"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Icono</label>
+                        <input
+                          type="text"
+                          value={editingSection.icon_name}
+                          onChange={(e) => setEditingSection({ ...editingSection, icon_name: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="FileText"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Color (gradiente)</label>
+                        <input
+                          type="text"
+                          value={editingSection.color}
+                          onChange={(e) => setEditingSection({ ...editingSection, color: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="from-blue-600 to-blue-800"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Orden</label>
+                      <input
+                        type="number"
+                        value={editingSection.order_index}
+                        onChange={(e) => setEditingSection({ ...editingSection, order_index: parseInt(e.target.value) })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handleSaveSection(editingSection)}
+                        disabled={loading}
+                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
+                      >
+                        <Save className="w-5 h-5" />
+                        <span>{loading ? 'Guardando...' : 'Guardar'}</span>
+                      </button>
+                      <button
+                        onClick={() => setEditingSection(null)}
+                        className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cargo
-                    </label>
-                    <input
-                      type="text"
-                      value={contactInfo.role}
-                      onChange={(e) => setContactInfo({ ...contactInfo, role: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={contactInfo.email}
-                      onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Teléfono
-                    </label>
-                    <input
-                      type="text"
-                      value={contactInfo.phone}
-                      onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Dirección
-                    </label>
-                    <input
-                      type="text"
-                      value={contactInfo.address}
-                      onChange={(e) => setContactInfo({ ...contactInfo, address: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      URL de Foto
-                    </label>
-                    <input
-                      type="text"
-                      value={contactInfo.photo_url}
-                      onChange={(e) => setContactInfo({ ...contactInfo, photo_url: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://..."
-                    />
-                  </div>
-                  <button
-                    onClick={() => handleSaveContact(contactInfo)}
-                    disabled={loading}
-                    className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
-                  >
-                    <Save className="w-5 h-5" />
-                    <span>{loading ? 'Guardando...' : 'Guardar Cambios'}</span>
-                  </button>
                 </div>
               )}
+
+              <div className="space-y-4">
+                {infoSections.map((section) => (
+                  <div key={section.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg text-gray-900">{section.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{section.content}</p>
+                        <div className="flex space-x-4 mt-2 text-xs text-gray-500">
+                          <span>Icono: {section.icon_name}</span>
+                          <span>Color: {section.color}</span>
+                          <span>Orden: {section.order_index}</span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2 ml-4">
+                        <button
+                          onClick={() => setEditingSection(section)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => section.id && handleDeleteSection(section.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'vacantes' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Tabla de Vacantes por Curso</h2>
+                <button
+                  onClick={() => setEditingVacante({
+                    curso: '',
+                    vacantes: 0,
+                    order_index: vacantes.length + 1
+                  })}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Nueva Vacante</span>
+                </button>
+              </div>
+
+              {editingVacante && (
+                <div className="mb-6 p-6 bg-gray-50 rounded-lg border-2 border-blue-500">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {editingVacante.id ? 'Editar Vacante' : 'Nueva Vacante'}
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Curso</label>
+                        <input
+                          type="text"
+                          value={editingVacante.curso}
+                          onChange={(e) => setEditingVacante({ ...editingVacante, curso: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="Ej: 1° básico"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Vacantes</label>
+                        <input
+                          type="number"
+                          value={editingVacante.vacantes}
+                          onChange={(e) => setEditingVacante({ ...editingVacante, vacantes: parseInt(e.target.value) })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Orden</label>
+                      <input
+                        type="number"
+                        value={editingVacante.order_index}
+                        onChange={(e) => setEditingVacante({ ...editingVacante, order_index: parseInt(e.target.value) })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handleSaveVacante(editingVacante)}
+                        disabled={loading}
+                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
+                      >
+                        <Save className="w-5 h-5" />
+                        <span>{loading ? 'Guardando...' : 'Guardar'}</span>
+                      </button>
+                      <button
+                        onClick={() => setEditingVacante(null)}
+                        className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Curso
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vacantes
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Orden
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {vacantes.map((vacante) => (
+                      <tr key={vacante.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {vacante.curso}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            vacante.vacantes > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {vacante.vacantes}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {vacante.order_index}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex justify-end space-x-2">
+                            <button
+                              onClick={() => setEditingVacante(vacante)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              <Edit className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => vacante.id && handleDeleteVacante(vacante.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'fecha' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-2xl font-bold mb-4">Fecha de Actualización de Vacantes</h2>
+              <p className="text-gray-600 mb-6">
+                Esta fecha se muestra en la sección de vacantes disponibles. Actualízala cada vez que modifiques las vacantes.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Texto de fecha de actualización
+                  </label>
+                  <input
+                    type="text"
+                    value={fechaActualizacion}
+                    onChange={(e) => setFechaActualizacion(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ej: Actualizadas al 15 de octubre"
+                  />
+                  <p className="mt-2 text-sm text-gray-500">
+                    Este texto aparecerá después de la tabla de vacantes
+                  </p>
+                </div>
+                <button
+                  onClick={handleSaveFecha}
+                  disabled={loading}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
+                >
+                  <Save className="w-5 h-5" />
+                  <span>{loading ? 'Guardando...' : 'Guardar Fecha'}</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

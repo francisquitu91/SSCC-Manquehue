@@ -1,11 +1,14 @@
-import React from 'react';
-import { Instagram, Facebook } from 'lucide-react';
+import React, { useState } from 'react';
+import { Instagram, Facebook, Briefcase } from 'lucide-react';
+import TrabajaConNosotrosModal from './TrabajaConNosotrosModal';
 
 interface FooterProps {
   onPageChange: (page: string) => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
+  const [showTrabajaModal, setShowTrabajaModal] = useState(false);
+
   return (
     <footer className="bg-red-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,6 +34,15 @@ const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
               />
             </div>
           </div>
+
+          {/* Botón Trabaja con Nosotros */}
+          <button
+            onClick={() => setShowTrabajaModal(true)}
+            className="inline-flex items-center space-x-2 bg-white text-red-900 px-6 py-3 rounded-lg font-bold hover:bg-red-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <Briefcase className="w-5 h-5" />
+            <span>Trabaja con Nosotros</span>
+          </button>
 
           {/* Copyright Text */}
           <div className="text-center">
@@ -90,6 +102,9 @@ const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
           </div>
         </div>
       </div>
+
+      {/* Modal Trabaja con Nosotros */}
+      <TrabajaConNosotrosModal isOpen={showTrabajaModal} onClose={() => setShowTrabajaModal(false)} />
     </footer>
   );
 };

@@ -42,6 +42,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
         'PASTORAL JUVENIL',
         'PROFESORES',
         'ANUARIOS',
+        'RECURSOS DIGITALES',
         'FUNDACIÓN PENTÉCOSTES'
       ]
     },
@@ -55,6 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
         'CASINO',
         'UNIFORMES ESCOLARES',
         'HORARIOS',
+        'PAGOS',
         'FECHAS IMPORTANTES'
       ]
     }
@@ -102,6 +104,46 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
       setIsMenuOpen(false);
     } else if (itemName === 'ADMISIÓN') {
       onPageChange('admision');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'BIBLIOTECA') {
+      onPageChange('biblioteca');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'ÚTILES ESCOLARES') {
+      onPageChange('utiles-escolares');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'CASINO') {
+      onPageChange('casino');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'UNIFORMES ESCOLARES') {
+      onPageChange('uniformes-escolares');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'HORARIOS') {
+      onPageChange('horarios');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'PAGOS') {
+      onPageChange('pagos');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'FECHAS IMPORTANTES') {
+      onPageChange('fechas-importantes');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'RECURSOS DIGITALES') {
+      onPageChange('recursos-digitales');
       setActiveDropdown(null);
       setActiveSubDropdown(null);
       setIsMenuOpen(false);

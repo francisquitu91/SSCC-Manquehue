@@ -140,7 +140,7 @@ const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ news, onClose }) => {
                 )}
               </div>
 
-              {/* Image Indicators */}
+              {/* Dots Indicator */}
               {images.length > 1 && (
                 <div className="flex justify-center mt-4 space-x-2">
                   {images.map((_, index) => (

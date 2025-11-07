@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Mail, Phone, MapPin, FileText, Users, CheckCircle, ChevronDown, Calendar, DollarSign } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface AdmisionSectionProps {
   onBack: () => void;
@@ -40,15 +41,98 @@ interface ContactPerson {
   photo: string;
 }
 
+interface Vacante {
+  id: number;
+  curso: string;
+  vacantes: number;
+  order_index: number;
+}
+
 const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
   const [flippedCard, setFlippedCard] = useState<number | null>(null);
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
   const [expandedInfo, setExpandedInfo] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [infoSections, setInfoSections] = useState<InfoSection[]>([]);
+  const [vacantes, setVacantes] = useState<Vacante[]>([]);
+  const [fechaActualizacion, setFechaActualizacion] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setIsVisible(true);
+    fetchAdmisionData();
   }, []);
+
+  const fetchAdmisionData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch info sections
+      const { data: sectionsData, error: sectionsError } = await supabase
+        .from('admision_info_sections')
+        .select('*')
+        .order('order_index');
+      
+      if (sectionsError) throw sectionsError;
+      
+      // Fetch vacantes
+      const { data: vacantesData, error: vacantesError } = await supabase
+        .from('admision_vacantes')
+        .select('*')
+        .order('order_index');
+      
+      if (vacantesError) throw vacantesError;
+      
+      // Fetch fecha actualización
+      const { data: fechaData, error: fechaError } = await supabase
+        .from('admision_vacantes_fecha')
+        .select('fecha_actualizacion')
+        .single();
+      
+      if (fechaError) throw fechaError;
+      
+      // Map sections with icons
+      const mappedSections = (sectionsData || []).map((section: any) => ({
+        id: section.id,
+        title: section.title,
+        content: section.content,
+        icon: getIconComponent(section.icon_name),
+        color: section.color
+      }));
+      
+      setInfoSections(mappedSections);
+      setVacantes(vacantesData || []);
+      setFechaActualizacion(fechaData?.fecha_actualizacion || 'Actualizadas al 15 de octubre');
+    } catch (error) {
+      console.error('Error fetching admision data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getIconComponent = (iconName: string): React.ReactNode => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'FileText': <FileText className="w-8 h-8" />,
+      'Users': <Users className="w-8 h-8" />,
+      'Calendar': <Calendar className="w-8 h-8" />,
+      'CheckCircle': <CheckCircle className="w-8 h-8" />,
+      'DollarSign': <DollarSign className="w-8 h-8" />,
+      'Mail': <Mail className="w-8 h-8" />
+    };
+    return iconMap[iconName] || <FileText className="w-8 h-8" />;
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 100;
+      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({
+        top: elementPosition - offset,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Info Cards con animación 3D flip
   const infoCards: InfoCard[] = [
@@ -65,7 +149,7 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
       title: 'Proyecto Educativo',
       description: 'Formación integral basada en valores schoenstatianos. Educación de excelencia académica y humana para tus hijos.',
       icon: <Users className="w-12 h-12" />,
-      color: 'from-green-600 to-green-800',
+      color: 'from-blue-600 to-blue-800',
       image: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=400&h=300&fit=crop'
     },
     {
@@ -73,7 +157,7 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
       title: 'Comunidad Educativa',
       description: 'Únete a una comunidad comprometida con la formación integral. Familias que comparten valores y visión educativa.',
       icon: <CheckCircle className="w-12 h-12" />,
-      color: 'from-purple-600 to-purple-800',
+      color: 'from-blue-600 to-blue-800',
       image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=300&fit=crop'
     }
   ];
@@ -157,52 +241,6 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
     photo: 'https://i.postimg.cc/B6RMxtwm/1516855554215.jpg'
   };
 
-  // Secciones de información
-  const infoSections: InfoSection[] = [
-    {
-      id: 1,
-      title: 'Criterios Generales de Admisión',
-      content: `El criterio central para la admisión escolar en nuestro establecimiento es la adhesión de los padres o apoderados al Proyecto Educativo del Colegio.\n\nNuestro colegio da preferencia solo en Nivel Play Group a:\n• Postulantes que tengan una hermana o hermano ya matriculado\n• Hijos de ex alumnos egresados del colegio\n• Hijos de funcionarios y alumnos de colegios de la Red Kentenijianos\n• Familias externas al Colegio\n\nSolo será posible acceder a un proceso de admisión si existen cupos disponibles.`,
-      icon: <FileText className="w-8 h-8" />,
-      color: 'from-blue-600 to-blue-800'
-    },
-    {
-      id: 2,
-      title: 'Requisitos y Antecedentes de Postulación',
-      content: `Requisitos generales:\n• Cumplir con requisito de edad mínima al 31 de marzo\n• Completar solicitud de ingreso en plataforma Colegium\n• Oficializar postulación cancelando 1 UF\n• Adjuntar documentación requerida\n• Asistir a Jornada de Presentación del Proyecto Educativo\n\nDocumentos requeridos:\n• Certificado de nacimiento original\n• Informe escolar del año en curso y año anterior\n• Carta de interés y motivación (solo Play Group)`,
-      icon: <CheckCircle className="w-8 h-8" />,
-      color: 'from-green-600 to-green-800'
-    },
-    {
-      id: 3,
-      title: 'Requisitos Académicos',
-      content: `Ciclo Inicial (Pre kínder y Kínder):\n• Informe del jardín infantil de procedencia\n• Evaluación de madurez\n\nCiclo Básico y E. Media:\n• Promedio 5,5 mínimo en Lenguaje y Matemáticas\n• Aprobar examen de admisión (nota mínima 5,5)\n• Entrevista con Coordinador o Psicólogo de ciclo (7º a IV medio)\n\nNo podrán postular alumnos cuya matrícula haya sido cancelada anteriormente.`,
-      icon: <Users className="w-8 h-8" />,
-      color: 'from-purple-600 to-purple-800'
-    },
-    {
-      id: 4,
-      title: 'Vacantes Disponibles',
-      content: `Vacantes actualizadas al 15 de octubre:\n\n2° básico: 1 | 4° básico: 1 | 6° básico: 1\n7° básico: 1 | 8° básico: 5\nI° M: 3 | I° H: 3 | II° M: 4\n\nEl Colegio cuenta con cupos para estudiantes con NEEP. Los cupos se encuentran cubiertos para el año 2026.\n\nLista de Espera: No implica compromiso de matrícula, solo posibilidad ante eventual disponibilidad.`,
-      icon: <Calendar className="w-8 h-8" />,
-      color: 'from-orange-600 to-orange-800'
-    },
-    {
-      id: 5,
-      title: 'Cronograma de Postulación',
-      content: `Proceso Prekínder a IV medio:\n\n• Publicación de vacantes: 15 de octubre 2025\n• Periodo de postulación: 15 al 24 de octubre\n• Entrevistas: 15 de octubre al 7 de noviembre\n• Exámenes de admisión: 5 de noviembre 14:30-16:30 hrs\n• Entrega de resultados: 14 de noviembre\n• Período de matrícula: 7 días hábiles posterior a resultados`,
-      icon: <Calendar className="w-8 h-8" />,
-      color: 'from-pink-600 to-pink-800'
-    },
-    {
-      id: 6,
-      title: 'Costos y Proceso de Matrícula',
-      content: `Valores 2025:\n\n• Proceso de postulación: 1 UF\n• Matrícula Pre kínder y Kínder: 10 UF\n• Matrícula 1° Básico a IV Medio: 12 UF\n\nPara información detallada de valores de colegiatura, consulte el Documento Referencial 2025 disponible en nuestro sitio web.`,
-      icon: <DollarSign className="w-8 h-8" />,
-      color: 'from-red-600 to-red-800'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
@@ -224,12 +262,60 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Quick Access Navigation */}
+      <div className="sticky top-0 z-40 bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex overflow-x-auto hide-scrollbar">
+            <button
+              onClick={() => scrollToSection('por-que-elegirnos')}
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-blue-600 flex-shrink-0"
+            >
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-semibold">¿Por qué elegirnos?</span>
+            </button>
+            
+            <button
+              onClick={() => scrollToSection('etapas-proceso')}
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-purple-600 flex-shrink-0"
+            >
+              <FileText className="w-5 h-5" />
+              <span className="font-semibold">Etapas del Proceso</span>
+            </button>
+            
+            <button
+              onClick={() => scrollToSection('informacion-admision')}
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-green-600 hover:bg-green-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-green-600 flex-shrink-0"
+            >
+              <Users className="w-5 h-5" />
+              <span className="font-semibold">Información de Admisión</span>
+            </button>
+            
+            <button
+              onClick={() => scrollToSection('contacto')}
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-red-600 hover:bg-red-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-red-600 flex-shrink-0"
+            >
+              <Mail className="w-5 h-5" />
+              <span className="font-semibold">Contacto</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Info Cards con flip 3D */}
-        <div className={`mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-            ¿Por qué elegirnos?
-          </h2>
+        <div id="por-que-elegirnos" className={`mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="text-center mb-6">
+            <h2 className="text-4xl font-semibold text-[#2E3A87] mb-2">
+              ¿Por qué elegirnos?
+            </h2>
+            <div className="w-48 h-1 bg-[#8B5E3C] mx-auto rounded"></div>
+          </div>
           <div className="grid md:grid-cols-3 gap-8 perspective-1000">
             {infoCards.map((card) => (
               <div
@@ -290,7 +376,7 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
         </div>
 
         {/* Etapas del Proceso - Horizontal con expansión */}
-        <div className={`mb-16 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div id="etapas-proceso" className={`mb-16 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-6">
             <h2 className="text-4xl font-semibold text-[#2E3A87] mb-2">
               Etapas del proceso
@@ -342,7 +428,7 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
         </div>
 
         {/* Secciones de Información Expandibles */}
-        <div className={`mb-16 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div id="informacion-admision" className={`mb-16 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Información del Proceso de Admisión
@@ -375,14 +461,58 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
 
                 <div
                   className={`transition-all duration-500 overflow-hidden ${
-                    expandedInfo === section.id ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
+                    expandedInfo === section.id ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >
                   <div className="px-6 pb-6">
                     <div className="bg-gray-50 rounded-xl p-6">
-                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                        {section.content}
-                      </p>
+                      {section.content.includes('[TABLA_VACANTES]') ? (
+                        <>
+                          <p className="text-gray-700 leading-relaxed whitespace-pre-line mb-6">
+                            {section.content.replace('[TABLA_VACANTES]', '')}
+                          </p>
+                          <div className="bg-white rounded-lg p-4 shadow-md">
+                            <p className="text-sm text-gray-600 mb-4 font-semibold">{fechaActualizacion}</p>
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left border-collapse">
+                                <thead>
+                                  <tr className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+                                    <th className="py-3 px-4 font-semibold text-sm">CURSO</th>
+                                    <th className="py-3 px-4 font-semibold text-sm text-center">VACANTES</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {vacantes.map((vacante, idx) => (
+                                    <tr
+                                      key={vacante.id}
+                                      className={`${
+                                        idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                                      } border-b border-gray-200 hover:bg-blue-50 transition-colors`}
+                                    >
+                                      <td className="py-3 px-4 text-gray-700 font-medium">{vacante.curso}</td>
+                                      <td className="py-3 px-4 text-center">
+                                        <span
+                                          className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
+                                            vacante.vacantes > 0
+                                              ? 'bg-green-100 text-green-800'
+                                              : 'bg-red-100 text-red-800'
+                                          }`}
+                                        >
+                                          {vacante.vacantes}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                          {section.content}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -392,7 +522,7 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
         </div>
 
         {/* Contacto - A tu disposición */}
-        <div className={`transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div id="contacto" className={`transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-3xl shadow-2xl overflow-hidden">
             <div className="grid md:grid-cols-2 gap-8 p-8 md:p-12">
               {/* Lado izquierdo - Texto */}
@@ -450,20 +580,22 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
         </div>
       </div>
 
-      <style>{`
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .transform-style-3d {
-          transform-style: preserve-3d;
-        }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-      `}</style>
+          <style>{`
+            .perspective-1000 {
+              perspective: 1000px;
+            }
+            .transform-style-3d {
+              transform-style: preserve-3d;
+            }
+            .backface-hidden {
+              backface-visibility: hidden;
+            }
+            .rotate-y-180 {
+              transform: rotateY(180deg);
+            }
+          `}</style>
+        </>
+      )}
     </div>
   );
 };
