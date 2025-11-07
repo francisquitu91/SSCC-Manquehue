@@ -22,6 +22,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { supabase, NewsItem } from '../lib/supabase';
 import ImageUploader from './ImageUploader';
+import AdvancedImageManager from './AdvancedImageManager';
 
 interface NewsEditorProps {
   onClose: () => void;
@@ -173,13 +174,23 @@ const NewsEditor: React.FC<NewsEditorProps> = ({ onClose, onSave, editingNews })
           {/* Images */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Imágenes
+              Imágenes Simples (Carrusel)
             </label>
             <ImageUploader
               images={images}
               onImagesChange={setImages}
             />
           </div>
+
+          {/* Advanced Images - Only for existing news */}
+          {editingNews && (
+            <div>
+              <AdvancedImageManager
+                contentId={editingNews.id}
+                contentType="news"
+              />
+            </div>
+          )}
 
           {/* Video URL */}
           <div>

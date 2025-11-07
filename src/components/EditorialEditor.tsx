@@ -17,6 +17,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { supabase, EditorialItem } from '../lib/supabase';
 import ImageUploader from './ImageUploader';
+import AdvancedImageManager from './AdvancedImageManager';
 
 interface EditorialEditorProps {
   onClose: () => void;
@@ -168,13 +169,23 @@ const EditorialEditor: React.FC<EditorialEditorProps> = ({ onClose, onSave, edit
           {/* Images */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Imágenes
+              Imágenes Simples (Carrusel)
             </label>
             <ImageUploader
               images={images}
               onImagesChange={setImages}
             />
           </div>
+
+          {/* Advanced Images - Only for existing editorials */}
+          {editingEditorial && (
+            <div>
+              <AdvancedImageManager
+                contentId={editingEditorial.id}
+                contentType="editorial"
+              />
+            </div>
+          )}
 
           {/* Video URL */}
           <div>

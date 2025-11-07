@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Calendar, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { X, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { NewsItem } from '../lib/supabase';
+import { ContentRenderer } from './ContentRenderer';
 
 interface NewsDetailModalProps {
   news: NewsItem;
@@ -104,7 +105,7 @@ const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ news, onClose }) => {
             {news.title}
           </h1>
 
-          {/* Image Carousel */}
+          {/* Image Carousel (Simple Images) */}
           {images.length > 0 && (
             <div className="relative mb-8">
               <div className="relative h-64 md:h-96 overflow-hidden rounded-lg">
@@ -159,13 +160,14 @@ const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ news, onClose }) => {
             </div>
           )}
 
-          {/* Content */}
-          <div className="mb-8">
-            <div 
-              className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: news.content }}
-            />
-          </div>
+          {/* Content with Advanced Images */}
+          <ContentRenderer
+            contentId={news.id}
+            content={news.content}
+            contentType="news"
+            showImages={true}
+            className="mb-8"
+          />
 
           {/* Video Section */}
           {renderVideo()}

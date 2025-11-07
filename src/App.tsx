@@ -15,6 +15,9 @@ import StudentWithdrawalControl from './components/StudentWithdrawalControl';
 import AdminDashboard from './components/AdminDashboard';
 import Tour360Section from './components/Tour360Section';
 import ACLESSection from './components/ACLESSection';
+import DepartamentoOrientacionSection from './components/DepartamentoOrientacionSection';
+import DepartamentoOrientacionManagement from './components/DepartamentoOrientacionManagement';
+import VicerretoriaFormacionSection from './components/VicerretoriaFormacionSection';
 import InstitutionalDocuments from './components/InstitutionalDocuments';
 import InstitutionalDocumentsManagement from './components/InstitutionalDocumentsManagement';
 import CEALSection from './components/CEALSection';
@@ -103,6 +106,14 @@ function App() {
 
   if (currentPage === 'acles') {
     return <ACLESSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'departamento-orientacion') {
+    return <DepartamentoOrientacionSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'vicerrectoria-formacion') {
+    return <VicerretoriaFormacionSection onBack={handleBackToHome} />;
   }
 
   if (currentPage === 'tour-virtual') {
@@ -209,6 +220,10 @@ function App() {
     return <AnnouncementManagement onBack={handleBackToAdmin} />;
   }
 
+  if (currentPage === 'departamento-orientacion-management') {
+    return <DepartamentoOrientacionManagement onBack={handleBackToAdmin} />;
+  }
+
   if (currentPage === 'news-management') {
     return <NewsManagement onBack={handleBackToAdmin} />;
   }
@@ -259,7 +274,12 @@ function App() {
               index === currentImageIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
             }`}
             style={{ backgroundImage: `url(${image})` }}
-          />
+          >
+            {/* Overlay negro solo para la tercera imagen */}
+            {index === 2 && (
+              <div className="absolute inset-0 bg-black/40" />
+            )}
+          </div>
         ))}
         
         {/* Light Overlay for text readability */}
