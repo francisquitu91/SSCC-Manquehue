@@ -82,15 +82,26 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     document.body.removeChild(link);
   };
 
-  const filteredDocuments = activeCategory === 'all'
-    ? documents
-    : documents.filter(doc => doc.category === activeCategory);
+  const MATR_2025 = 'Documentos de Matrícula 2025';
+  const MATR_2026 = 'Documentos de Matrícula 2026';
+
+  let filteredDocuments: Document[] = documents;
+  if (activeCategory !== 'all') {
+    if (activeCategory === MATR_2026) {
+      // Treat 2025 and 2026 as the same category in the UI so existing documents appear under 2026
+      filteredDocuments = documents.filter(doc => doc.category === MATR_2026 || doc.category === MATR_2025);
+    } else {
+      filteredDocuments = documents.filter(doc => doc.category === activeCategory);
+    }
+  }
 
   const groupedDocuments = filteredDocuments.reduce((acc, doc) => {
-    if (!acc[doc.category]) {
-      acc[doc.category] = [];
+    // Normalize old 2025 category to 2026 for display/grouping
+    const key = doc.category === MATR_2025 ? MATR_2026 : doc.category;
+    if (!acc[key]) {
+      acc[key] = [];
     }
-    acc[doc.category].push(doc);
+    acc[key].push(doc);
     return acc;
   }, {} as Record<string, Document[]>);
 

@@ -37,7 +37,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   const [success, setSuccess] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<DocumentForm>({
-    category: 'Documentos de Matrícula 2025',
+    category: 'Documentos de Matrícula 2026',
     title: '',
     description: '',
     file: null,
@@ -45,7 +45,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   });
 
   const categories = [
-    'Documentos de Matrícula 2025',
+    'Documentos de Matrícula 2026',
     'Documentos, protocolos y reglamentos del Colegio',
     'Seguros escolares',
     'Otros'
@@ -174,7 +174,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
 
       // Reset form
       setFormData({
-        category: 'Documentos de Matrícula 2025',
+        category: 'Documentos de Matrícula 2026',
         title: '',
         description: '',
         file: null,
@@ -225,7 +225,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
 
   const handleCancel = () => {
     setFormData({
-      category: 'Documentos de Matrícula 2025',
+      category: 'Documentos de Matrícula 2026',
       title: '',
       description: '',
       file: null,

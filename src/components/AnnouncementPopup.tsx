@@ -9,11 +9,15 @@ interface AnnouncementData {
   message: string;
   document_url: string | null;
   document_name: string | null;
+  image_url?: string | null;
+  image_name?: string | null;
+  image_enabled?: boolean;
 }
 
 export default function AnnouncementPopup() {
   const [announcement, setAnnouncement] = useState<AnnouncementData | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isImageOpen, setIsImageOpen] = useState(false);
 
   useEffect(() => {
     fetchAnnouncement();
@@ -72,6 +76,30 @@ export default function AnnouncementPopup() {
           <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
             {announcement.message}
           </div>
+
+          {/* Expandable Image */}
+          {announcement.image_url && announcement.image_enabled && (
+            <div className="flex justify-center">
+              <div className="w-full max-w-xl">
+                <img
+                  src={announcement.image_url}
+                  alt={announcement.image_name || 'Anuncio imagen'}
+                  className="w-full h-auto rounded-lg cursor-pointer shadow-lg"
+                  onClick={() => setIsImageOpen(true)}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Image Lightbox */}
+          {isImageOpen && announcement.image_url && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-80">
+              <button onClick={() => setIsImageOpen(false)} className="absolute top-6 right-6 text-white p-2 rounded-full bg-black/40">
+                <X className="h-6 w-6" />
+              </button>
+              <img src={announcement.image_url} alt={announcement.image_name || 'Imagen'} className="max-h-[90vh] max-w-[90vw] rounded-lg" />
+            </div>
+          )}
 
           {/* Document */}
           {announcement.document_url && (
