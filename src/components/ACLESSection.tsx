@@ -82,7 +82,7 @@ const ACLESSection: React.FC<ACLESSectionProps> = ({ onBack }) => {
               type="deportiva"
               title="ACLES Deportivas"
               items={deportivas}
-              imageUrl="https://i.postimg.cc/FR5tJWXf/httpswww-instagram-com17841431544692514-1.png"
+              imageUrl="https://i.postimg.cc/LshbW0t1/DSC00747.jpg"
             />
           </div>
 
@@ -91,7 +91,7 @@ const ACLESSection: React.FC<ACLESSectionProps> = ({ onBack }) => {
               type="artistica"
               title="ACLES Artísticas"
               items={artisticas}
-              imageUrl="https://i.postimg.cc/DyjwbTjL/Diseno-sin-titulo-10.png"
+              imageUrl="https://i.postimg.cc/hPkvvHG5/artes.png"
             />
           </div>
 
@@ -100,7 +100,7 @@ const ACLESSection: React.FC<ACLESSectionProps> = ({ onBack }) => {
               type="cientifica"
               title="ACLES Científicas"
               items={cientificas}
-              imageUrl="https://i.postimg.cc/mZnD6R4v/httpswww-instagram-com17841431544692514.png"
+              imageUrl="https://i.postimg.cc/brbJ9TVc/cientifica.png"
             />
           </div>
         </div>

@@ -7,6 +7,7 @@ const NewsSection: React.FC = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>('all');
+  const [showAll, setShowAll] = useState<boolean>(false);
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: string]: number }>({});
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
@@ -43,9 +44,9 @@ const NewsSection: React.FC = () => {
 
   // Filter news by selected year
   const filteredNews = React.useMemo(() => {
-    if (selectedYear === 'all') return news.slice(0, 6); // Show max 6 for homepage
+    if (selectedYear === 'all') return showAll ? news : news.slice(0, 6); // Show first 6 unless 'Mostrar más' pressed
     return news.filter(item => new Date(item.date).getFullYear().toString() === selectedYear);
-  }, [news, selectedYear]);
+  }, [news, selectedYear, showAll]);
 
   const nextImage = (newsId: string, totalImages: number) => {
     setCurrentImageIndex(prev => ({
@@ -101,13 +102,15 @@ const NewsSection: React.FC = () => {
           <h2 className="text-3xl lg:text-4xl font-bold text-blue-900">Noticias</h2>
         </div>
 
+        
+
         {/* Year Filter */}
         {availableYears.length > 1 && (
           <div className="flex justify-center mb-8">
             <div className="bg-white rounded-full p-1 shadow-md">
               <div className="flex space-x-1">
                 <button
-                  onClick={() => setSelectedYear('all')}
+                  onClick={() => { setSelectedYear('all'); setShowAll(false); }}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                     selectedYear === 'all'
                       ? 'bg-red-600 text-white shadow-md'
@@ -119,7 +122,7 @@ const NewsSection: React.FC = () => {
                 {availableYears.map(year => (
                   <button
                     key={year}
-                    onClick={() => setSelectedYear(year.toString())}
+                    onClick={() => { setSelectedYear(year.toString()); setShowAll(false); }}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                       selectedYear === year.toString()
                         ? 'bg-red-600 text-white shadow-md'
@@ -265,6 +268,18 @@ const NewsSection: React.FC = () => {
                 : 'Intenta seleccionar otro año o ver todas las noticias.'
               }
             </p>
+          </div>
+        )}
+
+        {/* Mostrar más / Mostrar menos for homepage - moved to bottom of section */}
+        {selectedYear === 'all' && news.length > 6 && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowAll(prev => !prev); }}
+              className="px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              {showAll ? 'Mostrar menos' : 'Mostrar más'}
+            </button>
           </div>
         )}
       </div>

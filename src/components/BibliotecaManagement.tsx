@@ -160,9 +160,9 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
           Volver al panel de administración
         </button>
 
-        <div className="mb-8">
+          <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Gestión de Biblioteca</h1>
-          <p className="text-gray-600">Administra los planes lectores disponibles para descargar</p>
+          <p className="text-gray-600">Administra los planes lectores (ahora la plataforma Plan Lector es la fuente principal)</p>
         </div>
 
         {message && (
@@ -297,15 +297,19 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
                           {plan.year}
                         </span>
                       </div>
-                      <a
-                        href={plan.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>Ver/Descargar PDF</span>
-                      </a>
+                      {plan.file_url ? (
+                        <a
+                          href={plan.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span>Ver archivo (respaldo)</span>
+                        </a>
+                      ) : (
+                        <span className="text-sm text-gray-500">Sin archivo</span>
+                      )}
                     </div>
                     <div className="flex space-x-2 ml-4">
                       <button

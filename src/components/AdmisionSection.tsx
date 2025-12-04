@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Mail, Phone, MapPin, FileText, Users, CheckCircle, ChevronDown, Calendar, DollarSign } from 'lucide-react';
+import { ArrowLeft, Mail, MapPin, FileText, Users, CheckCircle, ChevronDown, Calendar, DollarSign } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface AdmisionSectionProps {
@@ -50,7 +50,7 @@ interface Vacante {
 
 const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
   const [flippedCard, setFlippedCard] = useState<number | null>(null);
-  const [expandedStep, setExpandedStep] = useState<number | null>(null);
+  const [expandedStep, setExpandedStep] = useState<number | null>(null); // kept for potential future interactions
   const [expandedInfo, setExpandedInfo] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [infoSections, setInfoSections] = useState<InfoSection[]>([]);
@@ -384,43 +384,20 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
             <div className="w-48 h-1 bg-[#8B5E3C] mx-auto rounded"></div>
           </div>
 
-          <div className="flex rounded-lg overflow-hidden">
-            {processSteps.map((step, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+            {processSteps.map((step) => (
               <div
                 key={step.id}
-                className={`flex flex-col items-center justify-center text-white p-6 min-h-[400px] cursor-pointer transition-all duration-500 ease-in-out relative
-                ${index === 0
-                  ? "bg-[#1D9C72]"
-                  : index === 1
-                  ? "bg-[#179C70]"
-                  : index === 2
-                  ? "bg-[#139A6F]"
-                  : index === 3
-                  ? "bg-[#0F956D]"
-                  : index === 4
-                  ? "bg-[#0B8E6B]"
-                  : "bg-[#088769]"
-                }
-                ${expandedStep === step.id ? 'flex-[2]' : 'flex-1'}
-                `}
-                onMouseEnter={() => setExpandedStep(step.id)}
-                onMouseLeave={() => setExpandedStep(null)}
+                className={`flex flex-col items-center justify-start text-white p-6 min-h-[220px] rounded-lg shadow-lg transition-all duration-300 ${step.color}`}
               >
-                <div className="mb-4 flex items-center justify-center" style={{ height: '80px' }}>{step.icon}</div>
+                <div className="mb-4 flex items-center justify-center" style={{ height: '60px' }}>{step.icon}</div>
                 <p className="text-sm font-medium opacity-90">{step.step}</p>
-                <h3 className="text-lg font-semibold text-center mt-2 leading-tight px-2">
+                <h3 className="text-base font-semibold text-center mt-2 leading-tight px-2">
                   {step.title}
                 </h3>
-                
-                {/* Descripción que aparece al expandir */}
-                <div
-                  className={`transition-all duration-500 overflow-hidden text-center ${
-                    expandedStep === step.id
-                      ? 'opacity-100 max-h-32 mt-4'
-                      : 'opacity-0 max-h-0'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed px-4">{step.description}</p>
+
+                <div className="mt-3 text-sm text-white/90 text-center">
+                  {step.description}
                 </div>
               </div>
             ))}
@@ -556,15 +533,7 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-3">
-                    <Phone className="w-6 h-6 flex-shrink-0 mt-1" />
-                    <div>
-                      <p className="font-semibold">Teléfono:</p>
-                      <a href={`tel:${contactPerson.phone}`} className="hover:underline">
-                        {contactPerson.phone}
-                      </a>
-                    </div>
-                  </div>
+                  {/* Teléfono eliminado por solicitud - anteriormente mostrado aquí */}
                   
                   <div className="flex items-start space-x-3">
                     <MapPin className="w-6 h-6 flex-shrink-0 mt-1" />

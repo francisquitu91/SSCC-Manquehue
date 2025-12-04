@@ -5,9 +5,7 @@ import AdminLogin from './components/AdminLogin';
 import Historia from './components/Historia';
 import VisionMision from './components/VisionMision';
 import NewsSection from './components/NewsSection';
-import EditorialSection from './components/EditorialSection';
 import NewsManagement from './components/NewsManagement';
-import EditorialManagement from './components/EditorialManagement';
 import DirectoryManagement from './components/DirectoryManagement';
 import ProyectoEducativo from './components/ProyectoEducativo';
 import ProyectoEducativoManagement from './components/ProyectoEducativoManagement';
@@ -47,11 +45,16 @@ import AnnouncementPopup from './components/AnnouncementPopup';
 import AnnouncementManagement from './components/AnnouncementManagement';
 import MapSection from './components/MapSection';
 import Footer from './components/Footer';
+import PlanLectorSection from './components/PlanLectorSection';
+import PlanLectorManagement from './components/PlanLectorManagement';
 
 const backgroundImages = [
-  'https://costamagazine.cl/wp-content/uploads/2020/12/Isabel-Silva-Sofia-Vallejo-Constanza-Larenas-2048x1365.jpg',
-  'https://costamagazine.cl/wp-content/uploads/2020/12/Piti-Soria-Galvarro-Agustina-Paonessa-Renzo-Paonessa-1200x800.jpg',
-  'https://i.ibb.co/fzCd8Qrj/Dise-o-sin-t-tulo-4.png'
+  'https://i.postimg.cc/RhTGPj0c/wqwedq.jpg',
+  'https://i.postimg.cc/TPc92jTK/DSC00144.jpg',
+  'https://i.postimg.cc/pV1mjskv/dqdqsz.jpg',
+  'https://i.postimg.cc/WbBtWtQw/dadada.jpg',
+  'https://i.postimg.cc/LshbW0t1/qfrq.jpg',
+  'https://i.postimg.cc/mgW23JHX/DSC00500.jpg'
 ];
 
 function App() {
@@ -77,6 +80,12 @@ function App() {
       setCurrentPage(page);
     }
   };
+
+  // Expose a simple global navigation helper so inner components
+  // can switch pages without threading the onPageChange prop everywhere.
+  // This keeps existing state-driven navigation but allows button links
+  // in components like BibliotecaSection to open the Plan Lector view.
+  (window as any).navigateTo = handlePageChange;
 
   const handleBackToHome = () => {
     setCurrentPage('home');
@@ -228,9 +237,6 @@ function App() {
     return <NewsManagement onBack={handleBackToAdmin} />;
   }
 
-  if (currentPage === 'editorial-management') {
-    return <EditorialManagement onBack={handleBackToAdmin} />;
-  }
 
   if (currentPage === 'directory-management') {
     return <DirectoryManagement onBack={handleBackToAdmin} />;
@@ -238,6 +244,14 @@ function App() {
 
   if (currentPage === 'proyecto-educativo') {
     return <ProyectoEducativo onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'plan-lector') {
+    return <PlanLectorSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'plan-lector-management') {
+    return <PlanLectorManagement onBack={handleBackToAdmin} />;
   }
 
   if (currentPage === 'proyecto-educativo-management') {
@@ -396,8 +410,7 @@ function App() {
       {/* News Section */}
       <NewsSection />
 
-      {/* Editorial Section */}
-      <EditorialSection />
+      {/* Editorial Section removed */}
 
       {/* 360 Tour Section */}
       <Tour360Section />

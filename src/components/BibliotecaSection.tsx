@@ -230,15 +230,13 @@ const BibliotecaSection: React.FC<BibliotecaSectionProps> = ({ onBack }) => {
                     <h3 className="text-lg font-bold text-gray-900 mb-3">
                       {plan.title}
                     </h3>
-                    <a
-                      href={plan.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => (window as any).navigateTo && (window as any).navigateTo('plan-lector')}
                       className="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-2 rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all duration-300 group"
                     >
-                      <Download className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
-                      <span>Descargar PDF</span>
-                    </a>
+                      <FileText className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
+                      <span>Ir al Plan Lector</span>
+                    </button>
                   </div>
                 ))}
               </div>

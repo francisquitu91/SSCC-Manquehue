@@ -81,7 +81,7 @@ const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
                   <Instagram className="w-5 h-5" />
                 </a>
                 <a
-                  href="https://www.facebook.com/colegiosagradafamilia"
+                  href="https://www.facebook.com/pages/Colegio-Sagrada-Familia-Re%C3%B1aca/170422360190468"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-red-200 hover:text-white transition-colors duration-200"

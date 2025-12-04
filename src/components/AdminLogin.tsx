@@ -136,15 +136,6 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
               )}
             </button>
           </form>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h4 className="text-sm font-medium text-blue-800 mb-2">Credenciales de Demo:</h4>
-            <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>Email:</strong> admin@csfr.cl</p>
-              <p><strong>Contraseña:</strong> admin123</p>
-            </div>
-          </div>
         </div>
 
         {/* Footer */}

@@ -27,7 +27,7 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
 
   const categories = [
     { id: 'all', name: 'Todos', color: 'blue' },
-    { id: 'Documentos de Matrícula 2025', name: 'Matrícula 2025', color: 'green' },
+    { id: 'Documentos de Matrícula 2026', name: 'Matrícula 2026', color: 'green' },
     { id: 'Documentos, protocolos y reglamentos del Colegio', name: 'Protocolos y Reglamentos', color: 'purple' },
     { id: 'Seguros escolares', name: 'Seguros Escolares', color: 'orange' },
     { id: 'Otros', name: 'Otros', color: 'gray' }

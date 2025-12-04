@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Edit3, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell } from 'lucide-react';
+import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell } from 'lucide-react';
 
 interface AdminDashboardProps {
   onNavigate: (page: string) => void;
@@ -15,14 +15,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       icon: <FileText className="w-8 h-8" />,
       color: 'bg-blue-600 hover:bg-blue-700',
       iconBg: 'bg-blue-100 text-blue-600'
-    },
-    {
-      id: 'editorial-management',
-      title: 'Gestión de Editorial',
-      description: 'Crear, editar y administrar el contenido editorial',
-      icon: <Edit3 className="w-8 h-8" />,
-      color: 'bg-green-600 hover:bg-green-700',
-      iconBg: 'bg-green-100 text-green-600'
     },
     {
       id: 'directory-management',

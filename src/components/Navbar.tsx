@@ -167,13 +167,29 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
       setActiveDropdown(null);
       setActiveSubDropdown(null);
       setIsMenuOpen(false);
-    } else if (itemName === 'GESTIÓN DE EDITORIAL') {
-      onPageChange('editorial-management');
+    } else if (itemName === 'ADMIN') {
+      onPageChange('admin');
       setActiveDropdown(null);
       setActiveSubDropdown(null);
       setIsMenuOpen(false);
-    } else if (itemName === 'ADMIN') {
-      onPageChange('admin');
+    }
+    else if (itemName === 'PLAN LECTOR') {
+      onPageChange('plan-lector');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'PLAN LECTOR') {
+      onPageChange('plan-lector');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'GESTIÓN PLAN LECTOR') {
+      onPageChange('plan-lector-management');
+      setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setIsMenuOpen(false);
+    } else if (itemName === 'GESTIÓN PLAN LECTOR') {
+      onPageChange('plan-lector-management');
       setActiveDropdown(null);
       setActiveSubDropdown(null);
       setIsMenuOpen(false);
@@ -257,6 +273,23 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                                   ACLES
                                 </button>
                               </div>
+                            </div>
+                          )}
+                          {/* Plan Lector mobile options */}
+                          {subItem === 'DOCUMENTOS INSTITUCIONALES' && activeSubDropdown === 'DOCUMENTOS INSTITUCIONALES' && (
+                            <div className="pl-4 space-y-1">
+                              <button
+                                onClick={() => handleMenuClick('PLAN LECTOR')}
+                                className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
+                              >
+                                PLAN LECTOR
+                              </button>
+                              <button
+                                onClick={() => handleMenuClick('GESTIÓN PLAN LECTOR')}
+                                className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
+                              >
+                                GESTIÓN PLAN LECTOR
+                              </button>
                             </div>
                           )}
 
