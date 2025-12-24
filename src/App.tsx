@@ -48,6 +48,7 @@ import AnnouncementPopup from './components/AnnouncementPopup';
 import AnnouncementManagement from './components/AnnouncementManagement';
 import MapSection from './components/MapSection';
 import Footer from './components/Footer';
+import ColegioInfoSection from './components/ColegioInfoSection';
 import PlanLectorSection from './components/PlanLectorSection';
 import PlanLectorManagement from './components/PlanLectorManagement';
 import DirectorioFundacionManagement from './components/DirectorioFundacionManagement';
@@ -440,6 +441,10 @@ function App() {
       </div>
       </div>
 
+
+      {/* Sección ¿Por qué elegir Sagrados Corazones de Manquehue? */}
+      <ColegioInfoSection />
+
       {/* Quiénes Somos Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -450,15 +455,12 @@ function App() {
                 <div className="w-8 h-0.5" style={{backgroundColor: '#2563EB'}}></div>
                 <span>Quiénes Somos</span>
               </div>
-              
               <h2 className="text-3xl lg:text-4xl font-bold text-blue-900 leading-tight">
                 El Colegio Sagrados Corazones de Manquehue
               </h2>
-              
               <p className="text-gray-600 text-base leading-relaxed">
                 El Colegio Sagrados Corazones de Manquehue forma estudiantes comprometidos con la transformación social. Fundado en 1955, creció junto al barrio y hoy reúne una comunidad educativa amplia, con una fuerte identidad institucional y más de 2.000 estudiantes. Nuestra misión es educar en el respeto, la solidaridad y la excelencia académica.
               </p>
-              
               <button 
                 onClick={() => handlePageChange('historia')}
                 className="inline-flex items-center bg-blue-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-300 group"
@@ -469,13 +471,11 @@ function App() {
                 </svg>
               </button>
             </div>
-            
             {/* Right Image */}
             <div className="relative">
               <div className="relative">
                 {/* Decorative blue circle background */}
                 <div className="absolute -top-6 -right-6 w-72 h-72 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-20"></div>
-                
                 {/* Main image with circular crop */}
                 <div className="relative w-80 h-80 mx-auto rounded-full overflow-hidden shadow-2xl">
                   <img
@@ -484,7 +484,6 @@ function App() {
                     className="w-full h-full object-cover object-center scale-110"
                   />
                 </div>
-                
                 {/* Additional decorative elements */}
                 <div className="absolute -bottom-3 -left-3 w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-30 -z-10"></div>
               </div>
