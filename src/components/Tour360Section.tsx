@@ -7,7 +7,7 @@ interface Tour360SectionProps {
 
 const Tour360Section: React.FC<Tour360SectionProps> = ({ onBack }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-white">
       {/* Header with back button - only show if onBack is provided */}
       {onBack && (
         <div className="bg-white shadow-lg">
@@ -27,11 +27,11 @@ const Tour360Section: React.FC<Tour360SectionProps> = ({ onBack }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center space-x-2 text-red-600 font-medium mb-4">
-            <div className="w-8 h-0.5 bg-red-600"></div>
+          <div className="flex items-center justify-center space-x-2 font-medium mb-4" style={{color: '#2563EB'}}>
+            <div className="w-8 h-0.5" style={{backgroundColor: '#2563EB'}}></div>
             <span>Experiencia Virtual</span>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-blue-900 mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{color: '#1e3a8a'}}>
             Tour Virtual 360°
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto mb-8">
@@ -75,17 +75,17 @@ const Tour360Section: React.FC<Tour360SectionProps> = ({ onBack }) => {
 
         {/* Main Tour Container */}
         <div className="bg-white rounded-lg shadow-xl overflow-hidden">
-          <div className="p-6 bg-red-600 text-white">
+          <div className="p-6 bg-blue-600 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-bold mb-2">Tour Virtual Colegio Sagrada Familia</h3>
-                <p className="text-red-100">
+                <h3 className="text-2xl font-bold mb-2">Tour Virtual Colegio Sagrados Corazones de Manquehue</h3>
+                <p className="text-blue-100">
                   Explora nuestras aulas, laboratorios, biblioteca, capilla y espacios recreativos
                 </p>
               </div>
               <div className="flex items-center space-x-2">
-                <Camera className="w-8 h-8 text-red-200" />
-                <span className="text-red-200 font-medium">360°</span>
+                <Camera className="w-8 h-8 text-blue-200" />
+                <span className="text-blue-200 font-medium">360°</span>
               </div>
             </div>
           </div>
@@ -93,7 +93,7 @@ const Tour360Section: React.FC<Tour360SectionProps> = ({ onBack }) => {
           {/* Tour Iframe */}
           <div className="relative" style={{ height: '600px' }}>
             <iframe
-              src="https://tours.tourify.cl/tours/bvlDc5UDn"
+              src="https://tours.tourify.cl/tours/cbdqKz69F"
               title="Tour Virtual 360° - Colegio Sagrada Familia"
               className="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; vr"
@@ -106,22 +106,22 @@ const Tour360Section: React.FC<Tour360SectionProps> = ({ onBack }) => {
           <div className="p-6 bg-gray-50 border-t">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="flex items-center space-x-4 mb-4 md:mb-0">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm" style={{color: '#2563EB'}}>
                   <Camera className="w-4 h-4" />
                   <span>Tour Interactivo 360°</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm" style={{color: '#2563EB'}}>
                   <Navigation className="w-4 h-4" />
                   <span>Navegación Libre</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2 text-sm" style={{color: '#2563EB'}}>
                   <Eye className="w-4 h-4" />
                   <span>Alta Resolución</span>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
                 <a
-                  href="https://tours.tourify.cl/tours/bvlDc5UDn"
+                  href="https://tours.tourify.cl/tours/cbdqKz69F"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"

@@ -3,6 +3,8 @@ import { ChevronRight } from 'lucide-react';
 import Navbar from './components/Navbar';
 import AdminLogin from './components/AdminLogin';
 import Historia from './components/Historia';
+import HistoriaCongregacion from './components/HistoriaCongregacion';
+import HistoriaColegio from './components/HistoriaColegio';
 import VisionMision from './components/VisionMision';
 import NewsSection from './components/NewsSection';
 import NewsManagement from './components/NewsManagement';
@@ -23,6 +25,7 @@ import PastoralJuvenilSection from './components/PastoralJuvenilSection';
 import CEALManagement from './components/CEALManagement';
 import PastoralManagement from './components/PastoralManagement';
 import FundacionPentecostes from './components/FundacionPentecostes';
+import DirectorioFundacion from './components/DirectorioFundacion';
 import AdmisionSection from './components/AdmisionSection';
 import AdmisionManagement from './components/AdmisionManagement';
 import BibliotecaSection from './components/BibliotecaSection';
@@ -47,14 +50,25 @@ import MapSection from './components/MapSection';
 import Footer from './components/Footer';
 import PlanLectorSection from './components/PlanLectorSection';
 import PlanLectorManagement from './components/PlanLectorManagement';
+import DirectorioFundacionManagement from './components/DirectorioFundacionManagement';
+import RectoriaSection from './components/RectoriaSection';
+import ProyectoEducativoDocumento from './components/ProyectoEducativoDocumento';
+import ProyectoEducativoDocumentoManagement from './components/ProyectoEducativoDocumentoManagement';
+import ConsejoDirectivo from './components/ConsejoDirectivo';
+import ConsejoDirectivoManagement from './components/ConsejoDirectivoManagement';
+import ValoresSection from './components/ValoresSection';
+import ValoresManagement from './components/ValoresManagement';
+import AdmisionKinderIISection from './components/AdmisionKinderIISection';
+import CalendarioCicloSection from './components/CalendarioCicloSection';
 
 const backgroundImages = [
-  'https://i.postimg.cc/RhTGPj0c/wqwedq.jpg',
-  'https://i.postimg.cc/TPc92jTK/DSC00144.jpg',
-  'https://i.postimg.cc/pV1mjskv/dqdqsz.jpg',
-  'https://i.postimg.cc/WbBtWtQw/dadada.jpg',
-  'https://i.postimg.cc/LshbW0t1/qfrq.jpg',
-  'https://i.postimg.cc/mgW23JHX/DSC00500.jpg'
+  'https://i.postimg.cc/4N3HzXdH/mjsscc.jpg',
+  'https://i.postimg.cc/sg7jWLpM/hbasquetsscc.jpg',
+  'https://i.postimg.cc/ydkYD8n8/voleysscc.jpg',
+  'https://i.postimg.cc/fRfbFFJD/ateltasscc.jpg',
+  'https://i.postimg.cc/BbSpTR8R/ceremonia1sscc.jpg',
+  'https://i.postimg.cc/fWCBzWph/ceremonia2sscc.jpg',
+  'https://i.postimg.cc/8CG6fMft/frasesscc.jpg'
 ];
 
 function App() {
@@ -109,6 +123,14 @@ function App() {
     return <Historia onBack={handleBackToHome} />;
   }
 
+  if (currentPage === 'historia-congregacion') {
+    return <HistoriaCongregacion onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'historia-colegio') {
+    return <HistoriaColegio onBack={handleBackToHome} />;
+  }
+
   if (currentPage === 'vision-mision') {
     return <VisionMision onBack={handleBackToHome} />;
   }
@@ -141,6 +163,10 @@ function App() {
     return <PastoralJuvenilSection onBack={handleBackToHome} />;
   }
 
+  if (currentPage === 'rectoria') {
+    return <RectoriaSection onBack={handleBackToHome} />;
+  }
+
   if (currentPage === 'institutional-documents-management') {
     return <InstitutionalDocumentsManagement onBack={handleBackToAdmin} />;
   }
@@ -155,6 +181,37 @@ function App() {
 
   if (currentPage === 'fundacion-pentecostes') {
     return <FundacionPentecostes onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'directorio-fundacion') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50 to-gray-100">
+        {/* Header with back button */}
+        <div className="bg-white shadow-lg">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <button
+              onClick={handleBackToHome}
+              className="flex items-center text-blue-600 hover:text-blue-700 transition-all duration-300 mb-4 group"
+            >
+              <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Volver al inicio
+            </button>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">Directorio Fundación</h1>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <DirectorioFundacion />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentPage === 'consejo-directivo') {
+    return <ConsejoDirectivo onBack={handleBackToHome} />;
   }
 
   if (currentPage === 'admision') {
@@ -179,6 +236,10 @@ function App() {
 
   if (currentPage === 'pagos') {
     return <PagosSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'valores') {
+    return <ValoresSection onBack={handleBackToHome} />;
   }
 
   if (currentPage === 'recursos-digitales') {
@@ -225,6 +286,10 @@ function App() {
     return <FechasImportantesManagement onBack={handleBackToAdmin} />;
   }
 
+  if (currentPage === 'valores-management') {
+    return <ValoresManagement onBack={handleBackToAdmin} />;
+  }
+
   if (currentPage === 'announcement-management') {
     return <AnnouncementManagement onBack={handleBackToAdmin} />;
   }
@@ -242,7 +307,19 @@ function App() {
     return <DirectoryManagement onBack={handleBackToAdmin} />;
   }
 
+  if (currentPage === 'directorio-fundacion-management') {
+    return <DirectorioFundacionManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'consejo-directivo-management') {
+    return <ConsejoDirectivoManagement onBack={handleBackToAdmin} />;
+  }
+
   if (currentPage === 'proyecto-educativo') {
+    return <ProyectoEducativoDocumento onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'proyecto-educativo-equipo') {
     return <ProyectoEducativo onBack={handleBackToHome} />;
   }
 
@@ -255,7 +332,7 @@ function App() {
   }
 
   if (currentPage === 'proyecto-educativo-management') {
-    return <ProyectoEducativoManagement onBack={handleBackToAdmin} />;
+    return <ProyectoEducativoDocumentoManagement onBack={handleBackToAdmin} />;
   }
 
   if (currentPage === 'admin') {
@@ -269,12 +346,26 @@ function App() {
     return <StudentWithdrawalControl onBack={handleBackToHome} />;
   }
 
+  if (currentPage === 'admision-kinder-ii') {
+    return <AdmisionKinderIISection />;
+  }
+
+  if (currentPage === 'calendario-primer-ciclo') {
+    return <CalendarioCicloSection ciclo="primer" onBack={handleBackToHome} />;
+  }
+  if (currentPage === 'calendario-segundo-ciclo') {
+    return <CalendarioCicloSection ciclo="segundo" onBack={handleBackToHome} />;
+  }
+  if (currentPage === 'calendario-tercer-ciclo') {
+    return <CalendarioCicloSection ciclo="tercer" onBack={handleBackToHome} />;
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden">
       {/* Announcement Popup */}
       <AnnouncementPopup />
       
-      {/* Navigation - Static at top */}
+      {/* Navigation - Fixed at top */}
       <Navbar onPageChange={handlePageChange} />
 
       {/* Hero Section with Background */}
@@ -305,12 +396,12 @@ function App() {
         {/* Hero Section */}
         <main className="px-8 md:px-12 lg:px-16">
           <div className="text-left max-w-4xl">
-            <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight tracking-wide drop-shadow-lg">
-              ¿POR QUÉ ELEGIR<br />SAGRADA FAMILIA?
+            <h1 className="text-white text-xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight tracking-wide drop-shadow-lg">
+              ¿POR QUÉ ELEGIR<br />SAGRADOS CORAZONES<br />DE MANQUEHUE?
             </h1>
             
-            <p className="text-white text-base md:text-lg lg:text-xl mb-6 leading-relaxed font-medium max-w-2xl drop-shadow-md">
-              EDUCACIÓN PERSONALIZADA – PADRES, PRIMEROS EDUCADORES – PROFESORES COMPROMETIDOS
+            <p className="text-white text-xs md:text-sm lg:text-base mb-6 leading-relaxed font-medium max-w-2xl drop-shadow-md">
+              FORMACIÓN INTEGRAL – ESPIRITUALIDAD SSCC
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
@@ -355,22 +446,17 @@ function App() {
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left Content */}
             <div className="space-y-4">
-              <div className="flex items-center space-x-2 text-red-600 font-medium">
-                <div className="w-8 h-0.5 bg-red-600"></div>
+              <div className="flex items-center space-x-2 font-medium" style={{color: '#2563EB'}}>
+                <div className="w-8 h-0.5" style={{backgroundColor: '#2563EB'}}></div>
                 <span>Quiénes Somos</span>
               </div>
               
               <h2 className="text-3xl lg:text-4xl font-bold text-blue-900 leading-tight">
-                Una comunidad educativa católica, a semejanza de María
+                El Colegio Sagrados Corazones de Manquehue
               </h2>
               
               <p className="text-gray-600 text-base leading-relaxed">
-                El Colegio Sagrada Familia inició sus actividades en 1992, junto al Santuario de Schoenstatt, 
-                ubicado en Reñaca, Viña del Mar. Nació porque el cambio de siglo mostró la necesidad de fomentar 
-                valores familiares y sociales y ante esta urgencia, un grupo de laicos y sacerdotes de este 
-                Movimiento de Iglesia se vieron motivados a crear una institución, con estilo familiar, orientada 
-                por los principios del Evangelio y fundamentada en el modelo pedagógico del P. José Kentenich 
-                (1885 – 1968), fundador de Schoenstatt.
+                El Colegio Sagrados Corazones de Manquehue forma estudiantes comprometidos con la transformación social. Fundado en 1955, creció junto al barrio y hoy reúne una comunidad educativa amplia, con una fuerte identidad institucional y más de 2.000 estudiantes. Nuestra misión es educar en el respeto, la solidaridad y la excelencia académica.
               </p>
               
               <button 
@@ -393,8 +479,8 @@ function App() {
                 {/* Main image with circular crop */}
                 <div className="relative w-80 h-80 mx-auto rounded-full overflow-hidden shadow-2xl">
                   <img
-                    src="https://colegiosagradafamilia.cl/www/wp-content/uploads/2024/10/padre-victor-misa-1030x438.jpg"
-                    alt="Padre Victor celebrando misa"
+                    src="https://i.postimg.cc/CdpBGVYm/Whats-App-Image-2025-09-28-at-5-25-28-PM.jpg"
+                    alt="Colegio Sagrados Corazones de Manquehue"
                     className="w-full h-full object-cover object-center scale-110"
                   />
                 </div>
@@ -413,13 +499,15 @@ function App() {
       {/* Editorial Section removed */}
 
       {/* 360 Tour Section */}
-      <Tour360Section />
+      <div id="tour-virtual-section">
+        <Tour360Section />
+      </div>
 
       {/* Map Section */}
       <MapSection />
 
       {/* Footer */}
-      <Footer onPageChange={handlePageChange} />
+      <Footer />
 
       {/* Casino Modal */}
       <CasinoModal isOpen={showCasinoModal} onClose={() => setShowCasinoModal(false)} />

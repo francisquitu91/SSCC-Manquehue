@@ -67,41 +67,79 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
     }
   };
 
-  const timelineEvents = [
+  // Historia de la Congregación
+  const timelineEventsCongregacion = [
     {
-      year: '1992',
-      title: 'Fundación del Colegio',
-      description: 'Inicia sus actividades a partir del Jardín Infantil Jesus´Heart en Reñaca, Viña del Mar. Nace como una iniciativa apostólica donde sacerdotes y laicos se unieron para servir a la comunidad desde el ámbito educativo. El proyecto educativo se fundamenta en los principios pedagógicos del Padre José Kentenich, fundador del Movimiento de Schoenstatt, buscando formar integralmente a los estudiantes en un ambiente familiar y cristiano.',
+      year: '1800',
+      title: 'Fundación en Poitiers',
+      description: 'La Congregación de los Sagrados Corazones fue fundada por Pierre Coudrin y Henriette Aymer de la Chevalerie en la ciudad francesa de Poitiers durante la Revolución francesa. Nació del ardor misionero de estos fundadores que, en medio de la persecución, concibieron una comunidad de religiosos y religiosas dedicada a propagar la devoción a los Sagrados Corazones de Jesús y María.',
       icon: <Calendar className="w-6 h-6" />
     },
     {
-      year: '1994',
-      title: 'Sistema Coeducacional',
-      description: 'Se incorporan los hombres implementándose el sistema coeducacional, marcando un hito importante en la historia del colegio. Esta decisión permitió que hermanos y hermanas pudieran educarse juntos, fortaleciendo los valores familiares y la complementariedad entre géneros. El sistema coeducacional se alineó perfectamente con la pedagogía de Schoenstatt, que valora la originalidad de cada persona desde su modalidad femenina o masculina.',
-      icon: <Users className="w-6 h-6" />
-    },
-    {
-      year: '1997',
-      title: 'Nueva Ubicación',
-      description: 'Se traslada a su actual ubicación en el sector Los Pinos de Reñaca, estableciéndose en un campus especialmente diseñado para la educación integral. Las nuevas instalaciones permitieron expandir la oferta educativa y mejorar significativamente la infraestructura. Este traslado representó un crecimiento importante en la capacidad de atención a estudiantes y en la calidad de los espacios educativos, deportivos y recreativos.',
-      icon: <MapPin className="w-6 h-6" />
-    },
-    {
-      year: '1998',
-      title: 'Coronación de María',
-      description: 'El 15 de agosto de 1998, el Directorio coronó a la Virgen María como Madre, Reina y Educadora del Colegio, consagrando y comprometiéndose con María en el cuidado, protección y desarrollo de la comunidad educativa. Este acto solemne marcó profundamente la identidad del colegio, estableciendo a María como el corazón de la propuesta educativa y como modelo de educadora para toda la comunidad escolar.',
+      year: '1800 (Navidad)',
+      title: 'Primer Voto Perpetuo',
+      description: 'En la Nochebuena de 1800, Pierre Coudrin realizó los primeros votos perpetuos, mientras que Henriette y cuatro compañeras también pronunciaron sus votos. Este evento marcó el inicio oficial de la Congregación en la ciudad de París, en la calle Picpus, que se convirtió en el centro espiritual de la nueva comunidad religiosa.',
       icon: <Award className="w-6 h-6" />
     },
     {
-      year: '1999',
-      title: 'Coronación como Colegio',
-      description: 'Se realizó la coronación como colegio, agradeciendo la conducción que María había tenido desde los inicios y reconociendo la magnitud de la misión educativa encomendada. En este momento histórico, la comunidad educativa reconoció su pequeñez y debilidad en contraste con la grandeza de María, pero también asumió con valentía el compromiso de formar integralmente a las nuevas generaciones bajo su maternal protección.',
+      year: '1817',
+      title: 'Aprobación Pontificia',
+      description: 'El Papa Pío VII otorga la aprobación formal de la Congregación, reconociendo oficialmente su misión y su carisma. Con esta aprobación, la comunidad comienza su expansión internacional, estableciendo seminarios y colegios en diversas ciudades y regiones del mundo.',
+      icon: <MapPin className="w-6 h-6" />
+    },
+    {
+      year: '1825',
+      title: 'Expansión Misionera',
+      description: 'La Santa Sede confía a la Congregación la evangelización de las islas Sandwich (Hawái). Un año después, el primer grupo de misioneros de los Sagrados Corazones parte hacia el Pacífico para llevar la fe cristiana a los isleños, iniciando así una presencia misionera que se extendería a múltiples continentes.',
+      icon: <Users className="w-6 h-6" />
+    },
+    {
+      year: '1837',
+      title: 'Legado del Fundador',
+      description: 'Con la muerte del Padre Pierre Coudrin, concluye una era de la historia de la Congregación. Sin embargo, su legado perdura: la comunidad ha crecido significativamente bajo su liderazgo espiritual y continúa expandiendo su misión evangelizadora. Hoy, la Congregación se extiende por más de 30 países en 5 continentes con más de 1,100 religiosos.',
       icon: <Award className="w-6 h-6" />
     }
   ];
 
+  // Historia del Colegio (duplicada para edición independiente)
+  const timelineEventsColegio = [
+    {
+      year: '1800',
+      title: 'Fundación en Poitiers',
+      description: 'La Congregación de los Sagrados Corazones fue fundada por Pierre Coudrin y Henriette Aymer de la Chevalerie en la ciudad francesa de Poitiers durante la Revolución francesa. Nació del ardor misionero de estos fundadores que, en medio de la persecución, concibieron una comunidad de religiosos y religiosas dedicada a propagar la devoción a los Sagrados Corazones de Jesús y María.',
+      icon: <Calendar className="w-6 h-6" />
+    },
+    {
+      year: '1800 (Navidad)',
+      title: 'Primer Voto Perpetuo',
+      description: 'En la Nochebuena de 1800, Pierre Coudrin realizó los primeros votos perpetuos, mientras que Henriette y cuatro compañeras también pronunciaron sus votos. Este evento marcó el inicio oficial de la Congregación en la ciudad de París, en la calle Picpus, que se convirtió en el centro espiritual de la nueva comunidad religiosa.',
+      icon: <Award className="w-6 h-6" />
+    },
+    {
+      year: '1817',
+      title: 'Aprobación Pontificia',
+      description: 'El Papa Pío VII otorga la aprobación formal de la Congregación, reconociendo oficialmente su misión y su carisma. Con esta aprobación, la comunidad comienza su expansión internacional, estableciendo seminarios y colegios en diversas ciudades y regiones del mundo.',
+      icon: <MapPin className="w-6 h-6" />
+    },
+    {
+      year: '1825',
+      title: 'Expansión Misionera',
+      description: 'La Santa Sede confía a la Congregación la evangelización de las islas Sandwich (Hawái). Un año después, el primer grupo de misioneros de los Sagrados Corazones parte hacia el Pacífico para llevar la fe cristiana a los isleños, iniciando así una presencia misionera que se extendería a múltiples continentes.',
+      icon: <Users className="w-6 h-6" />
+    },
+    {
+      year: '1837',
+      title: 'Legado del Fundador',
+      description: 'Con la muerte del Padre Pierre Coudrin, concluye una era de la historia de la Congregación. Sin embargo, su legado perdura: la comunidad ha crecido significativamente bajo su liderazgo espiritual y continúa expandiendo su misión evangelizadora. Hoy, la Congregación se extiende por más de 30 países en 5 continentes con más de 1,100 religiosos.',
+      icon: <Award className="w-6 h-6" />
+    }
+  ];
+
+  const [activeTimelineCongregacion, setActiveTimelineCongregacion] = useState(0);
+  const [activeTimelineColegio, setActiveTimelineColegio] = useState(0);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50 to-gray-100">
       {/* Header with back button */}
       <div className="bg-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -113,7 +151,7 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
             Volver al inicio
           </button>
           <h1 className={`text-4xl md:text-5xl font-bold text-gray-900 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Quiénes Somos
+            Historia de la Congregación
           </h1>
         </div>
       </div>
@@ -123,16 +161,24 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex overflow-x-auto hide-scrollbar">
             <button
-              onClick={() => scrollToSection('historia-timeline')}
-              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-blue-600 flex-shrink-0"
+              onClick={() => scrollToSection('historia-congregacion')}
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-red-700 hover:bg-red-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-red-700 flex-shrink-0"
             >
               <Calendar className="w-5 h-5" />
-              <span className="font-semibold">Historia</span>
+              <span className="font-semibold">Historia Congregación</span>
+            </button>
+            
+            <button
+              onClick={() => scrollToSection('historia-colegio')}
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-blue-700 flex-shrink-0"
+            >
+              <Calendar className="w-5 h-5" />
+              <span className="font-semibold">Historia Colegio</span>
             </button>
             
             <button
               onClick={() => scrollToSection('vision-mision')}
-              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-purple-600 flex-shrink-0"
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-rose-700 hover:bg-rose-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-rose-700 flex-shrink-0"
             >
               <Award className="w-5 h-5" />
               <span className="font-semibold">Visión & Misión</span>
@@ -140,15 +186,15 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
             
             <button
               onClick={() => scrollToSection('objetivos')}
-              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-green-600 hover:bg-green-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-green-600 flex-shrink-0"
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-red-600 hover:bg-red-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-red-600 flex-shrink-0"
             >
               <MapPin className="w-5 h-5" />
-              <span className="font-semibold">Objetivos</span>
+              <span className="font-semibold">Carisma</span>
             </button>
             
             <button
               onClick={() => scrollToSection('directorio-rectoria')}
-              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-red-600 hover:bg-red-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-red-600 flex-shrink-0"
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-red-700 hover:bg-red-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-red-700 flex-shrink-0"
             >
               <Users className="w-5 h-5" />
               <span className="font-semibold">Directorio & Rectoría</span>
@@ -160,40 +206,53 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
       {/* Hero Image Section */}
       <div className={`relative h-[500px] overflow-hidden transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
         <img
-          src="https://colegiosagradafamilia.cl/www/wp-content/uploads/2022/03/Historia.jpg"
-          alt="Historia del Colegio Sagrada Familia"
+          src="https://i.postimg.cc/PrthSw3c/foto.webp"
+          alt="Historia de la Congregación Sagrados Corazones"
           className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Más de 30 años educando</h2>
-            <p className="text-xl">Formando líderes desde 1992</p>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 flex items-center justify-center">
+          <div className="text-center">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-2xl inline-block">
+              <img
+                src="https://i.postimg.cc/R0wcCy7H/logo-version-Horizontal-FULL-COLOR.webp"
+                alt="Logo Sagrados Corazones"
+                className="h-20 md:h-28 w-auto"
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Interactive Timeline */}
-      <div id="historia-timeline" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
+      {/* Historia de la Congregación (timeline eliminado según solicitud) */}
+      <div id="historia-congregacion" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
         <div className={`text-center mb-12 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Historia</h2>
-          <p className="text-gray-600">Descubre los momentos más importantes de nuestra historia</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Historia de la Congregación</h2>
+          <p className="text-gray-600">Contenido simplificado. Se han removido los hitos cronológicos.</p>
+        </div>
+      </div>
+
+      {/* Historia del Colegio Timeline */}
+      <div id="historia-colegio" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24 bg-white/50 rounded-lg">
+        <div className={`text-center mb-12 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Historia del Colegio</h2>
+          <p className="text-gray-600">Descubre los momentos más importantes de nuestro colegio</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-16">
           {/* Timeline Navigation */}
           <div className="space-y-4">
-            {timelineEvents.map((event, index) => (
+            {timelineEventsColegio.map((event, index) => (
               <div
                 key={index}
                 className={`p-4 rounded-lg cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                  activeTimeline === index
-                    ? 'bg-red-600 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-red-50 shadow-md'
+                  activeTimelineColegio === index
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-white text-gray-700 hover:bg-blue-50 shadow-md'
                 }`}
-                onClick={() => setActiveTimeline(index)}
+                onClick={() => setActiveTimelineColegio(index)}
               >
                 <div className="flex items-center space-x-4">
-                  <div className={`p-2 rounded-full ${activeTimeline === index ? 'bg-white text-red-600' : 'bg-red-100 text-red-600'}`}>
+                  <div className={`p-2 rounded-full ${activeTimelineColegio === index ? 'bg-white text-blue-600' : 'bg-blue-100 text-blue-600'}`}>
                     {event.icon}
                   </div>
                   <div>
@@ -208,132 +267,42 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
           {/* Timeline Content */}
           <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
-                {timelineEvents[activeTimeline].icon}
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full mb-4">
+                {timelineEventsColegio[activeTimelineColegio].icon}
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{timelineEvents[activeTimeline].year}</h3>
-              <h4 className="text-xl text-red-600 font-semibold">{timelineEvents[activeTimeline].title}</h4>
+              <h3 className="text-2xl font-bold text-gray-900">{timelineEventsColegio[activeTimelineColegio].year}</h3>
+              <h4 className="text-xl text-blue-600 font-semibold">{timelineEventsColegio[activeTimelineColegio].title}</h4>
             </div>
             <p className="text-gray-700 leading-relaxed text-center">
-              {timelineEvents[activeTimeline].description}
+              {timelineEventsColegio[activeTimelineColegio].description}
             </p>
           </div>
         </div>
 
-        {/* Full History Text */}
-        <div id="vision-mision" className={`bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-1000 delay-700 scroll-mt-24 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="p-8 md:p-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Visión & Misión</h2>
-            
-            {/* Vision y Mision Flip Cards with Image */}
-            <div className="grid lg:grid-cols-2 gap-8 items-center mb-12">
-              {/* Image */}
-              <div className="relative order-2 lg:order-1">
-                <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-                  <img
-                    src="https://i.postimg.cc/j2G7Cj6J/foto-mision-vision.jpg"
-                    alt="Visión y Misión"
-                    className="w-full h-auto transform hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                </div>
-                {/* Decorative elements */}
-                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-200 rounded-full opacity-20 blur-2xl"></div>
-                <div className="absolute -top-4 -left-4 w-24 h-24 bg-red-200 rounded-full opacity-20 blur-2xl"></div>
-              </div>
-
-              {/* Flip Cards */}
-              <div className="space-y-6 order-1 lg:order-2">
-                <FlipCard
-                  type="vision"
-                  title="Visión"
-                  content="Ser una comunidad educativa que forme niños y jóvenes desde una propuesta católica, con un sello mariano y de iglesia misionera, para que con su originalidad personal sean capaces de crear comunión y ejercer un liderazgo de servicio en la sociedad."
-                />
-                
-                <FlipCard
-                  type="mision"
-                  title="Misión"
-                  content="Entregar una educación católica e integral de calidad, evangelizando desde la pedagogía de Schoenstatt, para formar personas con una sólida identidad cristiana, que se vinculen profundamente a María y que con su originalidad amen y transformen el mundo."
-                />
-              </div>
-            </div>
-
-            {/* Instruction hint */}
-            <div className="text-center mb-8">
-              <p className="text-sm text-gray-500 italic flex items-center justify-center space-x-2">
-                <span>💡</span>
-                <span>Haz clic en las tarjetas para ver el contenido completo</span>
-              </p>
-            </div>
-
-            {/* Objetivos Section */}
-            <div id="objetivos" className="mt-12 scroll-mt-24">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Objetivos Educacionales</h3>
-              <div className="space-y-4">
-                {[
-                  { titulo: 'Educar en la vivencia de la fe', descripcion: 'Para poder vivir en consecuencia con ella, como hijo de Dios y miembro de su familia, la Iglesia, integrando el mundo natural con el sobrenatural.' },
-                  { titulo: 'Educar a la persona para que llegue a ser plenamente ella misma', descripcion: 'Según el Plan de Dios, desde su modalidad femenina o masculina, a través de personas que presten un servicio desinteresado a la originalidad de cada alumno.' },
-                  { titulo: 'Educar en comunidad', descripcion: 'Sustentándose en vínculos sólidos a personas, ideas y lugares (curso, colegio, familia e Iglesia).' },
-                  { titulo: 'Educar para la excelencia', descripcion: 'De modo que cada alumno (a) desarrolle con el máximo esfuerzo todas sus potencialidades cognitivas, afectivas y valóricas, para asumir responsablemente su misión en la familia y en la sociedad.' },
-                  { titulo: 'Educar para servir en la sociedad', descripcion: 'Conociéndola desde su realidad social y ética, para que reconozcan en ella las necesidades, como posibilidad de respuesta personal y construcción de un nuevo orden social inspirado en valores cristianos y en la doctrina social de la Iglesia.' }
-                ].map((objetivo, index) => (
-                  <div key={index} className="bg-white border-l-4 border-blue-600 p-4 rounded-r-lg shadow-md">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center flex-shrink-0 font-bold">
-                        {index + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 mb-2">{objetivo.titulo}</h4>
-                        <p className="text-gray-700 text-sm">{objetivo.descripcion}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Statistics Cards */}
-        <div className={`grid md:grid-cols-3 gap-6 mt-12 transition-all duration-1000 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="bg-white rounded-lg shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300">
-            <div className="text-3xl font-bold text-red-600 mb-2">30+</div>
-            <div className="text-gray-700">Años de Historia</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300">
-            <div className="text-3xl font-bold text-red-600 mb-2">680+</div>
-            <div className="text-gray-700">Estudiantes Actuales</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300">
-            <div className="text-3xl font-bold text-red-600 mb-2">14+</div>
-            <div className="text-gray-700">Generaciones Egresadas</div>
-          </div>
-        </div>
-
-        {/* Directorio y Rectoría Section */}
-        <div id="directorio-rectoria" className={`bg-white rounded-lg shadow-lg overflow-hidden mt-12 transition-all duration-1000 scroll-mt-24 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        {/* Directorio y Rectoría (Supabase) */}
+        <div id="directorio-rectoria" className={`bg-white rounded-lg shadow-lg overflow-hidden mt-4 transition-all duration-1000 scroll-mt-24 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="p-8 md:p-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Directorio y Rectoría</h2>
-            
+
             {/* Directorio Section */}
             <div className="mb-12">
               <h3 className="text-2xl font-bold text-blue-900 mb-6">Directorio</h3>
               <div className="bg-blue-50 p-6 rounded-lg mb-6">
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  La conducción superior del Colegio es realizada por un Directorio, cuyos miembros son nombrados 
+                  La conducción superior del Colegio es realizada por un Directorio, cuyos miembros son nombrados
                   por el Superior Provincial de la Comunidad de los Padres de Schoenstatt.
                 </p>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  Este Directorio tiene la responsabilidad de definir los lineamientos generales del Colegio y velar 
-                  por la fidelidad a los principios que inspiran el proyecto desde sus inicios, como así mismo su 
+                  Este Directorio tiene la responsabilidad de definir los lineamientos generales del Colegio y velar
+                  por la fidelidad a los principios que inspiran el proyecto desde sus inicios, como así mismo su
                   financiamiento y desarrollo.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
-                  El Directorio está compuesto por un grupo de laicos, que participan en la Obra Familiar del 
+                  El Directorio está compuesto por un grupo de laicos, que participan en la Obra Familiar del
                   Movimiento de Schoenstatt, y un sacerdote de la Comunidad de los Padres de Schoenstatt.
                 </p>
               </div>
-              
+
               {loading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">Cargando miembros del directorio...</p>
@@ -347,25 +316,22 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
 
             {/* Rectoría Section */}
             <div>
-              <h3 className="text-2xl font-bold text-red-900 mb-6">Rectoría</h3>
-              <div className="bg-red-50 p-6 rounded-lg mb-6">
+              <h3 className="text-2xl font-bold text-red-900 mb-6">Espiritualidad de la Congregación</h3>
+              <div className="bg-gradient-to-r from-red-50 to-rose-50 p-6 rounded-lg mb-6 border-t-4 border-red-600">
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  Queridas familias, nuestro colegio nace como una iniciativa apostólica que anhela contribuir en 
-                  la construcción de una Iglesia nueva y de un Chile nuevo. Animados por la espiritualidad de Schoenstatt, 
-                  quiere ofrecer una propuesta educativa que le permita a sus alumnos crecer armónicamente desde una 
-                  auténtica vivencia de familia.
+                  La Congregación de los Sagrados Corazones se fundamenta en la devoción profunda a los Sagrados Corazones de Jesús y María. Es una comunidad de religiosos y religiosas que comparten un carisma común: <strong>"Contemplar, Vivir y Anunciar al Mundo el Amor de Dios"</strong>.
                 </p>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  El Padre José Kentenich, fundador del movimiento de Schoenstatt, nos llamó a "forjar al hombre nuevo, 
-                  para la nueva comunidad", lo que se presenta como una invitación a formar niños y jóvenes llamados a 
-                  superar una cultura individualista para salir al encuentro de los demás, en quienes el amor se manifieste 
-                  en todo su poder y sean capaces de aportar significativamente en la renovación de nuestra sociedad.
+                  En su rama de hermanos, la comunidad busca contemplar el amor de Dios a través de una experiencia religiosa profunda centrada en la amistad con Jesús, especialmente mediante la celebración eucarística y la adoración contemplativa del Santísimo Sacramento.
+                </p>
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  Los religiosos viven su vocación en fraternidad intensa, con sencillez y espíritu de familia, abiertos a todos los pueblos. Y ejercen su misión evangelizadora y reparadora especialmente en medio de los marginados, los afligidos y aquellos que no conocen el Evangelio.
                 </p>
                 <p className="text-gray-700 leading-relaxed italic">
-                  Le pedimos a la Virgen María que nos acompañe y anime en este camino.
+                  La Congregación es un instrumento de transformación social y construcción de un mundo más justo en solidaridad con los más pobres.
                 </p>
               </div>
-              
+
               {loading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">Cargando equipo directivo...</p>
@@ -378,6 +344,125 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Vision y Mision Section */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div id="vision-mision" className={`bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-1000 delay-700 scroll-mt-24 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="p-8 md:p-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Visión & Misión</h2>
+            
+            {/* Vision y Mision Flip Cards with Image */}
+            <div className="grid lg:grid-cols-2 gap-8 items-center mb-12">
+              {/* Image */}
+              <div className="relative order-2 lg:order-1">
+                <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+                  <img
+                    src="https://i.postimg.cc/vZxQnd2N/Ftos.png"
+                    alt="Visión y Misión"
+                    className="w-full h-auto transform hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent"></div>
+                </div>
+                {/* Decorative elements */}
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-200 rounded-full opacity-20 blur-2xl"></div>
+                <div className="absolute -top-4 -left-4 w-24 h-24 bg-red-200 rounded-full opacity-20 blur-2xl"></div>
+              </div>
+
+              {/* Flip Cards */}
+              <div className="space-y-6 order-1 lg:order-2">
+                <FlipCard
+                  type="vision"
+                  title="Visión"
+                  content="Formar una comunidad educativa que contempla, vive y anuncia al mundo el amor de Dios encarnado en Jesús, desarrollando en nuestros estudiantes un profundo espíritu de fe, fraternidad cristiana y compromiso misionero para construir un mundo más justo en solidaridad con los más necesitados."
+                />
+                
+                <FlipCard
+                  type="mision"
+                  title="Misión"
+                  content="Educar en el carisma de los Sagrados Corazones, formando personas que vivan la experiencia religiosa profunda centrada en la amistad con Jesús, la devoción a los Sagrados Corazones de Jesús y María, y la adoración contemplativa del Santísimo Sacramento, para que sean agentes de transformación evangelizadora en medio de los marginados y afligidos."
+                />
+              </div>
+            </div>
+
+            {/* Instruction hint */}
+            <div className="text-center mb-8">
+              <p className="text-sm text-gray-500 italic flex items-center justify-center space-x-2">
+                <span>💡</span>
+                <span>Haz clic en las tarjetas para ver el contenido completo</span>
+              </p>
+            </div>
+
+            {/* Información de la Congregación */}
+            <div id="objetivos" className="mt-12 scroll-mt-24">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Información de la Congregación</h3>
+              
+              {/* Carisma Resumido */}
+              <div className="bg-gradient-to-r from-red-50 to-rose-50 rounded-lg shadow-md p-6 mb-8 border-t-4 border-red-600">
+                <h4 className="text-xl font-bold text-red-700 mb-4">Carisma: Contemplar, Vivir y Anunciar el Amor de Dios</h4>
+                <p className="text-gray-700 leading-relaxed">
+                  La Congregación vive una experiencia religiosa profunda centrada en la amistad con Jesús mediante la adoración eucarística y contemplativa. 
+                  Desarrolla vínculos fraternos con espíritu de familia, centrados en los Sagrados Corazones de Jesús y María. 
+                  Su misión evangelizadora se ejerce especialmente entre los marginados y afligidos, formando líderes servidores comprometidos con la construcción de un mundo más justo.
+                </p>
+              </div>
+
+              {/* Fundadores y Presencia Global */}
+              <div className="grid lg:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white rounded-lg shadow-lg p-6 border-t-4 border-red-600">
+                  <h4 className="text-xl font-bold text-red-700 mb-3">Fundadores</h4>
+                  <p className="text-gray-700">
+                    <strong>Pierre Coudrin</strong> y <strong>Henriette Aymer de la Chevalerie</strong> fundaron la Congregación en 1800 en Poitiers, Francia, durante la Revolución francesa, 
+                    para propagar la devoción a los Sagrados Corazones y mantener la Adoración Perpetua del Santísimo Sacramento.
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-lg p-6 border-t-4 border-rose-600">
+                  <h4 className="text-xl font-bold text-rose-700 mb-3">Presencia Global</h4>
+                  <p className="text-gray-700">
+                    Presente en más de <strong>30 países</strong> en <strong>5 continentes</strong>, con más de <strong>1,100 religiosos</strong> dedicados a la misión evangelizadora. 
+                    Incluye hermanos, hermanas y laicos comprometidos.
+                  </p>
+                </div>
+              </div>
+
+              {/* Contacto */}
+              <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-red-600">
+                <h4 className="text-xl font-bold text-gray-900 mb-4">Contacto de Casas Provinciales</h4>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h5 className="font-bold text-red-600 mb-2">Casa Provincial de los Hermanos</h5>
+                    <p className="text-gray-700 text-sm">Domingo Faustino Sarmiento 275, Ñuñoa – Santiago</p>
+                    <p className="text-red-600 font-semibold mt-1">+562 2783 8400</p>
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-red-600 mb-2">Casa Provincial de las Hermanas</h5>
+                    <p className="text-gray-700 text-sm">Av. Diagonal Oriente 3371, Providencia – Santiago</p>
+                    <p className="text-red-600 font-semibold mt-1">+562 2209 2383 – +562 2341 1157</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className={`grid md:grid-cols-3 gap-6 mt-12 transition-all duration-1000 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-lg shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300 text-white">
+            <div className="text-3xl font-bold mb-2">225+</div>
+            <div className="text-red-100">Años de Historia</div>
+          </div>
+          <div className="bg-gradient-to-br from-rose-600 to-rose-700 rounded-lg shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300 text-white">
+            <div className="text-3xl font-bold mb-2">1,100+</div>
+            <div className="text-rose-100">Religiosos Activos</div>
+          </div>
+          <div className="bg-gradient-to-br from-red-700 to-red-800 rounded-lg shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300 text-white">
+            <div className="text-3xl font-bold mb-2">30+</div>
+            <div className="text-red-100">Países de Presencia</div>
+          </div>
+        </div>
+
+        {/* Directorio y Rectoría Section (movido para que sólo esté bajo Historia del Colegio) */}
       </div>
     </div>
   );

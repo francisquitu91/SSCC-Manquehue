@@ -14,6 +14,9 @@
 DROP POLICY IF EXISTS "Authenticated users can insert news" ON news;
 DROP POLICY IF EXISTS "Authenticated users can update news" ON news;
 DROP POLICY IF EXISTS "Authenticated users can delete news" ON news;
+DROP POLICY IF EXISTS "Anyone can insert news" ON news;
+DROP POLICY IF EXISTS "Anyone can update news" ON news;
+DROP POLICY IF EXISTS "Anyone can delete news" ON news;
 
 -- Allow anonymous users to insert news (for demo purposes)
 CREATE POLICY "Anyone can insert news"

@@ -31,6 +31,12 @@ CREATE TABLE IF NOT EXISTS news (
 
 ALTER TABLE news ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Anyone can read news" ON news;
+DROP POLICY IF EXISTS "Authenticated users can insert news" ON news;
+DROP POLICY IF EXISTS "Authenticated users can update news" ON news;
+DROP POLICY IF EXISTS "Authenticated users can delete news" ON news;
+
 -- Allow public read access to news
 CREATE POLICY "Anyone can read news"
   ON news
@@ -68,6 +74,9 @@ BEGIN
   RETURN NEW;
 END;
 $$ language 'plpgsql';
+
+-- Drop existing trigger if it exists
+DROP TRIGGER IF EXISTS update_news_updated_at ON news;
 
 -- Create trigger to automatically update updated_at
 CREATE TRIGGER update_news_updated_at

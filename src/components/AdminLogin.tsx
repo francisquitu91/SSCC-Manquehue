@@ -21,7 +21,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
     setError('');
 
     // Simple authentication check
-    if (email === 'admin@csfr.cl' && password === 'admin123') {
+    if (email === 'admin@ssccmanquehue.cl' && password === 'admin123') {
       setTimeout(() => {
         onLogin();
         setLoading(false);
@@ -35,12 +35,12 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0b2540] to-[#08304a] flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="flex items-center text-red-600 hover:text-red-700 transition-all duration-300 mb-8 group"
+          className="flex items-center text-blue-200 hover:text-white transition-all duration-300 mb-8 group"
         >
           <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
           Volver al inicio
@@ -48,23 +48,23 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-8 h-8 text-white" />
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <img src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png" alt="SSCC Manquehue" className="h-16 w-16 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2">
             Panel de Administración
           </h1>
-          <p className="text-gray-600">
-            Colegio Sagrada Familia
+          <p className="text-blue-100">
+            SSCC Manquehue
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-white rounded-lg shadow-xl p-8 border border-blue-100">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-blue-900 mb-2">
                 Correo Electrónico
               </label>
               <div className="relative">
@@ -75,8 +75,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="admin@csfr.cl"
+                  className="block w-full pl-10 pr-3 py-3 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent"
+                  placeholder="admin@ssccmanquehue.cl"
                   required
                 />
               </div>
@@ -84,7 +84,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-blue-900 mb-2">
                 Contraseña
               </label>
               <div className="relative">
@@ -95,7 +95,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-12 py-3 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent"
                   placeholder="••••••••"
                   required
                 />
@@ -115,8 +115,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-600 text-sm">{error}</p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-blue-700 text-sm">{error}</p>
               </div>
             )}
 
@@ -124,7 +124,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+              className="w-full bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -139,8 +139,8 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>© 2025 Colegio Sagrada Familia. Todos los derechos reservados.</p>
+        <div className="text-center mt-8 text-blue-100 text-sm">
+          <p>© 2025 SSCC Manquehue. Todos los derechos reservados.</p>
         </div>
       </div>
     </div>

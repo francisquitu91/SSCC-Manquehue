@@ -31,6 +31,12 @@ CREATE TABLE IF NOT EXISTS editorial (
 
 ALTER TABLE editorial ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies
+DROP POLICY IF EXISTS "Anyone can read editorial" ON editorial;
+DROP POLICY IF EXISTS "Anyone can insert editorial" ON editorial;
+DROP POLICY IF EXISTS "Anyone can update editorial" ON editorial;
+DROP POLICY IF EXISTS "Anyone can delete editorial" ON editorial;
+
 -- Allow public read access to editorial
 CREATE POLICY "Anyone can read editorial"
   ON editorial
@@ -59,6 +65,9 @@ CREATE POLICY "Anyone can delete editorial"
   FOR DELETE
   TO public
   USING (true);
+
+-- Drop existing trigger if it exists
+DROP TRIGGER IF EXISTS update_editorial_updated_at ON editorial;
 
 -- Create trigger to automatically update updated_at
 CREATE TRIGGER update_editorial_updated_at

@@ -26,7 +26,7 @@ const FlipCard: React.FC<FlipCardProps> = ({ type, title, content }) => {
       text: 'text-blue-600',
       light: 'bg-blue-50',
       useImage: true,
-      image: 'https://i.postimg.cc/8zxZX2Y6/Diseno-sin-titulo-5.png'
+      image: 'https://i.postimg.cc/X7RvQJ5r/hdadj.png'
     },
     mision: {
       bg: 'from-red-500 to-red-700',
@@ -34,7 +34,7 @@ const FlipCard: React.FC<FlipCardProps> = ({ type, title, content }) => {
       text: 'text-red-600',
       light: 'bg-red-50',
       useImage: true,
-      image: 'https://i.postimg.cc/R09gz7MN/Diseno-sin-titulo-6.png'
+      image: 'https://i.postimg.cc/mZQwjcJ9/4tet.png'
     }
   };
 

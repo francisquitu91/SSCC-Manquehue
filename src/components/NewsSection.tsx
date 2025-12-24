@@ -95,8 +95,8 @@ const NewsSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center space-x-2 text-red-600 font-medium mb-4">
-            <div className="w-8 h-0.5 bg-red-600"></div>
+          <div className="flex items-center justify-center space-x-2 font-medium mb-4" style={{color: '#2563EB'}}>
+            <div className="w-8 h-0.5" style={{backgroundColor: '#2563EB'}}></div>
             <span>Informativos</span>
           </div>
           <h2 className="text-3xl lg:text-4xl font-bold text-blue-900">Noticias</h2>

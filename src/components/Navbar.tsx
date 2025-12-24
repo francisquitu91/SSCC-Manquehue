@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Menu, X, Instagram, Facebook } from 'lucide-react';
+import React, { useState } from 'react';
+import { Menu, X, Phone, Mail } from 'lucide-react';
 
 interface NavbarProps {
   onPageChange: (page: string) => void;
@@ -7,477 +7,333 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isOurOpen, setIsOurOpen] = useState(false);
+  const [isAdmisionOpen, setIsAdmisionOpen] = useState(false);
+  const [calendarsOpen, setCalendarsOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const menuItems = [
-    {
-      name: 'COLEGIO',
-      href: '#',
-      dropdown: [
-        'QUIÉNES SOMOS',
-        'PROYECTO EDUCATIVO',
-        'ÁREA ACADÉMICA',
-        'TOUR VIRTUAL',
-        'FORMACIÓN',
-        'DOCUMENTOS INSTITUCIONALES'
-      ]
-    },
-    {
-      name: 'COMUNIDAD ESCOLAR',
-      href: '#',
-      dropdown: [
-        'CEAL',
-        'PASTORAL JUVENIL',
-        'PROFESORES',
-        'ANUARIOS',
-        'RECURSOS DIGITALES',
-        'FUNDACIÓN PENTÉCOSTES'
-      ]
-    },
-    { name: 'ADMISIÓN', href: '#' },
-    {
-      name: 'INFORMACIÓN',
-      href: '#',
-      dropdown: [
-        'BIBLIOTECA',
-        'ÚTILES ESCOLARES',
-        'CASINO',
-        'UNIFORMES ESCOLARES',
-        'HORARIOS',
-        'PAGOS',
-        'FECHAS IMPORTANTES'
-      ]
-    }
-  ];
-
-  const handleDropdownToggle = (itemName: string) => {
-    setActiveDropdown(activeDropdown === itemName ? null : itemName);
-  };
-
-  const handleMenuClick = (itemName: string) => {
-    if (itemName === 'QUIÉNES SOMOS') {
-      onPageChange('historia');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'PROYECTO EDUCATIVO') {
-      onPageChange('proyecto-educativo');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'TOUR VIRTUAL') {
-      onPageChange('tour-virtual');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'DOCUMENTOS INSTITUCIONALES') {
-      onPageChange('documentos-institucionales');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'CEAL') {
-      onPageChange('ceal');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'PASTORAL JUVENIL') {
-      onPageChange('pastoral-juvenil');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'FUNDACIÓN PENTÉCOSTES') {
-      onPageChange('fundacion-pentecostes');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'ADMISIÓN') {
-      onPageChange('admision');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'BIBLIOTECA') {
-      onPageChange('biblioteca');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'ÚTILES ESCOLARES') {
-      onPageChange('utiles-escolares');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'CASINO') {
-      onPageChange('casino');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'UNIFORMES ESCOLARES') {
-      onPageChange('uniformes-escolares');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'HORARIOS') {
-      onPageChange('horarios');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'PAGOS') {
-      onPageChange('pagos');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'FECHAS IMPORTANTES') {
-      onPageChange('fechas-importantes');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'RECURSOS DIGITALES') {
-      onPageChange('recursos-digitales');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'ACLES') {
-      onPageChange('acles');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'DEPARTAMENTO DE ORIENTACIÓN') {
-      onPageChange('departamento-orientacion');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'VICERRECTORÍA DE FORMACIÓN') {
-      onPageChange('vicerrectoria-formacion');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'GESTIÓN DE NOTICIAS') {
-      onPageChange('news-management');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'ADMIN') {
-      onPageChange('admin');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    }
-    else if (itemName === 'PLAN LECTOR') {
-      onPageChange('plan-lector');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'PLAN LECTOR') {
-      onPageChange('plan-lector');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'GESTIÓN PLAN LECTOR') {
-      onPageChange('plan-lector-management');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    } else if (itemName === 'GESTIÓN PLAN LECTOR') {
-      onPageChange('plan-lector-management');
-      setActiveDropdown(null);
-      setActiveSubDropdown(null);
-      setIsMenuOpen(false);
-    }
+  const handleNavigation = (page: string) => {
+    onPageChange(page);
+    setIsMenuOpen(false);
+    setIsOurOpen(false);
+    setIsAdmisionOpen(false);
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? 'bg-red-600/85 backdrop-blur-lg shadow-lg' 
-        : ''
-    }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-  <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <div className="flex items-center flex-shrink-0 ml-8">
-            <img
-              src="https://i.postimg.cc/FN3R296R/1.png"
-              alt="Colegio Sagrada Familia Logo"
-              className="h-32 w-auto object-contain"
-            />
-          </div>
+    <header className="w-full fixed top-0 left-0 right-0 z-50 shadow-md">
+      {/* TOP THIN BAR - Dark background with contact info */}
+      <div className="w-full bg-[#0b2540] border-b border-[#08304a] relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:pl-48">
+          <div className="flex items-center justify-between h-12 text-sm text-white">
+            
+            {/* Left: Contact Information */}
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
+                <Phone className="w-4 h-4 text-white" />
+                <span className="text-xs">(+56 2) 2719 4300</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4 text-white" />
+                <span className="text-xs">colegio@ssccmanquehue.cl</span>
+              </div>
+            </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center space-x-1 flex-1 justify-end">
-            {menuItems.map((item) => (
-              <div key={item.name} className="relative group">
+            {/* Right: Quick Links */}
+            <div className="hidden sm:flex items-center space-x-6">
+              <button className="text-xs text-white hover:underline">Comunidad</button>
+              <button className="text-xs text-white hover:underline">Áreas de Apoyo</button>
+              <button className="text-xs text-white hover:underline">Contacto</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* MAIN THICK BAR - White background with logo and navigation */}
+      <nav className="w-full bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20 relative">
+
+            {/* LEFT: LOGO AND SCHOOL NAME */}
+            <div className="flex items-center">
+              <a href="#" aria-label="Inicio" className="flex items-center mt-4">
+                <div className="relative">
+                  <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 hidden lg:block">
+                    <div className="mx-auto w-full h-6 bg-white rounded-md shadow-sm" style={{maxWidth: '420px'}} />
+                  </div>
+
+                  <img
+                    src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png"
+                    alt="Colegio Manquehue SSCC logo"
+                    className="h-40 w-40 object-cover rounded-full shadow-lg relative z-50 mt-0"
+                  />
+                </div>
+
+                <div className="ml-6 leading-tight -mt-6">
+                  <div className="text-xl md:text-2xl text-gray-900 uppercase font-sans">
+                    <span className="font-normal">COLEGIO </span>
+                    <span className="font-extrabold">MANQUEHUE</span>
+                    <span className="font-normal"> SSCC</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            {/* CENTER: DESKTOP MAIN MENU */}
+            <div className="hidden xl:flex items-center space-x-8 max-w-3xl flex-1 justify-center">
+              
+              {/* NUESTRO COLEGIO - Dropdown */}
+              <div className="relative group">
                 <button
-                  className={`flex items-center px-3 py-2 text-sm font-medium transition-colors duration-300 rounded whitespace-nowrap ${
-                    isScrolled 
-                      ? 'text-white hover:bg-white/20 hover:text-white' 
-                      : 'text-white hover:bg-red-600 hover:text-white'
-                  }`}
-                  onClick={() => !item.dropdown && handleMenuClick(item.name)}
-                  onMouseEnter={() => item.dropdown && setActiveDropdown(item.name)}
-                  onMouseLeave={() => !item.dropdown && setActiveDropdown(null)}
+                  className="text-sm text-gray-800 uppercase whitespace-nowrap hover:text-blue-700 font-medium transition-colors"
+                  onMouseEnter={() => setIsOurOpen(true)}
+                  onMouseLeave={() => setIsOurOpen(false)}
                 >
-                  {item.name}
-                  {item.dropdown && (
-                    <ChevronDown className="ml-1 h-4 w-4" />
-                  )}
+                  Nuestro Colegio
                 </button>
 
                 {/* Dropdown Menu */}
-                {item.dropdown && (
-                  <div
-                    className={`absolute top-full left-0 mt-0 w-80 bg-white shadow-lg z-[9999] transition-all duration-200 border border-gray-200 ${
-                      activeDropdown === item.name ? 'opacity-100 visible' : 'opacity-0 invisible'
-                    }`}
-                    onMouseEnter={() => setActiveDropdown(item.name)}
-                    onMouseLeave={() => setActiveDropdown(null)}
-                  >
-                    <div className="py-2">
-                      {item.dropdown.map((subItem) => (
-                        <div key={subItem} className="relative">
-                          <button
-                            onClick={() => handleMenuClick(subItem)}
-                            onMouseEnter={() => (subItem === 'ÁREA ACADÉMICA' || subItem === 'FORMACIÓN') ? setActiveSubDropdown(subItem) : setActiveSubDropdown(null)}
-                            className="flex items-center justify-between w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200 border-b border-gray-200 last:border-b-0"
-                          >
-                            {subItem}
-                            {(subItem === 'ÁREA ACADÉMICA' || subItem === 'FORMACIÓN') && (
-                              <ChevronDown className="ml-1 h-4 w-4 rotate-[-90deg]" />
-                            )}
-                          </button>
-                          
-                          {/* Sub-dropdown for Área Académica */}
-                          {subItem === 'ÁREA ACADÉMICA' && (
-                            <div
-                              className={`absolute left-full top-0 w-60 bg-white shadow-lg border border-gray-200 transition-all duration-200 ${
-                                activeSubDropdown === 'ÁREA ACADÉMICA' ? 'opacity-100 visible' : 'opacity-0 invisible'
-                              }`}
-                              onMouseEnter={() => setActiveSubDropdown('ÁREA ACADÉMICA')}
-                              onMouseLeave={() => setActiveSubDropdown(null)}
-                            >
-                              <div className="py-2">
-                                <button
-                                  onClick={() => handleMenuClick('ACLES')}
-                                  className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200"
-                                >
-                                  ACLES
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                          {/* Plan Lector mobile options */}
-                          {subItem === 'DOCUMENTOS INSTITUCIONALES' && activeSubDropdown === 'DOCUMENTOS INSTITUCIONALES' && (
-                            <div className="pl-4 space-y-1">
-                              <button
-                                onClick={() => handleMenuClick('PLAN LECTOR')}
-                                className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
-                              >
-                                PLAN LECTOR
-                              </button>
-                              <button
-                                onClick={() => handleMenuClick('GESTIÓN PLAN LECTOR')}
-                                className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
-                              >
-                                GESTIÓN PLAN LECTOR
-                              </button>
-                            </div>
-                          )}
-
-                          {/* Sub-dropdown for Formación */}
-                          {subItem === 'FORMACIÓN' && (
-                            <div
-                              className={`absolute left-full top-0 w-72 bg-white shadow-lg border border-gray-200 transition-all duration-200 ${
-                                activeSubDropdown === 'FORMACIÓN' ? 'opacity-100 visible' : 'opacity-0 invisible'
-                              }`}
-                              onMouseEnter={() => setActiveSubDropdown('FORMACIÓN')}
-                              onMouseLeave={() => setActiveSubDropdown(null)}
-                            >
-                              <div className="py-2">
-                                <button
-                                  onClick={() => handleMenuClick('DEPARTAMENTO DE ORIENTACIÓN')}
-                                  className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200 border-b border-gray-200"
-                                >
-                                  DEPARTAMENTO DE ORIENTACIÓN
-                                </button>
-                                <button
-                                  onClick={() => handleMenuClick('VICERRECTORÍA DE FORMACIÓN')}
-                                  className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-600 hover:text-white transition-colors duration-200"
-                                >
-                                  VICERRECTORÍA DE FORMACIÓN
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-            
-            {/* Social Media Icons */}
-            <div className="flex items-center space-x-3 ml-6">
-              <a
-                href="https://www.instagram.com/colegiosagradafamilia_oficial/?hl=es"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`transition-colors duration-300 ${
-                  isScrolled ? 'text-white hover:text-red-200' : 'text-white hover:text-red-300'
-                }`}
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="https://www.facebook.com/pages/Colegio-Sagrada-Familia-Re%C3%B1aca/170422360190468"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`transition-colors duration-300 ${
-                  isScrolled ? 'text-white hover:text-red-200' : 'text-white hover:text-red-300'
-                }`}
-                aria-label="Facebook"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`transition-colors duration-300 focus:outline-none ${
-                isScrolled 
-                  ? 'text-white hover:text-red-200 focus:text-red-200' 
-                  : 'text-white hover:text-red-300 focus:text-red-300'
-              }`}
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-        
-  {/* Horizontal line delimiter: full width */}
-  <div className={`absolute bottom-0 left-0 right-0 h-px transition-colors duration-300 ${
-    isScrolled ? 'bg-white/20' : 'bg-white/30'
-  }`}></div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="lg:hidden border-t border-gray-200/30 shadow-lg">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {menuItems.map((item) => (
-              <div key={item.name}>
-                <button
-                  className="flex items-center justify-between w-full px-3 py-2 text-base font-medium text-white hover:bg-red-600 hover:text-white transition-colors duration-200 rounded"
-                  onClick={() => item.dropdown ? handleDropdownToggle(item.name) : handleMenuClick(item.name)}
+                <div
+                  className={`absolute left-0 top-full w-64 bg-[#0b2540] border border-[#08304a] rounded-lg shadow-lg py-2 z-[9999] transition-all duration-150 ${
+                    isOurOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
+                  }`}
+                  onMouseEnter={() => setIsOurOpen(true)}
+                  onMouseLeave={() => setIsOurOpen(false)}
                 >
-                  {item.name}
-                  {item.dropdown && (
-                    <ChevronDown 
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        activeDropdown === item.name ? 'rotate-180' : ''
-                      }`} 
-                    />
-                  )}
-                </button>
-
-                {/* Mobile Dropdown */}
-                {item.dropdown && activeDropdown === item.name && (
-                  <div className="pl-4 space-y-1">
-                    {item.dropdown.map((subItem) => (
-                      <div key={subItem}>
-                        <button
-                          onClick={() => (subItem === 'ÁREA ACADÉMICA' || subItem === 'FORMACIÓN') ? setActiveSubDropdown(activeSubDropdown === subItem ? null : subItem) : handleMenuClick(subItem)}
-                          className="flex items-center justify-between w-full text-left px-3 py-2 text-sm text-gray-200 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
-                        >
-                          {subItem}
-                          {(subItem === 'ÁREA ACADÉMICA' || subItem === 'FORMACIÓN') && (
-                            <ChevronDown 
-                              className={`h-4 w-4 transition-transform duration-200 ${
-                                activeSubDropdown === subItem ? 'rotate-180' : ''
-                              }`} 
-                            />
-                          )}
-                        </button>
-
-                        {/* Mobile Sub-dropdown for Área Académica */}
-                        {subItem === 'ÁREA ACADÉMICA' && activeSubDropdown === 'ÁREA ACADÉMICA' && (
-                          <div className="pl-4 space-y-1">
-                            <button
-                              onClick={() => handleMenuClick('ACLES')}
-                              className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
-                            >
-                              ACLES
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Mobile Sub-dropdown for Formación */}
-                        {subItem === 'FORMACIÓN' && activeSubDropdown === 'FORMACIÓN' && (
-                          <div className="pl-4 space-y-1">
-                            <button
-                              onClick={() => handleMenuClick('DEPARTAMENTO DE ORIENTACIÓN')}
-                              className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
-                            >
-                              DEPARTAMENTO DE ORIENTACIÓN
-                            </button>
-                            <button
-                              onClick={() => handleMenuClick('VICERRECTORÍA DE FORMACIÓN')}
-                              className="block w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-red-600 transition-colors duration-200 rounded"
-                            >
-                              VICERRECTORÍA DE FORMACIÓN
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                  <ul className="space-y-1 px-2">
+                    <li>
+                      <button onClick={() => handleNavigation('historia-congregacion')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Historia Congregación
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('historia-colegio')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Historia del Colegio
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('directorio-fundacion')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Directorio Fundación
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('documentos-institucionales')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Documentos Oficiales
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('rectoria')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Rectoría
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('proyecto-educativo')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Proyecto Educativo
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('utiles-escolares')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Listas útiles escolares
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('consejo-directivo')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Consejo Directivo
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('valores')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Valores de matrícula y colegiaturas
+                      </button>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            ))}
-            
-            {/* Social Media Icons for Mobile */}
-            <div className="flex items-center justify-center space-x-4 pt-4 border-t border-gray-200/30 mt-4">
-              <a
-                href="https://www.instagram.com/colegiosagradafamilia_oficial/?hl=es"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-red-300 transition-colors duration-200"
-                aria-label="Instagram"
+
+              {/* Other Main Menu Items */}
+              <button 
+                onClick={() => {
+                  const element = document.getElementById('tour-virtual-section');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    handleNavigation('tour-virtual');
+                  }
+                  setIsMenuOpen(false);
+                }}
+                className="text-sm text-gray-800 uppercase whitespace-nowrap hover:text-blue-700 font-medium transition-colors"
               >
-                <Instagram className="w-6 h-6" />
-              </a>
-              <a
-                href="https://www.facebook.com/pages/Colegio-Sagrada-Familia-Re%C3%B1aca/170422360190468"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-red-300 transition-colors duration-200"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-6 h-6" />
-              </a>
+                Tour Virtual
+              </button>
+              {/* ADMISION - Dropdown */}
+              <div className="relative group">
+                <button
+                  className="text-sm text-gray-800 uppercase whitespace-nowrap hover:text-blue-700 font-medium transition-colors"
+                  onMouseEnter={() => setIsAdmisionOpen(true)}
+                  onMouseLeave={() => setIsAdmisionOpen(false)}
+                >
+                  Admisión
+                </button>
+                {/* Dropdown Menu */}
+                <div
+                  className={`absolute left-0 top-full w-64 bg-[#0b2540] border border-[#08304a] rounded-lg shadow-lg py-2 z-[9999] transition-all duration-150 ${isAdmisionOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}
+                  onMouseEnter={() => setIsAdmisionOpen(true)}
+                  onMouseLeave={() => setIsAdmisionOpen(false)}
+                >
+                  <ul className="space-y-1 px-2">
+                    <li>
+                      <button onClick={() => handleNavigation('admision-prekinder')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Admisión Pre Kínder
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('admision-kinder-ii')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Admisión Kínder a II°
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <button onClick={() => handleNavigation('admin')} className="text-sm text-gray-800 uppercase whitespace-nowrap hover:text-blue-700 font-medium transition-colors">
+                Intranet
+              </button>
+              {/* CALENDARIOS - Dropdown */}
+              <div className="relative group">
+                <button
+                  className="text-sm text-gray-800 uppercase whitespace-nowrap hover:text-blue-700 font-medium transition-colors"
+                  onMouseEnter={() => setCalendarsOpen(true)}
+                  onMouseLeave={() => setCalendarsOpen(false)}
+                >
+                  Calendarios
+                </button>
+                <div
+                  className={`absolute left-0 top-full w-64 bg-[#0b2540] border border-[#08304a] rounded-lg shadow-lg py-2 z-[9999] transition-all duration-150 ${
+                    calendarsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
+                  }`}
+                  onMouseEnter={() => setCalendarsOpen(true)}
+                  onMouseLeave={() => setCalendarsOpen(false)}
+                >
+                  <ul className="space-y-1 px-2">
+                    <li>
+                      <button onClick={() => handleNavigation('calendario-primer-ciclo')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Primer Ciclo
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('calendario-segundo-ciclo')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Segundo Ciclo
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleNavigation('calendario-tercer-ciclo')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
+                        Tercer Ciclo
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: MOBILE MENU TOGGLE */}
+            <div className="flex items-center space-x-3">
+              <div className="xl:hidden">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="p-2 rounded-md text-gray-800 hover:bg-gray-100"
+                  aria-label="Abrir menú"
+                >
+                  {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      )}
-    </nav>
+
+        {/* MOBILE/TABLET MENU */}
+        {isMenuOpen && (
+          <div className="xl:hidden bg-white border-t">
+            <div className="px-4 pt-4 pb-6 space-y-2">
+              
+              {/* Mobile Main Menu Items */}
+              <button onClick={() => handleNavigation('historia')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
+                Nuestro Colegio
+              </button>
+              <button onClick={() => handleNavigation('tour-virtual')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
+                Tour Virtual
+              </button>
+              {/* Admisión - Mobile Dropdown */}
+              <div className="block w-full">
+                <button
+                  onClick={() => setIsOurOpen(!isOurOpen)}
+                  className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800"
+                >
+                  Admisión
+                </button>
+                {isOurOpen && (
+                  <div className="pl-4 border-l ml-2">
+                    <button onClick={() => handleNavigation('admision-prekinder')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Admisión Pre Kínder
+                    </button>
+                    <button onClick={() => handleNavigation('admision-kinder-ii')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Admisión Kínder a II°
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button onClick={() => handleNavigation('admin')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
+                Intranet
+              </button>
+              <button onClick={() => handleNavigation('fechas-importantes')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
+                Calendarios
+              </button>
+
+              {/* Nuestro Colegio Submenu (Mobile) */}
+              <div className="mt-2 pl-2 border-l">
+                <button onClick={() => handleNavigation('historia-congregacion')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Historia Congregación
+                </button>
+                <button onClick={() => handleNavigation('historia-colegio')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Historia del Colegio
+                </button>
+                <button onClick={() => handleNavigation('directorio-fundacion')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Directorio Fundación
+                </button>
+                <button onClick={() => handleNavigation('documentos-institucionales')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Documentos Oficiales
+                </button>
+                <button onClick={() => handleNavigation('rectoria')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Rectoría
+                </button>
+                <button onClick={() => handleNavigation('proyecto-educativo')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Proyecto Educativo
+                </button>
+                <button onClick={() => handleNavigation('utiles-escolares')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Listas útiles escolares
+                </button>
+                <button onClick={() => handleNavigation('consejo-directivo')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Consejo Directivo
+                </button>
+                <button onClick={() => handleNavigation('valores')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
+                  Valores de matrícula y colegiaturas
+                </button>
+              </div>
+
+              {/* Contact Info Section */}
+              <div className="pt-2 border-t">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-gray-600">Teléfono</div>
+                    <div className="text-sm">(+56 2) 2719 4300</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600">Email</div>
+                    <div className="text-sm">colegio@ssccmanquehue.cl</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
   );
 };
 

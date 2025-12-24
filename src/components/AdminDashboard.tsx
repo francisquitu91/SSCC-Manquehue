@@ -8,6 +8,14 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout }) => {
   const adminOptions = [
+        {
+          id: 'utiles-escolares-management',
+          title: 'Gestión de Listas útiles escolares',
+          description: 'Administra las listas de útiles escolares por nivel',
+          icon: <FolderOpen className="w-8 h-8" />,
+          color: 'bg-teal-600 hover:bg-teal-700',
+          iconBg: 'bg-teal-100 text-teal-600'
+        },
     {
       id: 'news-management',
       title: 'Gestión de Noticias',
@@ -17,18 +25,26 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       iconBg: 'bg-blue-100 text-blue-600'
     },
     {
-      id: 'directory-management',
-      title: 'Gestión de Directorio',
-      description: 'Administrar miembros del directorio y rectoría',
+      id: 'directorio-fundacion-management',
+      title: 'Gestión Directorio Fundación',
+      description: 'Editar la sección Directorio Fundación (imagen, texto, nombres)',
+      icon: <Library className="w-8 h-8" />,
+      color: 'bg-emerald-600 hover:bg-emerald-700',
+      iconBg: 'bg-emerald-100 text-emerald-600'
+    },
+    {
+      id: 'consejo-directivo-management',
+      title: 'Gestión Consejo Directivo',
+      description: 'Editar la sección Consejo Directivo (imagen, texto, nombres)',
       icon: <Users className="w-8 h-8" />,
-      color: 'bg-purple-600 hover:bg-purple-700',
-      iconBg: 'bg-purple-100 text-purple-600'
+      color: 'bg-blue-600 hover:bg-blue-700',
+      iconBg: 'bg-blue-100 text-blue-600'
     },
     {
       id: 'proyecto-educativo-management',
       title: 'Gestión Proyecto Educativo',
-      description: 'Administrar contenido del proyecto educativo',
-      icon: <BookOpen className="w-8 h-8" />,
+      description: 'Subir/actualizar el documento PDF del proyecto educativo',
+      icon: <FileText className="w-8 h-8" />,
       color: 'bg-orange-600 hover:bg-orange-700',
       iconBg: 'bg-orange-100 text-orange-600'
     },
@@ -41,92 +57,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       iconBg: 'bg-red-100 text-red-600'
     },
     {
-      id: 'ceal-management',
-      title: 'Gestión CEAL',
-      description: 'Administrar Centro de Alumnos y fotos',
-      icon: <UserCheck className="w-8 h-8" />,
-      color: 'bg-cyan-600 hover:bg-cyan-700',
-      iconBg: 'bg-cyan-100 text-cyan-600'
-    },
-    {
-      id: 'pastoral-management',
-      title: 'Gestión Pastoral Juvenil',
-      description: 'Administrar Pastoral Juvenil y fotos',
-      icon: <Heart className="w-8 h-8" />,
-      color: 'bg-pink-600 hover:bg-pink-700',
-      iconBg: 'bg-pink-100 text-pink-600'
-    },
-    {
-      id: 'admision-management',
-      title: 'Gestión de Admisión',
-      description: 'Administrar información de admisión y contacto',
-      icon: <Users className="w-8 h-8" />,
-      color: 'bg-indigo-600 hover:bg-indigo-700',
-      iconBg: 'bg-indigo-100 text-indigo-600'
-    },
-    {
-      id: 'biblioteca-management',
-      title: 'Gestión de Biblioteca',
-      description: 'Administrar planes lectores y recursos',
-      icon: <BookOpen className="w-8 h-8" />,
-      color: 'bg-amber-600 hover:bg-amber-700',
-      iconBg: 'bg-amber-100 text-amber-600'
-    },
-    {
-      id: 'utiles-escolares-management',
-      title: 'Gestión de Útiles Escolares',
-      description: 'Administrar listas de útiles por nivel',
-      icon: <ShoppingBag className="w-8 h-8" />,
-      color: 'bg-teal-600 hover:bg-teal-700',
-      iconBg: 'bg-teal-100 text-teal-600'
-    },
-    {
-      id: 'casino-management',
-      title: 'Gestión de Casino',
-      description: 'Administrar menú del casino',
-      icon: <UtensilsCrossed className="w-8 h-8" />,
-      color: 'bg-orange-600 hover:bg-orange-700',
-      iconBg: 'bg-orange-100 text-orange-600'
-    },
-    {
-      id: 'uniformes-escolares-management',
-      title: 'Gestión de Uniformes Escolares',
-      description: 'Administrar especificaciones de uniformes',
-      icon: <Shirt className="w-8 h-8" />,
-      color: 'bg-indigo-600 hover:bg-indigo-700',
-      iconBg: 'bg-indigo-100 text-indigo-600'
-    },
-    {
-      id: 'horarios-management',
-      title: 'Gestión de Horarios',
-      description: 'Administrar horarios por curso',
-      icon: <Clock className="w-8 h-8" />,
-      color: 'bg-green-600 hover:bg-green-700',
-      iconBg: 'bg-green-100 text-green-600'
-    },
-    {
-      id: 'pagos-management',
-      title: 'Gestión de Pagos',
-      description: 'Configurar link de plataforma de pagos',
+      id: 'valores-management',
+      title: 'Gestión de Valores',
+      description: 'Administrar valores de matrícula y colegiaturas',
       icon: <CreditCard className="w-8 h-8" />,
-      color: 'bg-blue-600 hover:bg-blue-700',
-      iconBg: 'bg-blue-100 text-blue-600'
-    },
-    {
-      id: 'recursos-digitales-management',
-      title: 'Gestión de Recursos Digitales',
-      description: 'Administrar instructivos de ClassRoom',
-      icon: <Monitor className="w-8 h-8" />,
-      color: 'bg-purple-600 hover:bg-purple-700',
-      iconBg: 'bg-purple-100 text-purple-600'
-    },
-    {
-      id: 'fechas-importantes-management',
-      title: 'Gestión de Fechas Importantes',
-      description: 'Administrar calendario de actividades y eventos',
-      icon: <Calendar className="w-8 h-8" />,
-      color: 'bg-amber-600 hover:bg-amber-700',
-      iconBg: 'bg-amber-100 text-amber-600'
+      color: 'bg-emerald-600 hover:bg-emerald-700',
+      iconBg: 'bg-emerald-100 text-emerald-600'
     },
     {
       id: 'announcement-management',
@@ -135,24 +71,16 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       icon: <Bell className="w-8 h-8" />,
       color: 'bg-red-600 hover:bg-red-700',
       iconBg: 'bg-red-100 text-red-600'
-    },
-    {
-      id: 'departamento-orientacion-management',
-      title: 'Dpto. de Orientación',
-      description: 'Administrar equipo y contenido de orientación',
-      icon: <Users className="w-8 h-8" />,
-      color: 'bg-blue-600 hover:bg-blue-700',
-      iconBg: 'bg-blue-100 text-blue-600'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#0b2540] to-[#08304a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <button
           onClick={() => onNavigate('home')}
-          className="flex items-center text-red-600 hover:text-red-700 transition-all duration-300 mb-8 group"
+          className="flex items-center text-blue-200 hover:text-white transition-all duration-300 mb-8 group"
         >
           <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
           Volver al inicio
@@ -160,18 +88,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
 
         {/* Header */}
         <div className="text-center mb-12 relative">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <img src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png" alt="SSCC Manquehue" className="h-16 w-16 object-contain" />
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-4">
             Panel de Administración
           </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Gestiona el contenido del sitio web del Colegio Sagrada Familia
+          <p className="text-blue-100 text-lg max-w-2xl mx-auto">
+            Gestiona el contenido del sitio web del SSCC Manquehue
           </p>
-          
           {/* Logout Button */}
           {onLogout && (
             <button
               onClick={onLogout}
-              className="absolute top-0 right-0 flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors duration-300"
+              className="absolute top-0 right-0 flex items-center space-x-2 text-blue-200 hover:text-white transition-colors duration-300"
             >
               <LogOut className="w-5 h-5" />
               <span>Cerrar Sesión</span>
@@ -185,7 +115,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
             <div
               key={option.id}
               onClick={() => onNavigate(option.id)}
-              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
+              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105 border border-blue-100"
             >
               <div className="p-8">
                 <div className="flex items-center justify-center mb-6">
@@ -194,11 +124,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
                   </div>
                 </div>
                 
-                <h3 className="text-2xl font-bold text-gray-900 text-center mb-4">
+                <h3 className="text-2xl font-bold text-blue-900 text-center mb-4">
                   {option.title}
                 </h3>
                 
-                <p className="text-gray-600 text-center mb-6">
+                <p className="text-blue-800 text-center mb-6">
                   {option.description}
                 </p>
                 
@@ -214,32 +144,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-lg shadow-md p-6 text-center border border-blue-100">
+            <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <Users className="w-6 h-6" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Gestión Integral</h4>
-            <p className="text-gray-600 text-sm">
+            <h4 className="font-semibold text-blue-900 mb-2">Gestión Integral</h4>
+            <p className="text-blue-800 text-sm">
               Administra todo el contenido desde un solo lugar
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-lg shadow-md p-6 text-center border border-blue-100">
+            <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <FileText className="w-6 h-6" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Fácil de Usar</h4>
-            <p className="text-gray-600 text-sm">
+            <h4 className="font-semibold text-blue-900 mb-2">Fácil de Usar</h4>
+            <p className="text-blue-800 text-sm">
               Interface intuitiva y amigable para todos los usuarios
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-lg shadow-md p-6 text-center border border-blue-100">
+            <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <FileText className="w-6 h-6" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Contenido Rico</h4>
-            <p className="text-gray-600 text-sm">
+            <h4 className="font-semibold text-blue-900 mb-2">Contenido Rico</h4>
+            <p className="text-blue-800 text-sm">
               Soporte para imágenes, videos y texto formateado
             </p>
           </div>

@@ -23,6 +23,12 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
+-- Drop existing policies
+DROP POLICY IF EXISTS "Public read access for news images" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can upload news images" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can update news images" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can delete news images" ON storage.objects;
+
 -- Allow public read access to images
 CREATE POLICY "Public read access for news images"
 ON storage.objects
