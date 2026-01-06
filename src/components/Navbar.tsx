@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, Mail } from 'lucide-react';
+import { Menu, X, Phone, Mail, Instagram } from 'lucide-react';
 
 interface NavbarProps {
   onPageChange: (page: string) => void;
@@ -10,6 +10,9 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [isOurOpen, setIsOurOpen] = useState(false);
   const [isAdmisionOpen, setIsAdmisionOpen] = useState(false);
   const [calendarsOpen, setCalendarsOpen] = useState(false);
+  const [mobileNuestroColegioOpen, setMobileNuestroColegioOpen] = useState(false);
+  const [mobileAdmisionOpen, setMobileAdmisionOpen] = useState(false);
+  const [mobileCalendariosOpen, setMobileCalendariosOpen] = useState(false);
 
   const handleNavigation = (page: string) => {
     onPageChange(page);
@@ -22,23 +25,41 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
     <header className="w-full fixed top-0 left-0 right-0 z-50 shadow-md">
       {/* TOP THIN BAR - Dark background with contact info */}
       <div className="w-full bg-[#0b2540] border-b border-[#08304a] relative z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:pl-48">
-          <div className="flex items-center justify-between h-12 text-sm text-white">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 lg:pl-48">
+          <div className="flex items-center justify-between h-12 text-sm text-white overflow-x-auto">
             
             {/* Left: Contact Information */}
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6 flex-shrink-0">
+              <div className="hidden md:flex items-center space-x-2">
                 <Phone className="w-4 h-4 text-white" />
                 <span className="text-xs">(+56 2) 2719 4300</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="hidden sm:flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-white" />
-                <span className="text-xs">colegio@ssccmanquehue.cl</span>
+                <span className="text-xs hidden lg:inline">colegio@ssccmanquehue.cl</span>
+                <span className="text-xs lg:hidden">Email</span>
               </div>
+              <a 
+                href="https://www.instagram.com/colegioss.cc.manquehue/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 sm:space-x-2 hover:text-blue-300 transition-colors"
+              >
+                <Instagram className="w-4 h-4 text-white" />
+                <span className="text-xs hidden xl:inline">@colegioss.cc.manquehue</span>
+                <span className="text-xs xl:hidden">Instagram</span>
+              </a>
+              <a 
+                href="tel:+56227194300"
+                className="flex md:hidden items-center space-x-1 hover:text-blue-300 transition-colors"
+              >
+                <Phone className="w-4 h-4 text-white" />
+                <span className="text-xs">Llamar</span>
+              </a>
             </div>
 
             {/* Right: Quick Links */}
-            <div className="hidden sm:flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-6">
               <button className="text-xs text-white hover:underline">Comunidad</button>
               <button className="text-xs text-white hover:underline">Áreas de Apoyo</button>
               <button className="text-xs text-white hover:underline">Contacto</button>
@@ -54,21 +75,15 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
 
             {/* LEFT: LOGO AND SCHOOL NAME */}
             <div className="flex items-center">
-              <a href="#" aria-label="Inicio" className="flex items-center mt-4">
-                <div className="relative">
-                  <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 hidden lg:block">
-                    <div className="mx-auto w-full h-6 bg-white rounded-md shadow-sm" style={{maxWidth: '420px'}} />
-                  </div>
+              <a href="#" aria-label="Inicio" className="flex items-center mt-4 relative z-30">
+                <img
+                  src="https://i.postimg.cc/pX9SpVm3/logosscc.png"
+                  alt="Colegio Manquehue SSCC logo"
+                  className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44 object-contain"
+                />
 
-                  <img
-                    src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png"
-                    alt="Colegio Manquehue SSCC logo"
-                    className="h-40 w-40 object-cover rounded-full shadow-lg relative z-50 mt-0"
-                  />
-                </div>
-
-                <div className="ml-6 leading-tight -mt-6">
-                  <div className="text-xl md:text-2xl text-gray-900 uppercase font-sans">
+                <div className="ml-2 sm:ml-4 md:ml-6 leading-tight -mt-4 sm:-mt-6">
+                  <div className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-900 uppercase font-sans">
                     <span className="font-normal">COLEGIO </span>
                     <span className="font-extrabold">MANQUEHUE</span>
                     <span className="font-normal"> SSCC</span>
@@ -130,18 +145,13 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                       </button>
                     </li>
                     <li>
-                      <button onClick={() => handleNavigation('utiles-escolares')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
-                        Listas útiles escolares
-                      </button>
-                    </li>
-                    <li>
                       <button onClick={() => handleNavigation('consejo-directivo')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
                         Consejo Directivo
                       </button>
                     </li>
                     <li>
                       <button onClick={() => handleNavigation('valores')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
-                        Valores de matrícula y colegiaturas
+                        Matrícula y colegiaturas 2026
                       </button>
                     </li>
                   </ul>
@@ -252,22 +262,58 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
           <div className="xl:hidden bg-white border-t">
             <div className="px-4 pt-4 pb-6 space-y-2">
               
-              {/* Mobile Main Menu Items */}
-              <button onClick={() => handleNavigation('historia')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
-                Nuestro Colegio
-              </button>
+              {/* Nuestro Colegio - Mobile Dropdown */}
+              <div className="block w-full">
+                <button
+                  onClick={() => setMobileNuestroColegioOpen(!mobileNuestroColegioOpen)}
+                  className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800"
+                >
+                  Nuestro Colegio
+                </button>
+                {mobileNuestroColegioOpen && (
+                  <div className="pl-4 border-l ml-2">
+                    <button onClick={() => handleNavigation('historia-congregacion')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Historia Congregación
+                    </button>
+                    <button onClick={() => handleNavigation('historia-colegio')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Historia del Colegio
+                    </button>
+                    <button onClick={() => handleNavigation('directorio-fundacion')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Directorio Fundación
+                    </button>
+                    <button onClick={() => handleNavigation('documentos-institucionales')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Documentos Oficiales
+                    </button>
+                    <button onClick={() => handleNavigation('rectoria')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Rectoría
+                    </button>
+                    <button onClick={() => handleNavigation('proyecto-educativo')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Proyecto Educativo
+                    </button>
+                    <button onClick={() => handleNavigation('consejo-directivo')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Consejo Directivo
+                    </button>
+                    <button onClick={() => handleNavigation('valores')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Matrícula y colegiaturas 2026
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Tour Virtual */}
               <button onClick={() => handleNavigation('tour-virtual')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
                 Tour Virtual
               </button>
+
               {/* Admisión - Mobile Dropdown */}
               <div className="block w-full">
                 <button
-                  onClick={() => setIsOurOpen(!isOurOpen)}
+                  onClick={() => setMobileAdmisionOpen(!mobileAdmisionOpen)}
                   className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800"
                 >
                   Admisión
                 </button>
-                {isOurOpen && (
+                {mobileAdmisionOpen && (
                   <div className="pl-4 border-l ml-2">
                     <button onClick={() => handleNavigation('admision-prekinder')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
                       Admisión Pre Kínder
@@ -278,42 +324,33 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                   </div>
                 )}
               </div>
+
+              {/* Intranet */}
               <button onClick={() => handleNavigation('admin')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
                 Intranet
               </button>
-              <button onClick={() => handleNavigation('fechas-importantes')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
-                Calendarios
-              </button>
 
-              {/* Nuestro Colegio Submenu (Mobile) */}
-              <div className="mt-2 pl-2 border-l">
-                <button onClick={() => handleNavigation('historia-congregacion')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Historia Congregación
+              {/* Calendarios - Mobile Dropdown */}
+              <div className="block w-full">
+                <button
+                  onClick={() => setMobileCalendariosOpen(!mobileCalendariosOpen)}
+                  className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800"
+                >
+                  Calendarios
                 </button>
-                <button onClick={() => handleNavigation('historia-colegio')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Historia del Colegio
-                </button>
-                <button onClick={() => handleNavigation('directorio-fundacion')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Directorio Fundación
-                </button>
-                <button onClick={() => handleNavigation('documentos-institucionales')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Documentos Oficiales
-                </button>
-                <button onClick={() => handleNavigation('rectoria')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Rectoría
-                </button>
-                <button onClick={() => handleNavigation('proyecto-educativo')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Proyecto Educativo
-                </button>
-                <button onClick={() => handleNavigation('utiles-escolares')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Listas útiles escolares
-                </button>
-                <button onClick={() => handleNavigation('consejo-directivo')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Consejo Directivo
-                </button>
-                <button onClick={() => handleNavigation('valores')} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-700">
-                  Valores de matrícula y colegiaturas
-                </button>
+                {mobileCalendariosOpen && (
+                  <div className="pl-4 border-l ml-2">
+                    <button onClick={() => handleNavigation('calendario-primer-ciclo')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Primer Ciclo
+                    </button>
+                    <button onClick={() => handleNavigation('calendario-segundo-ciclo')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Segundo Ciclo
+                    </button>
+                    <button onClick={() => handleNavigation('calendario-tercer-ciclo')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
+                      Tercer Ciclo
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Contact Info Section */}

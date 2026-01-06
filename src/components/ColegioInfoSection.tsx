@@ -9,6 +9,11 @@ export interface ColegioSectionItem {
 
 const baseSecciones = [
   {
+    title: "Comunidad y Espiritualidad",
+    description: "Vive la espiritualidad SSCC y la vida comunitaria.",
+    onClick: () => window.navigateTo && window.navigateTo('pastoral-juvenil'),
+  },
+  {
     title: "Cultura de Pensamiento",
     description: "Desarrollamos habilidades de pensamiento crítico y creativo en nuestros estudiantes.",
     onClick: () => window.navigateTo && window.navigateTo('proyecto-educativo'),
@@ -37,11 +42,6 @@ const baseSecciones = [
     title: "Admisión",
     description: "Infórmate sobre el proceso de admisión y requisitos.",
     onClick: null, // Se maneja con popup
-  },
-  {
-    title: "Comunidad y Espiritualidad",
-    description: "Vive la espiritualidad SSCC y la vida comunitaria.",
-    onClick: () => window.navigateTo && window.navigateTo('pastoral-juvenil'),
   },
 ];
 

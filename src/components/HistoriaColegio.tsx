@@ -158,7 +158,7 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 flex items-center justify-center">
           <img
-            src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png"
+            src="https://i.postimg.cc/pX9SpVm3/logosscc.png"
             alt="Logo Colegio Manquehue SSCC"
             className="h-32 md:h-40 w-auto object-contain"
           />

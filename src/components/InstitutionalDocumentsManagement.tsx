@@ -25,6 +25,7 @@ interface DocumentForm {
   description: string;
   file: File | null;
   order_index: number;
+  subcategory?: string;
 }
 
 const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagementProps> = ({ onBack }) => {
@@ -41,14 +42,16 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     title: '',
     description: '',
     file: null,
-    order_index: 0
+    order_index: 0,
+    subcategory: 'Todos'
   });
 
   const categories = [
     'Documentos de Matrícula 2026',
     'Documentos, protocolos y reglamentos del Colegio',
     'Seguros escolares',
-    'Otros'
+    'Otros',
+    'Listas útiles escolares'
   ];
 
   useEffect(() => {
@@ -128,10 +131,20 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
         fileSize = formData.file.size;
       }
 
+      // compute final category value (include subcategory for listas útiles escolares)
+      let finalCategory = formData.category;
+      if (formData.category === 'Listas útiles escolares') {
+        if (formData.subcategory && formData.subcategory !== 'Todos') {
+          finalCategory = `Listas útiles escolares - ${formData.subcategory}`;
+        } else {
+          finalCategory = 'Listas útiles escolares';
+        }
+      }
+
       if (editingId) {
         // Update existing document
         const updateData: any = {
-          category: formData.category,
+          category: finalCategory,
           title: formData.title,
           description: formData.description || null,
           order_index: formData.order_index,
@@ -153,12 +166,12 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
 
         if (error) throw error;
         setSuccess('Documento actualizado exitosamente');
-      } else {
+        } else {
         // Insert new document
         const { error } = await supabase
           .from('institutional_documents')
-          .insert([{
-            category: formData.category,
+          .insert([{ 
+            category: finalCategory,
             title: formData.title,
             description: formData.description || null,
             file_url: fileUrl,
@@ -166,7 +179,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
             file_type: fileType,
             file_size: fileSize,
             order_index: formData.order_index
-          }]);
+          }] );
 
         if (error) throw error;
         setSuccess('Documento agregado exitosamente');
@@ -178,7 +191,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
         title: '',
         description: '',
         file: null,
-        order_index: 0
+        order_index: 0,
+        subcategory: 'Todos'
       });
       setIsEditing(false);
       setEditingId(null);
@@ -192,12 +206,22 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   };
 
   const handleEdit = (doc: Document) => {
+    // Parse category for listas útiles escolares with optional subcategory
+    let parsedCategory = doc.category;
+    let parsedSub = 'Todos';
+    if (doc.category && doc.category.startsWith('Listas útiles escolares')) {
+      const parts = doc.category.split(' - ');
+      parsedCategory = 'Listas útiles escolares';
+      parsedSub = parts[1] || 'Todos';
+    }
+
     setFormData({
-      category: doc.category,
+      category: parsedCategory,
       title: doc.title,
       description: doc.description || '',
       file: null,
-      order_index: doc.order_index
+      order_index: doc.order_index,
+      subcategory: parsedSub
     });
     setEditingId(doc.id);
     setIsEditing(true);
@@ -229,7 +253,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       title: '',
       description: '',
       file: null,
-      order_index: 0
+      order_index: 0,
+      subcategory: 'Todos'
     });
     setIsEditing(false);
     setEditingId(null);
@@ -336,6 +361,24 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                 />
               </div>
             </div>
+
+            {/* Subcategory selector for Listas útiles escolares */}
+            {formData.category === 'Listas útiles escolares' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subcategoría *
+                </label>
+                <select
+                  value={formData.subcategory}
+                  onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                >
+                  {['Todos', 'Pre-Escolar', 'Básica', 'Media'].map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

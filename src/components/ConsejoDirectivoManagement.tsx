@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Upload, Trash2, Plus, X } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Trash2, Plus, X, Edit2, MoveUp, MoveDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface ConsejoDirectivoManagementProps {
@@ -12,6 +12,15 @@ interface ConsejoDirectivoData {
   photoPath?: string;
 }
 
+interface MiembroEquipo {
+  id: string;
+  nombre: string;
+  cargo: string | null;
+  foto_url: string | null;
+  curriculum: string | null;
+  orden: number;
+}
+
 const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({ onBack }) => {
   const [description, setDescription] = useState('');
   const [names, setNames] = useState<string[]>(['']);
@@ -22,8 +31,21 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Estados para gestión de equipo
+  const [miembros, setMiembros] = useState<MiembroEquipo[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [uploadingMember, setUploadingMember] = useState(false);
+  const [formData, setFormData] = useState({
+    nombre: '',
+    cargo: '',
+    curriculum: '',
+    foto_url: ''
+  });
+
   useEffect(() => {
     loadCurrentData();
+    fetchMiembros();
   }, []);
 
   const loadCurrentData = async () => {
@@ -165,6 +187,204 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
     } finally {
       setSaving(false);
     }
+  };
+
+  const fetchMiembros = async () => {
+    try {
+      const { data: membersData, error } = await supabase
+        .from('equipo_consejo_directivo')
+        .select('*')
+        .order('orden', { ascending: true });
+
+      if (error) throw error;
+      setMiembros(membersData || []);
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+    }
+  };
+
+  const handleFileMember = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingMember(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `consejo_directivo/${Date.now()}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) {
+        console.error('Upload error details:', uploadError);
+        throw new Error(`Error al subir: ${uploadError.message}`);
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('images')
+        .getPublicUrl(fileName);
+
+      setFormData({ ...formData, foto_url: urlData.publicUrl });
+      alert('Foto subida correctamente');
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      alert(`Error al subir la foto: ${error.message || 'Error desconocido'}`);
+    } finally {
+      setUploadingMember(false);
+    }
+  };
+
+  const handleAddMember = async () => {
+    if (!formData.nombre.trim()) {
+      alert('El nombre es obligatorio');
+      return;
+    }
+
+    try {
+      const maxOrden = miembros.length > 0 
+        ? Math.max(...miembros.map(m => m.orden))
+        : 0;
+
+      const { error } = await supabase
+        .from('equipo_consejo_directivo')
+        .insert([{
+          nombre: formData.nombre,
+          cargo: formData.cargo || null,
+          curriculum: formData.curriculum || null,
+          foto_url: formData.foto_url || null,
+          orden: maxOrden + 1
+        }]);
+
+      if (error) {
+        console.error('Error details:', error);
+        throw error;
+      }
+
+      alert('Miembro añadido correctamente');
+      setShowAddForm(false);
+      resetForm();
+      fetchMiembros();
+    } catch (error: any) {
+      console.error('Error adding member:', error);
+      alert(`Error al añadir el miembro: ${error.message || 'Error desconocido'}`);
+    }
+  };
+
+  const handleEditMember = (miembro: MiembroEquipo) => {
+    setEditingId(miembro.id);
+    setFormData({
+      nombre: miembro.nombre,
+      cargo: miembro.cargo || '',
+      curriculum: miembro.curriculum || '',
+      foto_url: miembro.foto_url || ''
+    });
+  };
+
+  const handleSaveMember = async (id: string) => {
+    if (!formData.nombre.trim()) {
+      alert('El nombre es obligatorio');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('equipo_consejo_directivo')
+        .update({
+          nombre: formData.nombre,
+          cargo: formData.cargo || null,
+          curriculum: formData.curriculum || null,
+          foto_url: formData.foto_url || null
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      alert('Cambios guardados correctamente');
+      setEditingId(null);
+      resetForm();
+      fetchMiembros();
+    } catch (error) {
+      console.error('Error updating member:', error);
+      alert('Error al guardar los cambios');
+    }
+  };
+
+  const handleDeleteMember = async (id: string, nombre: string) => {
+    if (!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from('equipo_consejo_directivo')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      alert('Miembro eliminado correctamente');
+      fetchMiembros();
+    } catch (error) {
+      console.error('Error deleting member:', error);
+      alert('Error al eliminar el miembro');
+    }
+  };
+
+  const handleMoveUp = async (id: string, currentOrden: number) => {
+    const targetMiembro = miembros.find(m => m.orden < currentOrden);
+    if (!targetMiembro) return;
+
+    try {
+      await supabase
+        .from('equipo_consejo_directivo')
+        .update({ orden: currentOrden })
+        .eq('id', targetMiembro.id);
+
+      await supabase
+        .from('equipo_consejo_directivo')
+        .update({ orden: targetMiembro.orden })
+        .eq('id', id);
+
+      fetchMiembros();
+    } catch (error) {
+      console.error('Error reordering:', error);
+      alert('Error al reordenar');
+    }
+  };
+
+  const handleMoveDown = async (id: string, currentOrden: number) => {
+    const targetMiembro = miembros.find(m => m.orden > currentOrden);
+    if (!targetMiembro) return;
+
+    try {
+      await supabase
+        .from('equipo_consejo_directivo')
+        .update({ orden: currentOrden })
+        .eq('id', targetMiembro.id);
+
+      await supabase
+        .from('equipo_consejo_directivo')
+        .update({ orden: targetMiembro.orden })
+        .eq('id', id);
+
+      fetchMiembros();
+    } catch (error) {
+      console.error('Error reordering:', error);
+      alert('Error al reordenar');
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      nombre: '',
+      cargo: '',
+      curriculum: '',
+      foto_url: ''
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    resetForm();
   };
 
   return (
@@ -311,6 +531,262 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
             </div>
           </div>
         )}
+
+        {/* SECCIÓN 2: Gestión de miembros del equipo */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mt-8">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-800">Miembros del Equipo</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Añade perfiles individuales con foto y curriculum
+              </p>
+            </div>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Añadir Miembro
+            </button>
+          </div>
+
+            {/* Formulario para añadir nuevo miembro */}
+            {showAddForm && (
+              <div className="bg-gray-50 p-6 rounded-lg mb-6 border-2 border-blue-200">
+                <h4 className="text-lg font-bold mb-4">Nuevo Miembro</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Nombre *</label>
+                    <input
+                      type="text"
+                      value={formData.nombre}
+                      onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                      className="w-full p-2 border rounded"
+                      placeholder="Nombre completo"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Cargo</label>
+                    <input
+                      type="text"
+                      value={formData.cargo}
+                      onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
+                      className="w-full p-2 border rounded"
+                      placeholder="Ej: Presidente, Secretario..."
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Foto de perfil</label>
+                  {formData.foto_url && (
+                    <img src={formData.foto_url} alt="Preview" className="max-h-40 mb-2 rounded" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileMember}
+                    disabled={uploadingMember}
+                    className="w-full"
+                  />
+                  {uploadingMember && <p className="text-sm text-gray-500 mt-1">Subiendo...</p>}
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Curriculum</label>
+                  <textarea
+                    value={formData.curriculum}
+                    onChange={(e) => setFormData({ ...formData, curriculum: e.target.value })}
+                    rows={6}
+                    className="w-full p-2 border rounded"
+                    placeholder="Formación académica, experiencia profesional, logros..."
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleAddMember}
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Guardar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAddForm(false);
+                      resetForm();
+                    }}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 flex items-center"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Lista de miembros */}
+            <div className="space-y-4">
+              {miembros.map((miembro, index) => (
+                <div key={miembro.id} className="bg-white border rounded-lg p-4">
+                  {editingId === miembro.id ? (
+                    // Modo edición
+                    <div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Nombre *</label>
+                          <input
+                            type="text"
+                            value={formData.nombre}
+                            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                            className="w-full p-2 border rounded"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Cargo</label>
+                          <input
+                            type="text"
+                            value={formData.cargo}
+                            onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
+                            className="w-full p-2 border rounded"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium mb-2">Foto</label>
+                        {formData.foto_url && (
+                          <img src={formData.foto_url} alt="Preview" className="max-h-40 mb-2 rounded" />
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileMember}
+                          disabled={uploadingMember}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium mb-2">Curriculum</label>
+                        <textarea
+                          value={formData.curriculum}
+                          onChange={(e) => setFormData({ ...formData, curriculum: e.target.value })}
+                          rows={6}
+                          className="w-full p-2 border rounded"
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSaveMember(miembro.id)}
+                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          Guardar
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 flex items-center"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // Modo vista
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        {miembro.foto_url ? (
+                          <img
+                            src={miembro.foto_url}
+                            alt={miembro.nombre}
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span className="text-gray-400 text-xs">Sin foto</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-grow">
+                        <h4 className="text-lg font-bold text-gray-900">{miembro.nombre}</h4>
+                        {miembro.cargo && (
+                          <p className="text-blue-600 font-medium">{miembro.cargo}</p>
+                        )}
+                        {miembro.curriculum && (
+                          <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                            {miembro.curriculum}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleMoveUp(miembro.id, miembro.orden)}
+                            disabled={index === 0}
+                            className={`p-2 rounded ${
+                              index === 0
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                            }`}
+                            title="Mover arriba"
+                          >
+                            <MoveUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveDown(miembro.id, miembro.orden)}
+                            disabled={index === miembros.length - 1}
+                            className={`p-2 rounded ${
+                              index === miembros.length - 1
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                            }`}
+                            title="Mover abajo"
+                          >
+                            <MoveDown className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => handleEditMember(miembro)}
+                          className="p-2 bg-yellow-100 text-yellow-600 rounded hover:bg-yellow-200"
+                          title="Editar"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteMember(miembro.id, miembro.nombre)}
+                          className="p-2 bg-red-100 text-red-600 rounded hover:bg-red-200"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {miembros.length === 0 && !showAddForm && (
+                <div className="bg-gray-50 p-12 rounded-lg text-center border-2 border-dashed border-gray-300">
+                  <p className="text-gray-500 mb-4">
+                    No hay miembros registrados.
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Haz clic en "Añadir Miembro" para comenzar.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
       </div>
     </div>
   );

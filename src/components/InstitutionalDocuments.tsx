@@ -23,6 +23,7 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [activeSubcategory, setActiveSubcategory] = useState<string>('Todos');
   const [isVisible, setIsVisible] = useState(false);
 
   const categories = [
@@ -30,7 +31,8 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     { id: 'Documentos de Matrícula 2026', name: 'Matrícula 2026', color: 'green' },
     { id: 'Documentos, protocolos y reglamentos del Colegio', name: 'Protocolos y Reglamentos', color: 'purple' },
     { id: 'Seguros escolares', name: 'Seguros Escolares', color: 'orange' },
-    { id: 'Otros', name: 'Otros', color: 'gray' }
+    { id: 'Otros', name: 'Otros', color: 'gray' },
+    { id: 'Listas útiles escolares', name: 'Listas útiles escolares', color: 'teal' }
   ];
 
   useEffect(() => {
@@ -87,7 +89,17 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
 
   let filteredDocuments: Document[] = documents;
   if (activeCategory !== 'all') {
-    if (activeCategory === MATR_2026) {
+    if (activeCategory === 'Listas útiles escolares') {
+      // Filter documentos for listas útiles escolares and its subcategories
+      if (activeSubcategory === 'Todos') {
+        filteredDocuments = documents.filter(doc => (doc.category || '').includes('Listas útiles escolares'));
+      } else {
+        filteredDocuments = documents.filter(doc => {
+          const c = doc.category || '';
+          return (c.includes('Listas útiles escolares') && c.includes(activeSubcategory)) || c === activeSubcategory;
+        });
+      }
+    } else if (activeCategory === MATR_2026) {
       // Treat 2025 and 2026 as the same category in the UI so existing documents appear under 2026
       filteredDocuments = documents.filter(doc => doc.category === MATR_2026 || doc.category === MATR_2025);
     } else {
@@ -147,6 +159,21 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
               </button>
             ))}
           </div>
+          {activeCategory === 'Listas útiles escolares' && (
+            <div className="flex flex-wrap gap-3 mt-4">
+              {['Todos', 'Pre-Escolar', 'Básica', 'Media'].map((sub) => (
+                <button
+                  key={sub}
+                  onClick={() => setActiveSubcategory(sub)}
+                  className={`px-3 py-1 rounded-lg font-medium transition-all duration-300 ${
+                    activeSubcategory === sub ? 'bg-teal-600 text-white' : 'bg-teal-100 text-teal-700 hover:bg-teal-200'
+                  }`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Loading State */}

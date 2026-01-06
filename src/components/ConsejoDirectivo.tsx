@@ -12,13 +12,24 @@ interface ConsejoDirectivoData {
   photoPath?: string;
 }
 
+interface MiembroEquipo {
+  id: string;
+  nombre: string;
+  cargo: string | null;
+  foto_url: string | null;
+  curriculum: string | null;
+  orden: number;
+}
+
 const ConsejoDirectivo: React.FC<ConsejoDirectivoProps> = ({ onBack }) => {
   const [data, setData] = useState<ConsejoDirectivoData | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageUrl, setImageUrl] = useState<string>('');
+  const [miembros, setMiembros] = useState<MiembroEquipo[]>([]);
 
   useEffect(() => {
     fetchData();
+    fetchMiembros();
   }, []);
 
   const fetchData = async () => {
@@ -54,6 +65,20 @@ const ConsejoDirectivo: React.FC<ConsejoDirectivoProps> = ({ onBack }) => {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMiembros = async () => {
+    try {
+      const { data: membersData, error } = await supabase
+        .from('equipo_consejo_directivo')
+        .select('*')
+        .order('orden', { ascending: true });
+
+      if (error) throw error;
+      setMiembros(membersData || []);
+    } catch (error) {
+      console.error('Error fetching team members:', error);
     }
   };
 
@@ -109,6 +134,72 @@ const ConsejoDirectivo: React.FC<ConsejoDirectivoProps> = ({ onBack }) => {
                 <p className="text-gray-600 text-sm italic">
                   {data.names.join(' • ')}
                 </p>
+              </div>
+            )}
+
+            {/* Sección de Perfiles del Equipo */}
+            {miembros.length > 0 && (
+              <div className="mt-16">
+                <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+                  Nuestro Equipo
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {miembros.map((miembro) => (
+                    <div
+                      key={miembro.id}
+                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-100"
+                    >
+                      {/* Foto de perfil */}
+                      <div className="relative h-64 bg-gradient-to-br from-blue-50 to-indigo-100">
+                        {miembro.foto_url ? (
+                          <img
+                            src={miembro.foto_url}
+                            alt={miembro.nombre}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center">
+                              <svg
+                                className="w-16 h-16 text-gray-400"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Información del perfil */}
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-1">
+                          {miembro.nombre}
+                        </h3>
+                        
+                        {miembro.cargo && (
+                          <p className="text-blue-600 font-semibold mb-3">
+                            {miembro.cargo}
+                          </p>
+                        )}
+
+                        {miembro.curriculum && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                              {miembro.curriculum}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

@@ -59,7 +59,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
     {
       id: 'valores-management',
       title: 'Gestión de Valores',
-      description: 'Administrar valores de matrícula y colegiaturas',
+      description: 'Administrar matrícula y colegiaturas 2026',
       icon: <CreditCard className="w-8 h-8" />,
       color: 'bg-emerald-600 hover:bg-emerald-700',
       iconBg: 'bg-emerald-100 text-emerald-600'

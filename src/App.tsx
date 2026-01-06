@@ -461,15 +461,6 @@ function App() {
               <p className="text-gray-600 text-base leading-relaxed">
                 El Colegio Sagrados Corazones de Manquehue forma estudiantes comprometidos con la transformación social. Fundado en 1955, creció junto al barrio y hoy reúne una comunidad educativa amplia, con una fuerte identidad institucional y más de 2.000 estudiantes. Nuestra misión es educar en el respeto, la solidaridad y la excelencia académica.
               </p>
-              <button 
-                onClick={() => handlePageChange('historia')}
-                className="inline-flex items-center bg-blue-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-300 group"
-              >
-                Ver Más
-                <svg className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </button>
             </div>
             {/* Right Image */}
             <div className="relative">

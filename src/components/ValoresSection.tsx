@@ -153,7 +153,7 @@ const ValoresSection: React.FC<ValoresSectionProps> = ({ onBack }) => {
             <DollarSign className="w-16 h-16 text-blue-600" />
           </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Valores de Matrícula y Colegiaturas
+            Matrícula y Colegiaturas 2026
           </h1>
           <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto rounded-full mb-6"></div>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
