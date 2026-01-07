@@ -93,7 +93,7 @@ const Tour360Section: React.FC<Tour360SectionProps> = ({ onBack }) => {
           {/* Tour Iframe */}
           <div className="relative" style={{ height: '600px' }}>
             <iframe
-              src="https://tours.tourify.cl/tours/cbdqKz69F"
+              src="https://tours.tourify.cl/tours/sR3QULqXd"
               title="Tour Virtual 360° - Colegio Sagrada Familia"
               className="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; vr"
@@ -121,7 +121,7 @@ const Tour360Section: React.FC<Tour360SectionProps> = ({ onBack }) => {
               </div>
               <div className="flex items-center space-x-4">
                 <a
-                  href="https://tours.tourify.cl/tours/cbdqKz69F"
+                  href="https://tours.tourify.cl/tours/sR3QULqXd"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
