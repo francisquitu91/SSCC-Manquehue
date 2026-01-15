@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Users } from 'lucide-react';
 import DirectoryCarousel, { DirectoryItem } from './DirectoryCarousel';
+import FlipCard from './FlipCard';
 import { supabase } from '../lib/supabase';
 import type { DirectoryMember } from '../lib/supabase';
 
@@ -145,6 +146,13 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
               <Calendar className="w-5 h-5" />
               <span className="font-semibold">Historia Colegio</span>
             </button>
+            <button
+              onClick={() => scrollToSection('vision-mision')}
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-blue-700 flex-shrink-0"
+            >
+              <Users className="w-5 h-5" />
+              <span className="font-semibold">Visión y Misión</span>
+            </button>
           </div>
         </div>
       </div>
@@ -207,6 +215,57 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
             </div>
             <p className="text-gray-700 leading-relaxed text-center">
               {timelineEventsColegio[activeTimelineColegio].description}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Visión y Misión Section */}
+      <div id="vision-mision" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
+        <div className={`transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">Visión y Misión</h2>
+          
+          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            {/* Image Section */}
+            <div className="relative group order-2 lg:order-1">
+              <div className="relative overflow-hidden rounded-lg shadow-xl">
+                <div className="relative">
+                  <img
+                    src="https://i.postimg.cc/vH3y23Z4/fotodecomida.jpg"
+                    alt="Visión y Misión"
+                    className="w-full h-auto transform hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent"></div>
+                </div>
+                {/* Decorative elements */}
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-200 rounded-full opacity-20 blur-2xl"></div>
+                <div className="absolute -top-4 -left-4 w-24 h-24 bg-red-200 rounded-full opacity-20 blur-2xl"></div>
+              </div>
+            </div>
+
+            {/* Flip Cards */}
+            <div className="space-y-6 order-1 lg:order-2">
+              <FlipCard
+                type="vision"
+                title="Visión"
+                content="Ser reconocidos como una institución educativa de excelencia que forma personas íntegras, comprometidas con el desarrollo de la sociedad y capaces de enfrentar los desafíos del siglo XXI, manteniendo vivo el legado de los Sagrados Corazones en nuestro colegio."
+                customImage="https://i.postimg.cc/zGZCMS2D/foto.png"
+              />
+              
+              <FlipCard
+                type="mision"
+                title="Misión"
+                content="Educar y formar a nuestros estudiantes en un ambiente de excelencia académica y valores cristianos, desarrollando al máximo sus potencialidades intelectuales, espirituales y sociales, para que sean agentes de cambio positivo en la construcción de una sociedad más justa y fraterna."
+                customImage="https://i.postimg.cc/mDJjrxj7/foto.jpg"
+              />
+            </div>
+          </div>
+
+          {/* Instruction hint */}
+          <div className="text-center mb-8">
+            <p className="text-sm text-gray-500 italic flex items-center justify-center space-x-2">
+              <span>💡</span>
+              <span>Haz clic en las tarjetas para ver el contenido completo</span>
             </p>
           </div>
         </div>

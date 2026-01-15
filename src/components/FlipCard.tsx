@@ -5,9 +5,10 @@ interface FlipCardProps {
   type: 'vision' | 'mision';
   title: string;
   content: string;
+  customImage?: string;
 }
 
-const FlipCard: React.FC<FlipCardProps> = ({ type, title, content }) => {
+const FlipCard: React.FC<FlipCardProps> = ({ type, title, content, customImage }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const colors: {
@@ -40,6 +41,7 @@ const FlipCard: React.FC<FlipCardProps> = ({ type, title, content }) => {
 
   const Icon = type === 'vision' ? Eye : Target;
   const color = colors[type];
+  const finalImage = customImage || color.image;
 
   return (
     <div 
@@ -57,12 +59,13 @@ const FlipCard: React.FC<FlipCardProps> = ({ type, title, content }) => {
               <div 
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ 
-                  backgroundImage: `url(${color.image})`,
+                  backgroundImage: `url(${finalImage})`,
                   backgroundSize: 'cover',
-                  backgroundPosition: 'center'
+                  backgroundPosition: 'center',
+                  filter: 'contrast(1.2) brightness(1.1) saturate(1.3)'
                 }}
               />
-              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/30 to-black/40"></div>
             </>
           )}
           

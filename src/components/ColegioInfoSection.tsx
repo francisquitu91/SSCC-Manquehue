@@ -11,7 +11,7 @@ const baseSecciones = [
   {
     title: "Comunidad y Espiritualidad",
     description: "Vive la espiritualidad SSCC y la vida comunitaria.",
-    onClick: () => window.navigateTo && window.navigateTo('pastoral-juvenil'),
+    onClick: () => window.navigateTo && window.navigateTo('comunidad'),
   },
   {
     title: "Cultura de Pensamiento",

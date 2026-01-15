@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell } from 'lucide-react';
+import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell, Users2 } from 'lucide-react';
 
 interface AdminDashboardProps {
   onNavigate: (page: string) => void;
@@ -71,6 +71,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       icon: <Bell className="w-8 h-8" />,
       color: 'bg-red-600 hover:bg-red-700',
       iconBg: 'bg-red-100 text-red-600'
+    },
+    {
+      id: 'comunidad-management',
+      title: 'Gestión de Comunidad',
+      description: 'Administrar los 5 bloques de comunidad con carruseles e integrantes',
+      icon: <Users2 className="w-8 h-8" />,
+      color: 'bg-purple-600 hover:bg-purple-700',
+      iconBg: 'bg-purple-100 text-purple-600'
     }
   ];
 

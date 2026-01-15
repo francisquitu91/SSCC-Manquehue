@@ -373,7 +373,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                   onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 >
-                  {['Todos', 'Pre-Escolar', 'Básica', 'Media'].map((s) => (
+                  {['Todos', 'Primer ciclo', 'Segundo ciclo', 'Tercer ciclo'].map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>

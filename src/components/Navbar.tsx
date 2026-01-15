@@ -60,9 +60,18 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
 
             {/* Right: Quick Links */}
             <div className="hidden lg:flex items-center space-x-6">
-              <button className="text-xs text-white hover:underline">Comunidad</button>
-              <button className="text-xs text-white hover:underline">Áreas de Apoyo</button>
-              <button className="text-xs text-white hover:underline">Contacto</button>
+              <button 
+                onClick={() => handleNavigation('comunidad')}
+                className="text-xs text-white hover:underline"
+              >
+                Comunidad
+              </button>
+              <a 
+                href="tel:+56227194300"
+                className="text-xs text-white hover:underline"
+              >
+                Contacto
+              </a>
             </div>
           </div>
         </div>
@@ -85,8 +94,8 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                 <div className="ml-2 sm:ml-4 md:ml-6 leading-tight -mt-4 sm:-mt-6">
                   <div className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-900 uppercase font-sans">
                     <span className="font-normal">COLEGIO </span>
-                    <span className="font-extrabold">MANQUEHUE</span>
-                    <span className="font-normal"> SSCC</span>
+                    <span className="font-extrabold">SS.CC.</span>
+                    <span className="font-normal"> MANQUEHUE</span>
                   </div>
                 </div>
               </a>

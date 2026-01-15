@@ -161,7 +161,7 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
           </div>
           {activeCategory === 'Listas útiles escolares' && (
             <div className="flex flex-wrap gap-3 mt-4">
-              {['Todos', 'Pre-Escolar', 'Básica', 'Media'].map((sub) => (
+              {['Todos', 'Primer ciclo', 'Segundo ciclo', 'Tercer ciclo'].map((sub) => (
                 <button
                   key={sub}
                   onClick={() => setActiveSubcategory(sub)}

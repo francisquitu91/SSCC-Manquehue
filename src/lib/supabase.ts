@@ -79,3 +79,42 @@ export interface PastoralTeamMember {
   created_at: string;
   updated_at: string;
 }
+
+export interface ComunidadBloque {
+  id: string;
+  bloque_numero: number;
+  titulo: string;
+  descripcion: string;
+  boton_texto: string;
+  boton_url: string;
+  mostrar_integrantes: boolean;
+  activo: boolean;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ComunidadFoto {
+  id: string;
+  bloque_id: string;
+  photo_url: string;
+  photo_name: string;
+  caption: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ComunidadIntegrante {
+  id: string;
+  bloque_id: string;
+  nombre: string;
+  cargo: string;
+  foto_url: string;
+  email: string;
+  telefono: string;
+  descripcion: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}

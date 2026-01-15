@@ -24,6 +24,8 @@ import CEALSection from './components/CEALSection';
 import PastoralJuvenilSection from './components/PastoralJuvenilSection';
 import CEALManagement from './components/CEALManagement';
 import PastoralManagement from './components/PastoralManagement';
+import ComunidadSection from './components/ComunidadSection';
+import ComunidadManagement from './components/ComunidadManagement';
 import FundacionPentecostes from './components/FundacionPentecostes';
 import DirectorioFundacion from './components/DirectorioFundacion';
 import AdmisionSection from './components/AdmisionSection';
@@ -164,6 +166,10 @@ function App() {
     return <PastoralJuvenilSection onBack={handleBackToHome} />;
   }
 
+  if (currentPage === 'comunidad') {
+    return <ComunidadSection onBack={handleBackToHome} />;
+  }
+
   if (currentPage === 'rectoria') {
     return <RectoriaSection onBack={handleBackToHome} />;
   }
@@ -178,6 +184,10 @@ function App() {
 
   if (currentPage === 'pastoral-management') {
     return <PastoralManagement onBack={handleBackToAdmin} />;
+  }
+
+  if (currentPage === 'comunidad-management') {
+    return <ComunidadManagement onBack={handleBackToAdmin} />;
   }
 
   if (currentPage === 'fundacion-pentecostes') {
@@ -407,7 +417,7 @@ function App() {
             
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
-                onClick={() => handlePageChange('proyecto-educativo')}
+                onClick={() => handlePageChange('historia-colegio')}
                 className="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold text-white bg-transparent border-2 border-white rounded-none overflow-hidden transition-all duration-300 hover:bg-white hover:text-gray-800 drop-shadow-lg uppercase tracking-wide"
               >
                 <span className="relative z-10 flex items-center">
@@ -465,18 +475,18 @@ function App() {
             {/* Right Image */}
             <div className="relative">
               <div className="relative">
-                {/* Decorative blue circle background */}
-                <div className="absolute -top-6 -right-6 w-72 h-72 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-20"></div>
-                {/* Main image with circular crop */}
-                <div className="relative w-80 h-80 mx-auto rounded-full overflow-hidden shadow-2xl">
+                {/* Decorative blue square background */}
+                <div className="absolute -top-6 -right-6 w-96 h-96 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg opacity-20"></div>
+                {/* Main image with square shape */}
+                <div className="relative w-96 h-96 mx-auto rounded-lg overflow-hidden shadow-2xl">
                   <img
-                    src="https://i.postimg.cc/CdpBGVYm/Whats-App-Image-2025-09-28-at-5-25-28-PM.jpg"
+                    src="https://i.postimg.cc/vH3y23Z4/fotodecomida2.jpg"
                     alt="Colegio Sagrados Corazones de Manquehue"
                     className="w-full h-full object-cover object-center scale-110"
                   />
                 </div>
                 {/* Additional decorative elements */}
-                <div className="absolute -bottom-3 -left-3 w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-30 -z-10"></div>
+                <div className="absolute -bottom-3 -left-3 w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-lg opacity-30 -z-10"></div>
               </div>
             </div>
           </div>
