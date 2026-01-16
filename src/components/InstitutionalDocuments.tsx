@@ -31,8 +31,8 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     { id: 'Documentos de Matrícula 2026', name: 'Matrícula 2026', color: 'green' },
     { id: 'Documentos, protocolos y reglamentos del Colegio', name: 'Protocolos y Reglamentos', color: 'purple' },
     { id: 'Seguros escolares', name: 'Seguros Escolares', color: 'orange' },
-    { id: 'Otros', name: 'Otros', color: 'gray' },
-    { id: 'Listas útiles escolares', name: 'Listas útiles escolares', color: 'teal' }
+    { id: 'Listas útiles escolares', name: 'Listas útiles escolares', color: 'teal' },
+    { id: 'Otros', name: 'Otros', color: 'gray' }
   ];
 
   useEffect(() => {
@@ -211,38 +211,20 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                           key={doc.id}
                           className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 hover:border-blue-300 group"
                         >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center space-x-3">
-                              <span className="text-3xl">{getFileIcon(doc.file_type)}</span>
-                              <div>
-                                <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                  {doc.title}
-                                </h3>
-                                {doc.description && (
-                                  <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                            <div className="flex items-center space-x-4 text-sm text-gray-500">
-                              <div className="flex items-center space-x-1">
-                                <FileType className="w-4 h-4" />
-                                <span>{doc.file_type.split('/')[1]?.toUpperCase() || 'FILE'}</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>{formatFileSize(doc.file_size)}</span>
-                              </div>
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center space-x-3 flex-1 min-w-0">
+                              <span className="text-3xl flex-shrink-0">{getFileIcon(doc.file_type)}</span>
+                              <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors break-words">
+                                {doc.title}
+                              </h3>
                             </div>
 
                             <button
                               onClick={() => handleDownload(doc.file_url, doc.file_name)}
-                              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105"
+                              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105 flex-shrink-0"
                             >
                               <Download className="w-4 h-4" />
-                              <span>Descargar</span>
+                              <span className="hidden sm:inline">Descargar</span>
                             </button>
                           </div>
                         </div>

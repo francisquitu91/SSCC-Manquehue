@@ -8,14 +8,6 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout }) => {
   const adminOptions = [
-        {
-          id: 'utiles-escolares-management',
-          title: 'Gestión de Listas útiles escolares',
-          description: 'Administra las listas de útiles escolares por nivel',
-          icon: <FolderOpen className="w-8 h-8" />,
-          color: 'bg-teal-600 hover:bg-teal-700',
-          iconBg: 'bg-teal-100 text-teal-600'
-        },
     {
       id: 'news-management',
       title: 'Gestión de Noticias',
