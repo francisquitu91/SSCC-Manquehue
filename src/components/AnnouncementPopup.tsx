@@ -12,6 +12,8 @@ interface AnnouncementData {
   image_url?: string | null;
   image_name?: string | null;
   image_enabled?: boolean;
+  link_url?: string | null;
+  link_text?: string | null;
 }
 
 export default function AnnouncementPopup() {
@@ -60,7 +62,7 @@ export default function AnnouncementPopup() {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-5 flex items-center justify-between rounded-t-2xl">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 flex items-center justify-between rounded-t-2xl">
           <h2 className="text-2xl font-bold text-white">{announcement.title}</h2>
           <button
             onClick={handleClose}
@@ -76,6 +78,23 @@ export default function AnnouncementPopup() {
           <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
             {announcement.message}
           </div>
+
+          {/* Clickable Link */}
+          {announcement.link_url && announcement.link_text && (
+            <div className="flex justify-center">
+              <a
+                href={announcement.link_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium inline-flex items-center gap-2"
+              >
+                {announcement.link_text}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+          )}
 
           {/* Expandable Image */}
           {announcement.image_url && announcement.image_enabled && (

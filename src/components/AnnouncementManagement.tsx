@@ -12,6 +12,8 @@ interface AnnouncementData {
   image_url?: string | null;
   image_name?: string | null;
   image_enabled?: boolean;
+  link_url?: string | null;
+  link_text?: string | null;
 }
 
 interface AnnouncementManagementProps {
@@ -28,7 +30,9 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
     document_name: null
     ,image_url: null,
     image_name: null,
-    image_enabled: false
+    image_enabled: false,
+    link_url: null,
+    link_text: null
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,7 +75,9 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
           document_name: announcement.document_name
           ,image_url: announcement.image_url || null,
           image_name: announcement.image_name || null,
-          image_enabled: announcement.image_enabled || false
+          image_enabled: announcement.image_enabled || false,
+          link_url: announcement.link_url || null,
+          link_text: announcement.link_text || null
         })
         .eq('id', announcement.id);
 
@@ -210,7 +216,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -230,7 +236,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
         {/* Header */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
               <Bell className="h-8 w-8 text-white" />
             </div>
             <div>
@@ -266,7 +272,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
                 onChange={(e) => setAnnouncement({ ...announcement, is_active: e.target.checked })}
                 className="sr-only peer"
               />
-              <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600"></div>
+              <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
             </label>
           </div>
 
@@ -279,7 +285,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
               type="text"
               value={announcement.title}
               onChange={(e) => setAnnouncement({ ...announcement, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Ej: Información Importante"
             />
           </div>
@@ -293,7 +299,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
               value={announcement.message}
               onChange={(e) => setAnnouncement({ ...announcement, message: e.target.value })}
               rows={6}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Escribe el mensaje que verán los usuarios..."
             />
           </div>
@@ -326,7 +332,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-red-500 transition-colors">
+              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-blue-500 transition-colors">
                 <Upload className="h-10 w-10 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-600">Haz clic para subir un documento</span>
                 <span className="text-xs text-gray-500 mt-1">PDF, Word, Excel, etc.</span>
@@ -341,7 +347,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
 
             {uploading && (
               <div className="flex items-center justify-center mt-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                 <span className="ml-2 text-sm text-gray-600">Subiendo archivo...</span>
               </div>
             )}
@@ -369,7 +375,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
                 </div>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-red-500 transition-colors">
+              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-blue-500 transition-colors">
                 <Upload className="h-10 w-10 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-600">Haz clic para subir una imagen</span>
                 <span className="text-xs text-gray-500 mt-1">PNG, JPG</span>
@@ -379,10 +385,39 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
 
             {uploading && (
               <div className="flex items-center justify-center mt-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                 <span className="ml-2 text-sm text-gray-600">Subiendo imagen...</span>
               </div>
             )}
+          </div>
+
+          {/* Link Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Link Cliceable (opcional)
+            </label>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Texto del enlace</label>
+                <input
+                  type="text"
+                  value={announcement.link_text || ''}
+                  onChange={(e) => setAnnouncement({ ...announcement, link_text: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ej: Ver más información"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">URL del enlace</label>
+                <input
+                  type="url"
+                  value={announcement.link_url || ''}
+                  onChange={(e) => setAnnouncement({ ...announcement, link_url: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://ejemplo.com"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Save Button */}
@@ -390,7 +425,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
             <button
               onClick={handleSave}
               disabled={saving || !announcement.title || !announcement.message}
-              className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors"
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
             >
               <Save className="h-5 w-5" />
               <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
