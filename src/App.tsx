@@ -231,7 +231,7 @@ function App() {
     return <ConsejoDirectivo onBack={handleBackToHome} />;
   }
 
-  if (currentPage === 'admision') {
+  if (currentPage === 'admision' || currentPage === 'admision-prekinder') {
     return <AdmisionSection onBack={handleBackToHome} />;
   }
 

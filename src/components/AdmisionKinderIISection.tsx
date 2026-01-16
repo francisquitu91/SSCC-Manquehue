@@ -48,32 +48,10 @@ export default function AdmisionKinderIISection({ onBack }: { onBack?: () => voi
         Volver
       </button>
       <h2 className="text-2xl font-bold text-blue-900 mb-4 text-center">Admisión Kínder a II°</h2>
-      <h3 className="text-lg font-semibold text-blue-800 mb-2 text-center">Calendario Proceso Admisión para Marzo 2026</h3>
-      <div className="overflow-x-auto">
-        {loading ? (
-          <div className="text-center text-blue-700 py-8">Cargando calendario...</div>
-        ) : error ? (
-          <div className="text-center text-red-600 py-8">{error}</div>
-        ) : (
-          <table className="min-w-full border border-blue-200 rounded-lg overflow-hidden text-sm">
-            <thead className="bg-blue-50">
-              <tr>
-                <th className="px-3 py-2 border-b border-blue-200 text-blue-900 font-bold">Fechas</th>
-                <th className="px-3 py-2 border-b border-blue-200 text-blue-900 font-bold">Hora</th>
-                <th className="px-3 py-2 border-b border-blue-200 text-blue-900 font-bold">Proceso</th>
-              </tr>
-            </thead>
-            <tbody>
-              {calendario.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-3 py-2 border-b border-blue-100">{item.fecha}</td>
-                  <td className="px-3 py-2 border-b border-blue-100">{item.hora}</td>
-                  <td className="px-3 py-2 border-b border-blue-100">{item.proceso}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+        <p className="text-lg font-semibold text-blue-900">
+          Proceso cerrado hasta nuevo aviso
+        </p>
       </div>
     </section>
   );
