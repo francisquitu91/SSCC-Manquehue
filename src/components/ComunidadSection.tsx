@@ -143,6 +143,13 @@ const ComunidadSection: React.FC<ComunidadSectionProps> = ({ onBack }) => {
     }
   };
 
+  const scrollToBloque = (bloqueId: string) => {
+    const element = document.getElementById(`bloque-${bloqueId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -166,13 +173,73 @@ const ComunidadSection: React.FC<ComunidadSectionProps> = ({ onBack }) => {
             <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={20} />
             Volver
           </button>
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-              Comunidad
+          
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+              Comunidad y Espiritualidad SS.CC.
             </h1>
-            <p className="text-xl text-gray-600">
-              Conoce los diferentes grupos que conforman nuestra comunidad educativa
-            </p>
+          </div>
+
+          {/* Accesos Rápidos a Secciones */}
+          {bloques.length > 0 && (
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Accesos Rápidos</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                {bloques.map((bloque, index) => {
+                  const iconColors = [
+                    'text-yellow-600',
+                    'text-blue-600',
+                    'text-indigo-600',
+                    'text-purple-600',
+                    'text-green-600',
+                    'text-red-600',
+                    'text-pink-600',
+                    'text-orange-600',
+                  ];
+                  const colorClass = iconColors[index % iconColors.length];
+                  
+                  return (
+                    <button
+                      key={bloque.id}
+                      onClick={() => scrollToBloque(bloque.id)}
+                      className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+                    >
+                      <Users className={`w-12 h-12 ${colorClass} mb-3 group-hover:scale-110 transition-transform`} />
+                      <span className="text-base font-semibold text-gray-700 text-center">{bloque.titulo}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Texto descriptivo con imagen */}
+          <div className="mb-12 bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="grid lg:grid-cols-2 gap-0">
+              <div className="p-8 md:p-12 flex flex-col justify-center">
+                <div className="space-y-4 text-base text-gray-700 leading-relaxed">
+                  <p>
+                    El Colegio Sagrados Corazones Manquehue es una comunidad educativa inspirada en la espiritualidad de los Sagrados Corazones de Jesús y de María, donde la fe, el encuentro y el compromiso con los demás son el corazón de nuestra identidad.
+                  </p>
+                  <p>
+                    Creemos en una educación integral que forma personas conscientes, solidarias y fraternas, promoviendo relaciones basadas en el respeto, la cercanía y la corresponsabilidad entre estudiantes, familias, educadores y funcionarios. Nuestra comunidad se construye día a día en la confianza, el diálogo y el trabajo colaborativo.
+                  </p>
+                  <p>
+                    La espiritualidad SS.CC. nos invita a vivir una fe encarnada, abierta y comprometida con la realidad, que se expresa en la oración, la vida sacramental, la reflexión comunitaria y el servicio. Buscamos que cada integrante de nuestra comunidad pueda encontrar espacios para crecer interiormente, descubrir su vocación y poner sus talentos al servicio de los demás.
+                  </p>
+                  <p>
+                    Así, el Colegio SS.CC. Manquehue es un lugar donde la educación y la fe se unen para formar personas íntegras, con sentido trascendente y comprometidas con la construcción de una sociedad más justa y fraterna.
+                  </p>
+                </div>
+              </div>
+              <div className="relative h-full min-h-[400px]">
+                <img
+                  src="https://i.postimg.cc/BvKVbc3m/ddaad.jpg"
+                  alt="Comunidad SS.CC. Manquehue"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -187,7 +254,8 @@ const ComunidadSection: React.FC<ComunidadSectionProps> = ({ onBack }) => {
             return (
               <div
                 key={bloque.id}
-                className={`bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl ${
+                id={`bloque-${bloque.id}`}
+                className={`bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl scroll-mt-24 ${
                   isExpanded ? 'ring-2 ring-blue-500' : ''
                 }`}
                 style={{

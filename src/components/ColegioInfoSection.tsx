@@ -16,7 +16,7 @@ const baseSecciones = [
   {
     title: "Cultura de Pensamiento",
     description: "Desarrollamos habilidades de pensamiento crítico y creativo en nuestros estudiantes.",
-    onClick: () => window.navigateTo && window.navigateTo('proyecto-educativo'),
+    onClick: () => window.navigateTo && window.navigateTo('cultura-pensamiento'),
   },
   {
     title: "Conoce nuestros equipos",

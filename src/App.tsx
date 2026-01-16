@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import AdminLogin from './components/AdminLogin';
 import Historia from './components/Historia';
@@ -10,7 +9,6 @@ import NewsSection from './components/NewsSection';
 import NewsManagement from './components/NewsManagement';
 import DirectoryManagement from './components/DirectoryManagement';
 import ProyectoEducativo from './components/ProyectoEducativo';
-import ProyectoEducativoManagement from './components/ProyectoEducativoManagement';
 import StudentWithdrawalControl from './components/StudentWithdrawalControl';
 import AdminDashboard from './components/AdminDashboard';
 import Tour360Section from './components/Tour360Section';
@@ -26,6 +24,7 @@ import CEALManagement from './components/CEALManagement';
 import PastoralManagement from './components/PastoralManagement';
 import ComunidadSection from './components/ComunidadSection';
 import ComunidadManagement from './components/ComunidadManagement';
+import CulturaPensamientoSection from './components/CulturaPensamientoSection';
 import FundacionPentecostes from './components/FundacionPentecostes';
 import DirectorioFundacion from './components/DirectorioFundacion';
 import AdmisionSection from './components/AdmisionSection';
@@ -51,6 +50,7 @@ import AnnouncementManagement from './components/AnnouncementManagement';
 import MapSection from './components/MapSection';
 import Footer from './components/Footer';
 import ColegioInfoSection from './components/ColegioInfoSection';
+import QuienesSomosSection from './components/QuienesSomosSection';
 import PlanLectorSection from './components/PlanLectorSection';
 import PlanLectorManagement from './components/PlanLectorManagement';
 import DirectorioFundacionManagement from './components/DirectorioFundacionManagement';
@@ -71,7 +71,9 @@ const backgroundImages = [
   'https://i.postimg.cc/fRfbFFJD/ateltasscc.jpg',
   'https://i.postimg.cc/BbSpTR8R/ceremonia1sscc.jpg',
   'https://i.postimg.cc/fWCBzWph/ceremonia2sscc.jpg',
-  'https://i.postimg.cc/8CG6fMft/frasesscc.jpg'
+  'https://i.postimg.cc/8CG6fMft/frasesscc.jpg',
+  'https://i.postimg.cc/fLZpfBbR/ninosjugando.jpg',
+  'https://i.postimg.cc/ryf35G2T/ninosprofe.jpg'
 ];
 
 function App() {
@@ -168,6 +170,10 @@ function App() {
 
   if (currentPage === 'comunidad') {
     return <ComunidadSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'cultura-pensamiento') {
+    return <CulturaPensamientoSection onBack={handleBackToHome} />;
   }
 
   if (currentPage === 'rectoria') {
@@ -456,42 +462,7 @@ function App() {
       <ColegioInfoSection />
 
       {/* Quiénes Somos Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Left Content */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2 font-medium" style={{color: '#2563EB'}}>
-                <div className="w-8 h-0.5" style={{backgroundColor: '#2563EB'}}></div>
-                <span>Quiénes Somos</span>
-              </div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-blue-900 leading-tight">
-                El Colegio Sagrados Corazones de Manquehue
-              </h2>
-              <p className="text-gray-600 text-base leading-relaxed">
-                El Colegio Sagrados Corazones de Manquehue forma estudiantes comprometidos con la transformación social. Fundado en 1955, creció junto al barrio y hoy reúne una comunidad educativa amplia, con una fuerte identidad institucional y más de 2.000 estudiantes. Nuestra misión es educar en el respeto, la solidaridad y la excelencia académica.
-              </p>
-            </div>
-            {/* Right Image */}
-            <div className="relative">
-              <div className="relative">
-                {/* Decorative blue square background */}
-                <div className="absolute -top-6 -right-6 w-96 h-96 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg opacity-20"></div>
-                {/* Main image with square shape */}
-                <div className="relative w-96 h-96 mx-auto rounded-lg overflow-hidden shadow-2xl">
-                  <img
-                    src="https://i.postimg.cc/vH3y23Z4/fotodecomida2.jpg"
-                    alt="Colegio Sagrados Corazones de Manquehue"
-                    className="w-full h-full object-cover object-center scale-110"
-                  />
-                </div>
-                {/* Additional decorative elements */}
-                <div className="absolute -bottom-3 -left-3 w-20 h-20 bg-gradient-to-br from-red-400 to-red-600 rounded-lg opacity-30 -z-10"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <QuienesSomosSection />
 
       {/* News Section */}
       <NewsSection />
