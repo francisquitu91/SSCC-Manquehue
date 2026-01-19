@@ -4,32 +4,20 @@ import { supabase } from '../lib/supabase';
 
 interface ValoresData {
   id: number;
-  matricula_incorporacion: {
-    hijo1: number;
-    hijo2: number;
-    hijo3: number;
-    hijo4: number;
-    hijo5: number;
+  matricula_hermanos: {
+    hijo2: { porcentaje: number; uf: number };
+    hijo3: { porcentaje: number; uf: number };
+    hijo4: { porcentaje: number; uf: number };
+    hijo5_mas: { porcentaje: number; uf: number };
   };
   otros_cargos: {
-    matricula: number;
-    cpp: number;
-    caa: number;
-    ayuda_mutua: number;
-    seguro_escolaridad: string;
-  };
-  colegiatura_anual: {
-    hijo1: number;
-    hijo2: number;
-    hijo3: number;
-    hijo4: number;
-    hijo5: number;
-    hijo6: number;
-  };
-  contacto: {
-    nombre: string;
-    telefono: string;
-    email: string;
+    matricula_2026: { valor: number; unidad: string };
+    seguro_vida_iv_medio: { valor: number; unidad: string; descripcion: string };
+    seguro_vida_superior: { valor: number; unidad: string; descripcion: string };
+    cuota_centro_padres: { valor: number; unidad: string };
+    acciona: { valor: number; unidad: string; descripcion: string };
+    cuota_centro_alumnos: { valor: number; unidad: string };
+    aporte_exalumnos: { valor: string; unidad: string; descripcion: string };
   };
 }
 
@@ -44,32 +32,32 @@ const ValoresManagement: React.FC<ValoresManagementProps> = ({ onBack }) => {
   
   const [formData, setFormData] = useState<ValoresData>({
     id: 1,
-    matricula_incorporacion: {
-      hijo1: 75,
-      hijo2: 56.25,
-      hijo3: 37.5,
-      hijo4: 18.75,
-      hijo5: 0
+    matricula_hermanos: {
+      hijo2: { porcentaje: 75, uf: 56.25 },
+      hijo3: { porcentaje: 50, uf: 37.5 },
+      hijo4: { porcentaje: 25, uf: 18.75 },
+      hijo5_mas: { porcentaje: 0, uf: 0 }
     },
     otros_cargos: {
-      matricula: 12,
-      cpp: 1.9,
-      caa: 0.2,
-      ayuda_mutua: 0.6,
-      seguro_escolaridad: 'Cubre el pago de mensualidades del Colegio hasta IVº Medio o 6 años de universidad, en caso de fallecimiento, o invalidez 2/3, de los apoderados. Es obligatorio para los apoderados menores de 65 años. Cubre 100% al primer sostenedor y 50% al segundo sostenedor.'
-    },
-    colegiatura_anual: {
-      hijo1: 100,
-      hijo2: 98,
-      hijo3: 90,
-      hijo4: 60,
-      hijo5: 20,
-      hijo6: 0
-    },
-    contacto: {
-      nombre: 'Arantzazu Vicente Urcelay',
-      telefono: '227194306',
-      email: 'administracion@ssccmanquehue.cl'
+      matricula_2026: { valor: 13, unidad: "por hijo" },
+      seguro_vida_iv_medio: { 
+        valor: 0.5994, 
+        unidad: "por cada hijo/a", 
+        descripcion: "Seguro de vida y escolaridad hasta IV Medio (sept. 2025 a feb. 2026, valor proporcional)" 
+      },
+      seguro_vida_superior: { 
+        valor: 1.1247, 
+        unidad: "por hijo/a", 
+        descripcion: "Seguro de vida y escolaridad hasta Educación Superior" 
+      },
+      cuota_centro_padres: { valor: 1.9, unidad: "por Familia" },
+      acciona: { valor: 0.6, unidad: "por Familia", descripcion: "ex Fundación de Ayuda Mutua" },
+      cuota_centro_alumnos: { valor: 0.2, unidad: "por Familia" },
+      aporte_exalumnos: { 
+        valor: "Voluntario", 
+        unidad: "", 
+        descripcion: "Aporte voluntario Asociación de Exalumnos" 
+      }
     }
   });
 
@@ -113,10 +101,8 @@ const ValoresManagement: React.FC<ValoresManagementProps> = ({ onBack }) => {
     try {
       const dataToSave = {
         id: 1,
-        matricula_incorporacion: formData.matricula_incorporacion,
+        matricula_hermanos: formData.matricula_hermanos,
         otros_cargos: formData.otros_cargos,
-        colegiatura_anual: formData.colegiatura_anual,
-        contacto: formData.contacto,
         updated_at: new Date().toISOString()
       };
 
@@ -152,42 +138,30 @@ const ValoresManagement: React.FC<ValoresManagementProps> = ({ onBack }) => {
     }
   };
 
-  const updateMatriculaIncorporacion = (field: keyof typeof formData.matricula_incorporacion, value: string) => {
+  const updateMatriculaHermanos = (hijo: 'hijo2' | 'hijo3' | 'hijo4' | 'hijo5_mas', field: 'porcentaje' | 'uf', value: string) => {
     setFormData({
       ...formData,
-      matricula_incorporacion: {
-        ...formData.matricula_incorporacion,
-        [field]: parseFloat(value) || 0
+      matricula_hermanos: {
+        ...formData.matricula_hermanos,
+        [hijo]: {
+          ...formData.matricula_hermanos[hijo],
+          [field]: parseFloat(value) || 0
+        }
       }
     });
   };
 
-  const updateOtrosCargos = (field: keyof typeof formData.otros_cargos, value: string) => {
+  const updateOtrosCargos = (cargo: string, field: 'valor' | 'unidad' | 'descripcion', value: string) => {
+    const currentCargo = formData.otros_cargos[cargo as keyof typeof formData.otros_cargos];
+    
     setFormData({
       ...formData,
       otros_cargos: {
         ...formData.otros_cargos,
-        [field]: field === 'seguro_escolaridad' ? value : parseFloat(value) || 0
-      }
-    });
-  };
-
-  const updateColegiaturaAnual = (field: keyof typeof formData.colegiatura_anual, value: string) => {
-    setFormData({
-      ...formData,
-      colegiatura_anual: {
-        ...formData.colegiatura_anual,
-        [field]: parseFloat(value) || 0
-      }
-    });
-  };
-
-  const updateContacto = (field: keyof typeof formData.contacto, value: string) => {
-    setFormData({
-      ...formData,
-      contacto: {
-        ...formData.contacto,
-        [field]: value
+        [cargo]: {
+          ...currentCargo,
+          [field]: field === 'valor' && cargo !== 'aporte_exalumnos' ? parseFloat(value) || 0 : value
+        }
       }
     });
   };
@@ -231,216 +205,324 @@ const ValoresManagement: React.FC<ValoresManagementProps> = ({ onBack }) => {
 
         {/* Forms */}
         <div className="space-y-8">
-          {/* Matrícula de Incorporación */}
+          {/* Matrícula de Incorporación para Hermanos */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Matrícula de Incorporación (UF)</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">1° hijo/a</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.matricula_incorporacion.hijo1}
-                  onChange={(e) => updateMatriculaIncorporacion('hijo1', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Porcentaje de pago de la matrícula de incorporación para hermanos
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Configure los porcentajes y valores en UF para cada número de hijo
+            </p>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* 2º hijo */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-3">2º hijo</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo2.porcentaje}
+                      onChange={(e) => updateMatriculaHermanos('hijo2', 'porcentaje', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">UF</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo2.uf}
+                      onChange={(e) => updateMatriculaHermanos('hijo2', 'uf', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">2° hijo/a</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.matricula_incorporacion.hijo2}
-                  onChange={(e) => updateMatriculaIncorporacion('hijo2', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+
+              {/* 3º hijo */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-3">3º hijo</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo3.porcentaje}
+                      onChange={(e) => updateMatriculaHermanos('hijo3', 'porcentaje', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">UF</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo3.uf}
+                      onChange={(e) => updateMatriculaHermanos('hijo3', 'uf', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">3° hijo/a</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.matricula_incorporacion.hijo3}
-                  onChange={(e) => updateMatriculaIncorporacion('hijo3', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+
+              {/* 4º hijo */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-3">4º hijo</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo4.porcentaje}
+                      onChange={(e) => updateMatriculaHermanos('hijo4', 'porcentaje', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">UF</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo4.uf}
+                      onChange={(e) => updateMatriculaHermanos('hijo4', 'uf', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">4° hijo/a</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.matricula_incorporacion.hijo4}
-                  onChange={(e) => updateMatriculaIncorporacion('hijo4', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">5° hijo/a</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.matricula_incorporacion.hijo5}
-                  onChange={(e) => updateMatriculaIncorporacion('hijo5', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+
+              {/* 5º o más */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-3">5º o más</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje (%)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo5_mas.porcentaje}
+                      onChange={(e) => updateMatriculaHermanos('hijo5_mas', 'porcentaje', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">UF</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.matricula_hermanos.hijo5_mas.uf}
+                      onChange={(e) => updateMatriculaHermanos('hijo5_mas', 'uf', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Otros Cargos */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Otros Cargos (UF)</h2>
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Matrícula</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.otros_cargos.matricula}
-                  onChange={(e) => updateOtrosCargos('matricula', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Otros Cargos</h2>
+            <div className="space-y-6">
+              {/* Matrícula 2026 */}
+              <div className="border-b border-gray-200 pb-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Matrícula 2026</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Valor (UF)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.otros_cargos.matricula_2026.valor}
+                      onChange={(e) => updateOtrosCargos('matricula_2026', 'valor', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+                    <input
+                      type="text"
+                      value={formData.otros_cargos.matricula_2026.unidad}
+                      onChange={(e) => updateOtrosCargos('matricula_2026', 'unidad', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">CPP</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.otros_cargos.cpp}
-                  onChange={(e) => updateOtrosCargos('cpp', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">CAA</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.otros_cargos.caa}
-                  onChange={(e) => updateOtrosCargos('caa', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ayuda Mutua</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.otros_cargos.ayuda_mutua}
-                  onChange={(e) => updateOtrosCargos('ayuda_mutua', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Descripción Seguro de Escolaridad-Vida</label>
-              <textarea
-                value={formData.otros_cargos.seguro_escolaridad}
-                onChange={(e) => updateOtrosCargos('seguro_escolaridad', e.target.value)}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
 
-          {/* Colegiatura Anual */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Valor Colegiatura Anual (%)</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">1 hijo/a</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.colegiatura_anual.hijo1}
-                  onChange={(e) => updateColegiaturaAnual('hijo1', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+              {/* Seguro de vida IV Medio */}
+              <div className="border-b border-gray-200 pb-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Seguro de vida y escolaridad hasta IV Medio</h3>
+                <div className="grid md:grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Valor (UF)</label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={formData.otros_cargos.seguro_vida_iv_medio.valor}
+                      onChange={(e) => updateOtrosCargos('seguro_vida_iv_medio', 'valor', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+                    <input
+                      type="text"
+                      value={formData.otros_cargos.seguro_vida_iv_medio.unidad}
+                      onChange={(e) => updateOtrosCargos('seguro_vida_iv_medio', 'unidad', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                  <textarea
+                    value={formData.otros_cargos.seguro_vida_iv_medio.descripcion}
+                    onChange={(e) => updateOtrosCargos('seguro_vida_iv_medio', 'descripcion', e.target.value)}
+                    rows={2}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">2 hijos/as</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.colegiatura_anual.hijo2}
-                  onChange={(e) => updateColegiaturaAnual('hijo2', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">3 hijos/as</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.colegiatura_anual.hijo3}
-                  onChange={(e) => updateColegiaturaAnual('hijo3', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">4 hijos/as</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.colegiatura_anual.hijo4}
-                  onChange={(e) => updateColegiaturaAnual('hijo4', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">5 hijos/as</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.colegiatura_anual.hijo5}
-                  onChange={(e) => updateColegiaturaAnual('hijo5', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">6 hijos/as</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.colegiatura_anual.hijo6}
-                  onChange={(e) => updateColegiaturaAnual('hijo6', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* Información de Contacto */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Información de Contacto</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
-                <input
-                  type="text"
-                  value={formData.contacto.nombre}
-                  onChange={(e) => updateContacto('nombre', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+              {/* Seguro de vida Educación Superior */}
+              <div className="border-b border-gray-200 pb-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Seguro de vida y escolaridad hasta Educación Superior</h3>
+                <div className="grid md:grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Valor (UF)</label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={formData.otros_cargos.seguro_vida_superior.valor}
+                      onChange={(e) => updateOtrosCargos('seguro_vida_superior', 'valor', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+                    <input
+                      type="text"
+                      value={formData.otros_cargos.seguro_vida_superior.unidad}
+                      onChange={(e) => updateOtrosCargos('seguro_vida_superior', 'unidad', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                  <textarea
+                    value={formData.otros_cargos.seguro_vida_superior.descripcion}
+                    onChange={(e) => updateOtrosCargos('seguro_vida_superior', 'descripcion', e.target.value)}
+                    rows={2}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                <input
-                  type="text"
-                  value={formData.contacto.telefono}
-                  onChange={(e) => updateContacto('telefono', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+
+              {/* Cuota Centro de Padres */}
+              <div className="border-b border-gray-200 pb-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Cuota Centro de Padres</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Valor (UF)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.otros_cargos.cuota_centro_padres.valor}
+                      onChange={(e) => updateOtrosCargos('cuota_centro_padres', 'valor', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+                    <input
+                      type="text"
+                      value={formData.otros_cargos.cuota_centro_padres.unidad}
+                      onChange={(e) => updateOtrosCargos('cuota_centro_padres', 'unidad', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
+
+              {/* Acciona */}
+              <div className="border-b border-gray-200 pb-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Acciona</h3>
+                <div className="grid md:grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Valor (UF)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.otros_cargos.acciona.valor}
+                      onChange={(e) => updateOtrosCargos('acciona', 'valor', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+                    <input
+                      type="text"
+                      value={formData.otros_cargos.acciona.unidad}
+                      onChange={(e) => updateOtrosCargos('acciona', 'unidad', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                  <input
+                    type="text"
+                    value={formData.otros_cargos.acciona.descripcion}
+                    onChange={(e) => updateOtrosCargos('acciona', 'descripcion', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Cuota Centro de Alumnos */}
+              <div className="border-b border-gray-200 pb-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Cuota Centro de Alumnos</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Valor (UF)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.otros_cargos.cuota_centro_alumnos.valor}
+                      onChange={(e) => updateOtrosCargos('cuota_centro_alumnos', 'valor', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+                    <input
+                      type="text"
+                      value={formData.otros_cargos.cuota_centro_alumnos.unidad}
+                      onChange={(e) => updateOtrosCargos('cuota_centro_alumnos', 'unidad', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Aporte Exalumnos */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={formData.contacto.email}
-                  onChange={(e) => updateContacto('email', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <h3 className="font-semibold text-gray-800 mb-3">Aporte Asociación de Exalumnos</h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                  <input
+                    type="text"
+                    value={formData.otros_cargos.aporte_exalumnos.descripcion}
+                    onChange={(e) => updateOtrosCargos('aporte_exalumnos', 'descripcion', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
             </div>
           </div>

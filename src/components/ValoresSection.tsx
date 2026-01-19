@@ -1,35 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, DollarSign, Users, FileText, Shield, Loader } from 'lucide-react';
+import { ArrowLeft, DollarSign, Users, FileText, Loader } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface ValoresData {
   id: number;
-  matricula_incorporacion: {
-    hijo1: number;
-    hijo2: number;
-    hijo3: number;
-    hijo4: number;
-    hijo5: number;
+  matricula_hermanos: {
+    hijo2: { porcentaje: number; uf: number };
+    hijo3: { porcentaje: number; uf: number };
+    hijo4: { porcentaje: number; uf: number };
+    hijo5_mas: { porcentaje: number; uf: number };
   };
   otros_cargos: {
-    matricula: number;
-    cpp: number;
-    caa: number;
-    ayuda_mutua: number;
-    seguro_escolaridad: string;
-  };
-  colegiatura_anual: {
-    hijo1: number;
-    hijo2: number;
-    hijo3: number;
-    hijo4: number;
-    hijo5: number;
-    hijo6: number;
-  };
-  contacto: {
-    nombre: string;
-    telefono: string;
-    email: string;
+    matricula_2026: { valor: number; unidad: string };
+    seguro_vida_iv_medio: { valor: number; unidad: string; descripcion: string };
+    seguro_vida_superior: { valor: number; unidad: string; descripcion: string };
+    cuota_centro_padres: { valor: number; unidad: string };
+    acciona: { valor: number; unidad: string; descripcion: string };
+    cuota_centro_alumnos: { valor: number; unidad: string };
+    aporte_exalumnos: { valor: string; unidad: string; descripcion: string };
   };
   updated_at: string;
 }
@@ -66,32 +54,32 @@ const ValoresSection: React.FC<ValoresSectionProps> = ({ onBack }) => {
         // Si no hay datos en la BD, usar valores predeterminados
         setValoresData({
           id: 1,
-          matricula_incorporacion: {
-            hijo1: 75,
-            hijo2: 56.25,
-            hijo3: 37.5,
-            hijo4: 18.75,
-            hijo5: 0
+          matricula_hermanos: {
+            hijo2: { porcentaje: 75, uf: 56.25 },
+            hijo3: { porcentaje: 50, uf: 37.5 },
+            hijo4: { porcentaje: 25, uf: 18.75 },
+            hijo5_mas: { porcentaje: 0, uf: 0 }
           },
           otros_cargos: {
-            matricula: 12,
-            cpp: 1.9,
-            caa: 0.2,
-            ayuda_mutua: 0.6,
-            seguro_escolaridad: 'Cubre el pago de mensualidades del Colegio hasta IVº Medio o 6 años de universidad, en caso de fallecimiento, o invalidez 2/3, de los apoderados. Es obligatorio para los apoderados menores de 65 años. Cubre 100% al primer sostenedor y 50% al segundo sostenedor.'
-          },
-          colegiatura_anual: {
-            hijo1: 100,
-            hijo2: 98,
-            hijo3: 90,
-            hijo4: 60,
-            hijo5: 20,
-            hijo6: 0
-          },
-          contacto: {
-            nombre: 'Arantzazu Vicente Urcelay',
-            telefono: '227194306',
-            email: 'administracion@ssccmanquehue.cl'
+            matricula_2026: { valor: 13, unidad: "por hijo" },
+            seguro_vida_iv_medio: { 
+              valor: 0.5994, 
+              unidad: "por cada hijo/a", 
+              descripcion: "Seguro de vida y escolaridad hasta IV Medio (sept. 2025 a feb. 2026, valor proporcional)" 
+            },
+            seguro_vida_superior: { 
+              valor: 1.1247, 
+              unidad: "por hijo/a", 
+              descripcion: "Seguro de vida y escolaridad hasta Educación Superior" 
+            },
+            cuota_centro_padres: { valor: 1.9, unidad: "por Familia" },
+            acciona: { valor: 0.6, unidad: "por Familia", descripcion: "ex Fundación de Ayuda Mutua" },
+            cuota_centro_alumnos: { valor: 0.2, unidad: "por Familia" },
+            aporte_exalumnos: { 
+              valor: "Voluntario", 
+              unidad: "", 
+              descripcion: "Aporte voluntario Asociación de Exalumnos" 
+            }
           },
           updated_at: new Date().toISOString()
         });
@@ -101,32 +89,32 @@ const ValoresSection: React.FC<ValoresSectionProps> = ({ onBack }) => {
       // Set default values if database query fails
       setValoresData({
         id: 1,
-        matricula_incorporacion: {
-          hijo1: 75,
-          hijo2: 56.25,
-          hijo3: 37.5,
-          hijo4: 18.75,
-          hijo5: 0
+        matricula_hermanos: {
+          hijo2: { porcentaje: 75, uf: 56.25 },
+          hijo3: { porcentaje: 50, uf: 37.5 },
+          hijo4: { porcentaje: 25, uf: 18.75 },
+          hijo5_mas: { porcentaje: 0, uf: 0 }
         },
         otros_cargos: {
-          matricula: 12,
-          cpp: 1.9,
-          caa: 0.2,
-          ayuda_mutua: 0.6,
-          seguro_escolaridad: 'Cubre el pago de mensualidades del Colegio hasta IVº Medio o 6 años de universidad, en caso de fallecimiento, o invalidez 2/3, de los apoderados. Es obligatorio para los apoderados menores de 65 años. Cubre 100% al primer sostenedor y 50% al segundo sostenedor.'
-        },
-        colegiatura_anual: {
-          hijo1: 100,
-          hijo2: 98,
-          hijo3: 90,
-          hijo4: 60,
-          hijo5: 20,
-          hijo6: 0
-        },
-        contacto: {
-          nombre: 'Arantzazu Vicente Urcelay',
-          telefono: '227194306',
-          email: 'administracion@ssccmanquehue.cl'
+          matricula_2026: { valor: 13, unidad: "por hijo" },
+          seguro_vida_iv_medio: { 
+            valor: 0.5994, 
+            unidad: "por cada hijo/a", 
+            descripcion: "Seguro de vida y escolaridad hasta IV Medio (sept. 2025 a feb. 2026, valor proporcional)" 
+          },
+          seguro_vida_superior: { 
+            valor: 1.1247, 
+            unidad: "por hijo/a", 
+            descripcion: "Seguro de vida y escolaridad hasta Educación Superior" 
+          },
+          cuota_centro_padres: { valor: 1.9, unidad: "por Familia" },
+          acciona: { valor: 0.6, unidad: "por Familia", descripcion: "ex Fundación de Ayuda Mutua" },
+          cuota_centro_alumnos: { valor: 0.2, unidad: "por Familia" },
+          aporte_exalumnos: { 
+            valor: "Voluntario", 
+            unidad: "", 
+            descripcion: "Aporte voluntario Asociación de Exalumnos" 
+          }
         },
         updated_at: new Date().toISOString()
       });
@@ -169,35 +157,60 @@ const ValoresSection: React.FC<ValoresSectionProps> = ({ onBack }) => {
           </div>
         ) : valoresData ? (
           <div className="space-y-8">
-            {/* Matrícula de Incorporación */}
+            {/* Tabla de porcentaje de pago de matrícula de incorporación para hermanos */}
             <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-blue-500">
               <div className="flex items-center mb-6">
                 <Users className="w-8 h-8 text-blue-600 mr-3" />
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Matrícula de Incorporación
+                  Porcentaje de pago de la matrícula de incorporación para los hermanos y hermanas:
                 </h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                  <p className="text-gray-700 font-medium">1° hijo/a</p>
-                  <p className="text-2xl font-bold text-blue-600">{valoresData.matricula_incorporacion.hijo1} UF</p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                  <p className="text-gray-700 font-medium">2° hijo/a</p>
-                  <p className="text-2xl font-bold text-blue-600">{valoresData.matricula_incorporacion.hijo2} UF</p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                  <p className="text-gray-700 font-medium">3° hijo/a</p>
-                  <p className="text-2xl font-bold text-blue-600">{valoresData.matricula_incorporacion.hijo3} UF</p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                  <p className="text-gray-700 font-medium">4° hijo/a</p>
-                  <p className="text-2xl font-bold text-blue-600">{valoresData.matricula_incorporacion.hijo4} UF</p>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                  <p className="text-gray-700 font-medium">5° hijo/a</p>
-                  <p className="text-2xl font-bold text-blue-600">{valoresData.matricula_incorporacion.hijo5} UF</p>
-                </div>
+              
+              {/* Tabla */}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-blue-600 text-white">
+                      <th className="border border-gray-300 px-6 py-3 text-left font-semibold">Número de hijo</th>
+                      <th className="border border-gray-300 px-6 py-3 text-center font-semibold">2º</th>
+                      <th className="border border-gray-300 px-6 py-3 text-center font-semibold">3º</th>
+                      <th className="border border-gray-300 px-6 py-3 text-center font-semibold">4º</th>
+                      <th className="border border-gray-300 px-6 py-3 text-center font-semibold">5º o más</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="bg-gray-50">
+                      <td className="border border-gray-300 px-6 py-3 font-semibold text-gray-700">% de pago</td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo2.porcentaje}%
+                      </td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo3.porcentaje}%
+                      </td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo4.porcentaje}%
+                      </td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo5_mas.porcentaje}%
+                      </td>
+                    </tr>
+                    <tr className="bg-white">
+                      <td className="border border-gray-300 px-6 py-3 font-semibold text-gray-700">UF</td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo2.uf}
+                      </td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo3.uf}
+                      </td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo4.uf}
+                      </td>
+                      <td className="border border-gray-300 px-6 py-3 text-center text-lg font-bold text-blue-600">
+                        {valoresData.matricula_hermanos.hijo5_mas.uf > 0 ? valoresData.matricula_hermanos.hijo5_mas.uf : ''}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
@@ -209,94 +222,49 @@ const ValoresSection: React.FC<ValoresSectionProps> = ({ onBack }) => {
                   Otros Cargos
                 </h2>
               </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 bg-indigo-50 rounded-lg">
-                  <span className="text-gray-700 font-medium">Matrícula</span>
-                  <span className="text-xl font-bold text-indigo-600">{valoresData.otros_cargos.matricula} UF</span>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-indigo-50 rounded-lg">
-                  <span className="text-gray-700 font-medium">CPP (Centro de Padres)</span>
-                  <span className="text-xl font-bold text-indigo-600">{valoresData.otros_cargos.cpp} UF</span>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-indigo-50 rounded-lg">
-                  <span className="text-gray-700 font-medium">CAA (Centro de Alumnos)</span>
-                  <span className="text-xl font-bold text-indigo-600">{valoresData.otros_cargos.caa} UF</span>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-indigo-50 rounded-lg">
-                  <span className="text-gray-700 font-medium">Ayuda Mutua</span>
-                  <span className="text-xl font-bold text-indigo-600">{valoresData.otros_cargos.ayuda_mutua} UF</span>
-                </div>
-                
-                {/* Seguro de Escolaridad */}
-                <div className="bg-purple-50 border-l-4 border-purple-500 rounded-lg p-6 mt-6">
-                  <div className="flex items-start mb-3">
-                    <Shield className="w-6 h-6 text-purple-600 mr-2 flex-shrink-0 mt-1" />
-                    <h3 className="text-lg font-bold text-gray-900">
-                      Seguro de Escolaridad-Vida (Proporcional)
-                    </h3>
-                  </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {valoresData.otros_cargos.seguro_escolaridad}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Valor Colegiatura Anual */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border-t-4 border-green-500">
-              <div className="flex items-center mb-6">
-                <DollarSign className="w-8 h-8 text-green-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Valor Colegiatura Anual (Porcentaje por hijo)
-                </h2>
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                  <p className="text-gray-700 font-medium">1 hijo/a</p>
-                  <p className="text-2xl font-bold text-green-600">{valoresData.colegiatura_anual.hijo1}%</p>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                  <p className="text-gray-700 font-medium">2 hijos/as</p>
-                  <p className="text-2xl font-bold text-green-600">{valoresData.colegiatura_anual.hijo2}%</p>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                  <p className="text-gray-700 font-medium">3 hijos/as</p>
-                  <p className="text-2xl font-bold text-green-600">{valoresData.colegiatura_anual.hijo3}%</p>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                  <p className="text-gray-700 font-medium">4 hijos/as</p>
-                  <p className="text-2xl font-bold text-green-600">{valoresData.colegiatura_anual.hijo4}%</p>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                  <p className="text-gray-700 font-medium">5 hijos/as</p>
-                  <p className="text-2xl font-bold text-green-600">{valoresData.colegiatura_anual.hijo5}%</p>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                  <p className="text-gray-700 font-medium">6 hijos/as</p>
-                  <p className="text-2xl font-bold text-green-600">{valoresData.colegiatura_anual.hijo6}%</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Contacto */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-8 text-white">
-              <h2 className="text-2xl font-bold mb-4">Para Mayor Información</h2>
               <div className="space-y-3">
-                <p className="text-lg">
-                  <span className="font-semibold">Contacto:</span> {valoresData.contacto.nombre}
-                </p>
-                <p className="text-lg">
-                  <span className="font-semibold">Teléfono:</span>{' '}
-                  <a href={`tel:${valoresData.contacto.telefono}`} className="hover:underline">
-                    {valoresData.contacto.telefono}
-                  </a>
-                </p>
-                <p className="text-lg">
-                  <span className="font-semibold">Email:</span>{' '}
-                  <a href={`mailto:${valoresData.contacto.email}`} className="hover:underline">
-                    {valoresData.contacto.email}
-                  </a>
-                </p>
+                <div className="flex items-center">
+                  <span className="text-gray-800 text-lg">•</span>
+                  <span className="ml-3 text-gray-700">
+                    <span className="font-semibold">Matrícula 2026:</span> UF {valoresData.otros_cargos.matricula_2026.valor} {valoresData.otros_cargos.matricula_2026.unidad}
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-gray-800 text-lg mt-1">•</span>
+                  <span className="ml-3 text-gray-700">
+                    {valoresData.otros_cargos.seguro_vida_iv_medio.descripcion}: UF {valoresData.otros_cargos.seguro_vida_iv_medio.valor} {valoresData.otros_cargos.seguro_vida_iv_medio.unidad}
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-gray-800 text-lg mt-1">•</span>
+                  <span className="ml-3 text-gray-700">
+                    {valoresData.otros_cargos.seguro_vida_superior.descripcion}: UF {valoresData.otros_cargos.seguro_vida_superior.valor} x {valoresData.otros_cargos.seguro_vida_superior.unidad}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-800 text-lg">•</span>
+                  <span className="ml-3 text-gray-700">
+                    <span className="font-semibold">Cuota Centro de Padres:</span> UF {valoresData.otros_cargos.cuota_centro_padres.valor} {valoresData.otros_cargos.cuota_centro_padres.unidad}
+                  </span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-gray-800 text-lg mt-1">•</span>
+                  <span className="ml-3 text-gray-700">
+                    <span className="font-semibold">Acciona</span> ({valoresData.otros_cargos.acciona.descripcion}): UF {valoresData.otros_cargos.acciona.valor} {valoresData.otros_cargos.acciona.unidad}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-800 text-lg">•</span>
+                  <span className="ml-3 text-gray-700">
+                    <span className="font-semibold">Cuota Centro de Alumnos:</span> UF {valoresData.otros_cargos.cuota_centro_alumnos.valor} {valoresData.otros_cargos.cuota_centro_alumnos.unidad}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-800 text-lg">•</span>
+                  <span className="ml-3 text-gray-700">
+                    {valoresData.otros_cargos.aporte_exalumnos.descripcion}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
