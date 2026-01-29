@@ -85,14 +85,14 @@ const ACLESSection: React.FC<ACLESSectionProps> = ({ onBack }) => {
 
         {/* Tarjetas ACLES */}
         <div className="grid md:grid-cols-3 gap-8 mb-8">
-          <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <ACLESCard
               type="deportiva"
               title="Actividades Deportivas"
               items={deportivas}
               imageUrl="https://i.postimg.cc/fbZjyFLC/futbol.png"
             />
-          </div>
+          </div> */}
 
           <div className={`transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <ACLESCard
