@@ -14,7 +14,7 @@ const MapSection: React.FC = () => {
             Visítanos
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Estamos ubicados en el hermoso sector de Los Pinos, Reñaca, 
+            Estamos ubicados en 2179 Padre Damian Deveuster, Vitacura, Región Metropolitana, 
             en un ambiente natural que favorece el aprendizaje y la formación integral.
           </p>
         </div>

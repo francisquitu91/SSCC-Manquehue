@@ -94,23 +94,23 @@ const ACLESSection: React.FC<ACLESSectionProps> = ({ onBack }) => {
             />
           </div> */}
 
-          <div className={`transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* <div className={`transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <ACLESCard
               type="artistica"
               title="Actividades Artísticas"
               items={artisticas}
               imageUrl="https://i.postimg.cc/1R6G0sqL/Ss-CC.png"
             />
-          </div>
+          </div> */}
 
-          <div className={`transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* <div className={`transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <ACLESCard
               type="cientifica"
               title="Actividades Científicas"
               items={cientificas}
               imageUrl="https://i.postimg.cc/85L7vk0P/cientifico.png"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Instruction hint */}
