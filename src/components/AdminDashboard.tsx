@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell, Users2 } from 'lucide-react';
+import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell, Users2, Image } from 'lucide-react';
 
 interface AdminDashboardProps {
   onNavigate: (page: string) => void;
@@ -71,6 +71,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       icon: <Users2 className="w-8 h-8" />,
       color: 'bg-purple-600 hover:bg-purple-700',
       iconBg: 'bg-purple-100 text-purple-600'
+    },
+    {
+      id: 'logo-management',
+      title: 'Gestión del Logo',
+      description: 'Subir y administrar el logo principal del sitio',
+      icon: <Image className="w-8 h-8" />,
+      color: 'bg-indigo-600 hover:bg-indigo-700',
+      iconBg: 'bg-indigo-100 text-indigo-600'
     }
   ];
 

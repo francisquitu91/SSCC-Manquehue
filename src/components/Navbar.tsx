@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, Mail, Instagram } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface NavbarProps {
   onPageChange: (page: string) => void;
 }
+
+const LOGO_FILENAME = 'site-main-logo';
 
 const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +16,39 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [mobileNuestroColegioOpen, setMobileNuestroColegioOpen] = useState(false);
   const [mobileAdmisionOpen, setMobileAdmisionOpen] = useState(false);
   const [mobileCalendariosOpen, setMobileCalendariosOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>('');
+
+  useEffect(() => {
+    // Fetch the logo from storage bucket
+    const fetchLogo = async () => {
+      try {
+        const { data: files, error } = await supabase.storage
+          .from('news-images')
+          .list('', {
+            search: LOGO_FILENAME
+          });
+
+        if (error) {
+          console.error('Error fetching logo:', error);
+          return;
+        }
+
+        const logoFile = files?.find(f => f.name.startsWith(LOGO_FILENAME));
+        
+        if (logoFile) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('news-images')
+            .getPublicUrl(logoFile.name);
+          
+          setLogoUrl(publicUrl);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchLogo();
+  }, []);
 
   const handleNavigation = (page: string) => {
     onPageChange(page);
@@ -85,11 +121,21 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
             {/* LEFT: LOGO AND SCHOOL NAME */}
             <div className="flex items-center">
               <a href="#" aria-label="Inicio" className="flex items-center mt-4 relative z-30">
-                <img
-                  src="https://i.postimg.cc/pX9SpVm3/logosscc.png"
-                  alt="Colegio Manquehue SSCC logo"
-                  className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44 object-contain"
-                />
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt="Colegio Manquehue SSCC logo"
+                    className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44 object-contain"
+                    onError={(e) => {
+                      // If logo fails to load, hide it
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44 flex items-center justify-center bg-gray-100 rounded-lg">
+                    <span className="text-xs text-gray-400 text-center px-2">Logo no configurado</span>
+                  </div>
+                )}
 
                 <div className="ml-2 sm:ml-4 md:ml-6 leading-tight -mt-4 sm:-mt-6">
                   <div className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-900 uppercase font-sans">
