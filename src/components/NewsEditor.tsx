@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
+import Link from '@tiptap/extension-link';
 import { 
   Bold, 
   Italic, 
@@ -16,7 +17,9 @@ import {
   Upload,
   Eye,
   Edit3,
-  Trash2
+  Trash2,
+  Link as LinkIcon,
+  Unlink
 } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -43,6 +46,12 @@ const NewsEditor: React.FC<NewsEditorProps> = ({ onClose, onSave, editingNews })
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-red-600 underline hover:text-red-700',
+        },
+      }),
     ],
     content: '',
     editorProps: {
@@ -51,6 +60,32 @@ const NewsEditor: React.FC<NewsEditorProps> = ({ onClose, onSave, editingNews })
       },
     },
   });
+
+  const setLink = () => {
+    if (!editor) return;
+    
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('Ingrese la URL:', previousUrl);
+
+    // cancelled
+    if (url === null) {
+      return;
+    }
+
+    // empty
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    // update link
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
+  const removeLink = () => {
+    if (!editor) return;
+    editor.chain().focus().unsetLink().run();
+  };
 
   useEffect(() => {
     if (editingNews) {
@@ -244,6 +279,24 @@ const NewsEditor: React.FC<NewsEditorProps> = ({ onClose, onSave, editingNews })
                   }`}
                 >
                   <ListOrdered className="w-4 h-4" />
+                </button>
+                <div className="w-px h-6 bg-gray-300 mx-1" />
+                <button
+                  onClick={setLink}
+                  className={`p-2 rounded hover:bg-gray-200 ${
+                    editor.isActive('link') ? 'bg-gray-200' : ''
+                  }`}
+                  title="Agregar/Editar enlace"
+                >
+                  <LinkIcon className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={removeLink}
+                  className="p-2 rounded hover:bg-gray-200"
+                  disabled={!editor.isActive('link')}
+                  title="Remover enlace"
+                >
+                  <Unlink className="w-4 h-4" />
                 </button>
                 <div className="w-px h-6 bg-gray-300 mx-1" />
                 <button
