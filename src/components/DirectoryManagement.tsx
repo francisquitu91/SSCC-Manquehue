@@ -45,7 +45,10 @@ const DirectoryManagement: React.FC<DirectoryManagementProps> = ({ onBack }) => 
 
       const { error: uploadError } = await supabase.storage
         .from('images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '2592000',
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 

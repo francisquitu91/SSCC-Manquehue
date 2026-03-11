@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeFile, validateFile } from '../lib/fileOptimization';
 
 interface ImageUploaderProps {
   images: string[];
@@ -15,15 +16,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [dragOver, setDragOver] = useState(false);
 
   const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
+    // Optimizar archivo antes de subir
+    const optimizedFile = await optimizeFile(file);
+    
+    const fileExt = optimizedFile.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
     const filePath = `news/${fileName}`;
 
-    console.log('Uploading file:', fileName, 'Size:', file.size, 'Type:', file.type);
+    console.log('Uploading file:', fileName, 'Original:', file.size, 'Optimized:', optimizedFile.size, 'bytes');
 
     const { data, error } = await supabase.storage
       .from('news-images')
-      .upload(filePath, file, {
+      .upload(filePath, optimizedFile, {
         cacheControl: '3600',
         upsert: false
       });
@@ -47,18 +51,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   const handleFileSelect = async (files: FileList) => {
     const filesToUpload = Array.from(files);
 
-    // Validate file types and sizes
+    // Validate file types and sizes using utility
     const validFiles = filesToUpload.filter(file => {
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const validation = validateFile(file, 10 * 1024 * 1024, validTypes); // 10MB max antes de optimizar
 
-      if (!validTypes.includes(file.type)) {
-        alert(`Tipo de archivo no válido: ${file.name}. Solo se permiten imágenes.`);
-        return false;
-      }
-
-      if (file.size > maxSize) {
-        alert(`Archivo muy grande: ${file.name}. Máximo 5MB.`);
+      if (!validation.valid) {
+        alert(`${file.name}: ${validation.error}`);
         return false;
       }
 

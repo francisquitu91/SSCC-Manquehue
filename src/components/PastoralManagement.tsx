@@ -108,7 +108,10 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
     try {
       const file = e.target.files[0];
       const fileName = `${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from('pastoral-photos').upload(fileName, file);
+      const { error: uploadError } = await supabase.storage.from('pastoral-photos').upload(fileName, file, {
+        cacheControl: '2592000',
+        upsert: false
+      });
       if (uploadError) throw uploadError;
       
       const { data } = supabase.storage.from('pastoral-photos').getPublicUrl(fileName);

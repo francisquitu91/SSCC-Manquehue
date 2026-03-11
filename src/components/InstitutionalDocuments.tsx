@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, FileText, Download, Calendar, FileType, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { handleProtectedDownload } from '../lib/downloadRateLimit';
 
 interface InstitutionalDocumentsProps {
   onBack: () => void;
@@ -72,16 +73,6 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     if (fileType.includes('excel') || fileType.includes('spreadsheet')) return '📊';
     if (fileType.includes('image')) return '🖼️';
     return '📎';
-  };
-
-  const handleDownload = (fileUrl: string, fileName: string) => {
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const MATR_2025 = 'Documentos de Matrícula 2025';
@@ -220,7 +211,7 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                             </div>
 
                             <button
-                              onClick={() => handleDownload(doc.file_url, doc.file_name)}
+                              onClick={handleProtectedDownload(doc.file_url, doc.file_name)}
                               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105 flex-shrink-0"
                             >
                               <Download className="w-4 h-4" />

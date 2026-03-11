@@ -85,7 +85,10 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     const path = `fundacion_directorio/fundacion-${Date.now()}.${ext}`;
     try {
       setUploading(true);
-      const { data: up, error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true });
+      const { data: up, error } = await supabase.storage.from(BUCKET).upload(path, file, { 
+        upsert: true,
+        cacheControl: '2592000'
+      });
       if (error) throw error;
       const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(up.path);
       setPhotoUrl(urlData.publicUrl);
@@ -109,7 +112,10 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('images')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, file, { 
+          upsert: true,
+          cacheControl: '2592000'
+        });
 
       if (uploadError) {
         console.error('Upload error details:', uploadError);
@@ -286,7 +292,10 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     const payload: FundacionData = { description, names: namesText.split(',').map(s => s.trim()).filter(Boolean), photoPath: data.photoPath };
     try {
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      await supabase.storage.from(BUCKET).upload(JSON_PATH, blob, { upsert: true });
+      await supabase.storage.from(BUCKET).upload(JSON_PATH, blob, { 
+        upsert: true,
+        cacheControl: '2592000'
+      });
       setData(payload);
       alert('Guardado correctamente');
     } catch (err) {

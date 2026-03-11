@@ -70,7 +70,10 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
 
       const { error: uploadError } = await supabase.storage
         .from('news-images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '2592000',
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 

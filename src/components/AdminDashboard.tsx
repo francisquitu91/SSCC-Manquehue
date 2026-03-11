@@ -1,5 +1,8 @@
-import React from 'react';
-import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell, Users2, Image } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell, Users2, Image, HardDrive } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+
+const LOGO_FILENAME = 'site-main-logo';
 
 interface AdminDashboardProps {
   onNavigate: (page: string) => void;
@@ -7,6 +10,37 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout }) => {
+  const [logoUrl, setLogoUrl] = useState<string>('https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png');
+  
+  useEffect(() => {
+    loadLogo();
+  }, []);
+
+  const loadLogo = async () => {
+    try {
+      const { data: files, error } = await supabase.storage
+        .from('news-images')
+        .list('', { search: LOGO_FILENAME });
+
+      if (error) {
+        console.error('Error loading logo:', error);
+        return;
+      }
+
+      const logoFile = files?.find(f => f.name.startsWith(LOGO_FILENAME));
+      
+      if (logoFile) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('news-images')
+          .getPublicUrl(logoFile.name);
+        
+        setLogoUrl(publicUrl);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const adminOptions = [
     {
       id: 'news-management',
@@ -79,6 +113,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
       icon: <Image className="w-8 h-8" />,
       color: 'bg-indigo-600 hover:bg-indigo-700',
       iconBg: 'bg-indigo-100 text-indigo-600'
+    },
+    {
+      id: 'storage-optimizer',
+      title: '🔧 Optimizador de Storage',
+      description: 'Optimizar archivos antiguos y configurar caché para reducir costos de tráfico',
+      icon: <HardDrive className="w-8 h-8" />,
+      color: 'bg-yellow-600 hover:bg-yellow-700',
+      iconBg: 'bg-yellow-100 text-yellow-600'
     }
   ];
 
@@ -97,7 +139,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
         {/* Header */}
         <div className="text-center mb-12 relative">
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <img src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png" alt="SSCC Manquehue" className="h-16 w-16 object-contain" />
+            <img src={logoUrl} alt="SSCC Manquehue" className="h-16 w-16 object-contain" />
           </div>
           <h1 className="text-4xl font-bold text-white mb-4">
             Panel de Administración

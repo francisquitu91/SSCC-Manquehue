@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeFile } from '../lib/fileOptimization';
 
 interface LogoManagementProps {
   onNavigate: (page: string) => void;
@@ -103,13 +104,17 @@ const LogoManagement: React.FC<LogoManagementProps> = ({ onNavigate }) => {
         }
       }
 
+      // Optimizar imagen antes de subir
+      const optimizedFile = await optimizeFile(selectedFile);
+      console.log(`Logo optimizado - Original: ${selectedFile.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
+      
       // Subir nuevo logo con nombre fijo + extensión
-      const fileExt = selectedFile.name.split('.').pop();
+      const fileExt = optimizedFile.name.split('.').pop();
       const fileName = `${LOGO_FILENAME}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('news-images')
-        .upload(fileName, selectedFile, {
+        .upload(fileName, optimizedFile, {
           cacheControl: '3600',
           upsert: true
         });

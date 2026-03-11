@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, Shield, ArrowLeft } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+
+const LOGO_FILENAME = 'site-main-logo';
 
 interface AdminLoginProps {
   onLogin: () => void;
@@ -11,6 +14,36 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>('https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png');
+  
+  useEffect(() => {
+    loadLogo();
+  }, []);
+
+  const loadLogo = async () => {
+    try {
+      const { data: files, error } = await supabase.storage
+        .from('news-images')
+        .list('', { search: LOGO_FILENAME });
+
+      if (error) {
+        console.error('Error loading logo:', error);
+        return;
+      }
+
+      const logoFile = files?.find(f => f.name.startsWith(LOGO_FILENAME));
+      
+      if (logoFile) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('news-images')
+          .getPublicUrl(logoFile.name);
+        
+        setLogoUrl(publicUrl);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   const handleBack = () => {
     window.location.href = '/';
@@ -49,7 +82,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <img src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png" alt="SSCC Manquehue" className="h-16 w-16 object-contain" />
+            <img src={logoUrl} alt="SSCC Manquehue" className="h-16 w-16 object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">
             Panel de Administración

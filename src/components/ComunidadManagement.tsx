@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Upload, Trash2, Edit2, Plus, Loader2, AlertCircle, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeFile } from '../lib/fileOptimization';
 
 interface ComunidadManagementProps {
   onBack: () => void;
@@ -159,10 +160,17 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
   const handleUploadFoto = async (bloqueId: string, file: File) => {
     setSaving(true);
     try {
-      const fileName = `comunidad/${bloqueId}/${Date.now()}-${file.name}`;
+      // Optimizar imagen antes de subir
+      const optimizedFile = await optimizeFile(file);
+      console.log(`Foto optimizada - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
+      
+      const fileName = `comunidad/${bloqueId}/${Date.now()}-${optimizedFile.name}`;
       const { error: uploadError } = await supabase.storage
         .from('news-images')
-        .upload(fileName, file);
+        .upload(fileName, optimizedFile, {
+          cacheControl: '2592000',
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 
@@ -265,7 +273,10 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
       const fileName = `comunidad/integrantes/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('news-images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '2592000',
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Download, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { handleProtectedDownload } from '../lib/downloadRateLimit';
 
 interface CasinoModalProps {
   isOpen: boolean;
@@ -83,15 +84,13 @@ const CasinoModal: React.FC<CasinoModalProps> = ({ isOpen, onClose }) => {
                   <h3 className="text-xl font-semibold text-gray-900">
                     {documento.title}
                   </h3>
-                  <a
-                    href={documento.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={handleProtectedDownload(documento.file_url, documento.title)}
                     className="flex items-center space-x-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
                   >
                     <Download className="w-5 h-5" />
                     <span>Descargar</span>
-                  </a>
+                  </button>
                 </div>
 
                 {/* Render based on file type */}

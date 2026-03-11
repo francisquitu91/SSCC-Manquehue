@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, FileText, Download } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { handleProtectedDownload } from '../lib/downloadRateLimit';
 
 interface AnnouncementData {
   id: number;
@@ -133,16 +134,13 @@ export default function AnnouncementPopup() {
                     {announcement.document_name || 'Documento'}
                   </p>
                 </div>
-                <a
-                  href={announcement.document_url}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={handleProtectedDownload(announcement.document_url, announcement.document_name || 'documento')}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Download className="h-4 w-4" />
                   <span>Descargar</span>
-                </a>
+                </button>
               </div>
             </div>
           )}

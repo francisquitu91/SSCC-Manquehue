@@ -48,6 +48,7 @@ import FechasImportantesManagement from './components/FechasImportantesManagemen
 import AnnouncementPopup from './components/AnnouncementPopup';
 import AnnouncementManagement from './components/AnnouncementManagement';
 import LogoManagement from './components/LogoManagement';
+import StorageOptimizer from './components/StorageOptimizer';
 import MapSection from './components/MapSection';
 import Footer from './components/Footer';
 import ColegioInfoSection from './components/ColegioInfoSection';
@@ -314,6 +315,10 @@ function App() {
 
   if (currentPage === 'logo-management') {
     return <LogoManagement onNavigate={setCurrentPage} />;
+  }
+
+  if (currentPage === 'storage-optimizer') {
+    return <StorageOptimizer onBack={handleBackToAdmin} />;
   }
 
   if (currentPage === 'departamento-orientacion-management') {

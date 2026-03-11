@@ -214,7 +214,10 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('images')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, file, { 
+          upsert: true,
+          cacheControl: '2592000'
+        });
 
       if (uploadError) {
         console.error('Upload error details:', uploadError);

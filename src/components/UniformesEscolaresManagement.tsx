@@ -52,7 +52,10 @@ const UniformesEscolaresManagement: React.FC<UniformesEscolaresManagementProps> 
     
     const { error: uploadError } = await supabase.storage
       .from('uniformes-files')
-      .upload(fileName, file);
+      .upload(fileName, file, {
+        cacheControl: '31536000',
+        upsert: false
+      });
 
     if (uploadError) throw uploadError;
 

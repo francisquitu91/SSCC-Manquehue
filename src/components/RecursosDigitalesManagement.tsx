@@ -45,7 +45,10 @@ const RecursosDigitalesManagement: React.FC<RecursosDigitalesManagementProps> = 
     
     const { error: uploadError } = await supabase.storage
       .from('recursos-digitales-files')
-      .upload(fileName, file);
+      .upload(fileName, file, {
+        cacheControl: '2592000',
+        upsert: false
+      });
 
     if (uploadError) throw uploadError;
 

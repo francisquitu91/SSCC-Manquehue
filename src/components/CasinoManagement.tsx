@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, X, Upload, FileText, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeFile } from '../lib/fileOptimization';
 
 interface CasinoManagementProps {
   onBack: () => void;
@@ -43,12 +44,19 @@ const CasinoManagement: React.FC<CasinoManagementProps> = ({ onBack }) => {
   };
 
   const uploadFile = async (file: File): Promise<{ url: string; type: string }> => {
-    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    // Optimizar archivo antes de subir
+    const optimizedFile = await optimizeFile(file);
+    console.log(`Archivo optimizado - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
+    
+    const fileExt = optimizedFile.name.split('.').pop()?.toLowerCase();
     const fileName = `casino/${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
     
     const { error: uploadError } = await supabase.storage
       .from('casino-files')
-      .upload(fileName, file);
+      .upload(fileName, optimizedFile, {
+        cacheControl: '604800',
+        upsert: false
+      });
 
     if (uploadError) throw uploadError;
 

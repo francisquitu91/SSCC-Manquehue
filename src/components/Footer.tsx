@@ -1,6 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+
+const LOGO_FILENAME = 'site-main-logo';
 
 const Footer: React.FC = () => {
+  const [logoUrl, setLogoUrl] = useState<string>('https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png');
+  
+  useEffect(() => {
+    loadLogo();
+  }, []);
+
+  const loadLogo = async () => {
+    try {
+      const { data: files, error } = await supabase.storage
+        .from('news-images')
+        .list('', { search: LOGO_FILENAME });
+
+      if (error) {
+        console.error('Error loading logo:', error);
+        return;
+      }
+
+      const logoFile = files?.find(f => f.name.startsWith(LOGO_FILENAME));
+      
+      if (logoFile) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('news-images')
+          .getPublicUrl(logoFile.name);
+        
+        setLogoUrl(publicUrl);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const goAdmin = () => {
     const nav = (window as any).navigateTo;
     if (typeof nav === 'function') {
@@ -15,7 +49,7 @@ const Footer: React.FC = () => {
         <div className="flex items-center justify-center space-x-8 flex-wrap">
           <div className="flex items-center">
             <img
-              src="https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png"
+              src={logoUrl}
               alt="Colegio Manquehue SSCC Logo"
               className="h-16 w-auto object-contain"
             />

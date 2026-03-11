@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Bell, Save, Upload, Trash2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeFile } from '../lib/fileOptimization';
 
 interface AnnouncementData {
   id: number;
@@ -104,13 +105,17 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
     try {
       setUploading(true);
 
-      const fileExt = file.name.split('.').pop();
+      // Optimizar archivo antes de subir
+      const optimizedFile = await optimizeFile(file);
+      console.log(`Archivo optimizado - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
+
+      const fileExt = optimizedFile.name.split('.').pop();
       const fileName = `announcements/${Math.random()}.${fileExt}`;
 
       // Use 'recursos-digitales-files' bucket which accepts all file types
       const { error: uploadError } = await supabase.storage
         .from('recursos-digitales-files')
-        .upload(fileName, file, {
+        .upload(fileName, optimizedFile, {
           cacheControl: '3600',
           upsert: false
         });
@@ -142,12 +147,16 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
     try {
       setUploading(true);
 
-      const fileExt = file.name.split('.').pop();
+      // Optimizar imagen antes de subir
+      const optimizedFile = await optimizeFile(file);
+      console.log(`Imagen optimizada - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
+
+      const fileExt = optimizedFile.name.split('.').pop();
       const fileName = `announcements/images/${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('recursos-digitales-files')
-        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+        .upload(fileName, optimizedFile, { cacheControl: '3600', upsert: false });
 
       if (uploadError) throw uploadError;
 

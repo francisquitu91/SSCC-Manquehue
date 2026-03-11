@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, X, Upload, Trash2, Edit2, Plus, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeFile } from '../lib/fileOptimization';
 
 interface CEALManagementProps {
   onBack: () => void;
@@ -71,8 +72,16 @@ const CEALManagement: React.FC<CEALManagementProps> = ({ onBack }) => {
     setSaving(true);
     try {
       const file = e.target.files[0];
-      const fileName = `${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from('ceal-photos').upload(fileName, file);
+      
+      // Optimizar imagen antes de subir
+      const optimizedFile = await optimizeFile(file);
+      console.log(`Foto optimizada - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
+      
+      const fileName = `${Date.now()}-${optimizedFile.name}`;
+      const { error: uploadError } = await supabase.storage.from('ceal-photos').upload(fileName, optimizedFile, {
+        cacheControl: '2592000',
+        upsert: false
+      });
       if (uploadError) throw uploadError;
       
       const { data } = supabase.storage.from('ceal-photos').getPublicUrl(fileName);

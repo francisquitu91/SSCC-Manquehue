@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit2, Trash2, Save, X, Upload, Loader2, FileText, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { optimizeFile } from '../lib/fileOptimization';
 
 interface InstitutionalDocumentsManagementProps {
   onBack: () => void;
@@ -84,13 +85,20 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   };
 
   const uploadFile = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
+    // Optimizar archivo antes de subir
+    const optimizedFile = await optimizeFile(file);
+    console.log(`Archivo optimizado - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
+    
+    const fileExt = optimizedFile.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('institutional-documents')
-      .upload(filePath, file);
+      .upload(filePath, optimizedFile, {
+        cacheControl: '31536000',
+        upsert: false
+      });
 
     if (uploadError) throw uploadError;
 

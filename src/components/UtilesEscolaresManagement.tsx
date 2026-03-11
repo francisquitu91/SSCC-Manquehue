@@ -52,7 +52,10 @@ const UtilesEscolaresManagement: React.FC<UtilesEscolaresManagementProps> = ({ o
     
     const { error: uploadError } = await supabase.storage
       .from('utiles-escolares-files')
-      .upload(fileName, file);
+      .upload(fileName, file, {
+        cacheControl: '31536000',
+        upsert: false
+      });
 
     if (uploadError) throw uploadError;
 
