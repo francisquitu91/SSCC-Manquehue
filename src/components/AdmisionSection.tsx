@@ -36,7 +36,7 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-blue-100">
           <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">
-            Proceso admisión Pre Kínder 2027
+            Proceso cerrado hasta nuevo aviso
           </h2>
           
           {/* Imagen decorativa */}
@@ -48,19 +48,6 @@ const AdmisionSection: React.FC<AdmisionSectionProps> = ({ onBack }) => {
             />
           </div>
 
-          <p className="text-lg text-gray-700 mb-8 text-center">
-            Está abierto la inscripción para el proceso de admisión, si quieres y estás interesado en unirte a nuestra Comunidad Manquehuina, haz clic aquí!
-          </p>
-          <div className="flex justify-center">
-            <a
-              href="https://manquehue.postulaciones.colegium.com/loginColegio"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-            >
-              Ir a las postulaciones
-            </a>
-          </div>
         </div>
       </div>
     </div>
