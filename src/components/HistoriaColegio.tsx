@@ -5,6 +5,8 @@ import FlipCard from './FlipCard';
 import { supabase } from '../lib/supabase';
 import type { DirectoryMember } from '../lib/supabase';
 
+const LOGO_FILENAME = 'site-main-logo';
+
 interface HistoriaColegioProps {
   onBack: () => void;
 }
@@ -19,10 +21,12 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
   const [directoryMembers, setDirectoryMembers] = useState<DirectoryItem[]>([]);
   const [rectoriaMembers, setRectoriaMembers] = useState<DirectoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string>('');
 
   useEffect(() => {
     setIsVisible(true);
     fetchDirectoryMembers();
+    fetchLogo();
     // If navigation requested a scroll target, perform it after mount
     setTimeout(() => {
       try {
@@ -76,6 +80,33 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
       console.error('Error fetching directory members:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchLogo = async () => {
+    try {
+      const { data: files, error } = await supabase.storage
+        .from('news-images')
+        .list('', {
+          search: LOGO_FILENAME
+        });
+
+      if (error) {
+        console.error('Error fetching logo:', error);
+        return;
+      }
+
+      const logoFile = files?.find((f) => f.name.startsWith(LOGO_FILENAME));
+
+      if (logoFile) {
+        const {
+          data: { publicUrl }
+        } = supabase.storage.from('news-images').getPublicUrl(logoFile.name);
+
+        setLogoUrl(publicUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching logo:', error);
     }
   };
 
@@ -165,11 +196,15 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
           className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 flex items-center justify-center">
-          <img
-            src="https://i.postimg.cc/pX9SpVm3/logosscc.png"
-            alt="Logo Colegio Manquehue SSCC"
-            className="h-32 md:h-40 w-auto object-contain"
-          />
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt="Logo Colegio Manquehue SSCC"
+              className="h-32 md:h-40 w-auto object-contain"
+            />
+          ) : (
+            <div className="h-32 md:h-40 w-48" aria-hidden="true"></div>
+          )}
         </div>
       </div>
 
@@ -248,14 +283,14 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
               <FlipCard
                 type="vision"
                 title="Visión"
-                content="Ser reconocidos como una institución educativa de excelencia que forma personas íntegras, comprometidas con el desarrollo de la sociedad y capaces de enfrentar los desafíos del siglo XXI, manteniendo vivo el legado de los Sagrados Corazones en nuestro colegio."
+                content="Ser una comunidad educativa que, desde el Evangelio y el carisma SS.CC., forma personas comprometidas con su vocación, capaces de transformar el mundo con sentido de justicia, inclusión, solidaridad y cuidado del entorno."
                 customImage="https://i.postimg.cc/zGZCMS2D/foto.png"
               />
               
               <FlipCard
                 type="mision"
                 title="Misión"
-                content="Educar y formar a nuestros estudiantes en un ambiente de excelencia académica y valores cristianos, desarrollando al máximo sus potencialidades intelectuales, espirituales y sociales, para que sean agentes de cambio positivo en la construcción de una sociedad más justa y fraterna."
+                content="Formamos personas íntegras, inspiradas en la espiritualidad de los Sagrados Corazones, promoviendo el desarrollo de sus talentos y una vida basada en la fraternidad, el respeto y el servicio. En alianza con las familias, educamos para construir una sociedad más justa y solidaria."
                 customImage="https://i.postimg.cc/mDJjrxj7/foto.jpg"
               />
             </div>

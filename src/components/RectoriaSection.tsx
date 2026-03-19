@@ -1,28 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface RectoriaSectionProps {
   onBack: () => void;
 }
 
+const LOGO_FILENAME = 'site-main-logo';
+
 const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
   const [currentParagraph, setCurrentParagraph] = useState(0);
+  const [logoUrl, setLogoUrl] = useState<string>('');
   
   const rectorMessage = [
-    "A nombre de la comunidad del Colegio Sagrados Corazones de Manquehue quisiera darles la más cordial bienvenida a todos quienes visitan nuestra página web, tanto a quienes son parte de la comunidad como a las personas que quieren conocernos un poco más. En este espacio encontrarán la información básica para que puedan conocer quiénes somos, qué es lo que buscamos y cómo estamos organizados para lograr nuestros objetivos.",
-    
-    "En primer lugar, somos un colegio de Iglesia que busca vivir su seguimiento a Jesús desde la espiritualidad de la Congregación de los Sagrados Corazones de Jesús y de María. Esto significa que queremos hacer nuestros los criterios, valores y opciones de Jesús en la realidad que nos corresponde vivir, para construir una sociedad más justa y solidaria. Queremos ser una comunidad en la que no solo se enseñen, sino que realmente se vivan nuestros valores institucionales: fraternidad, solidaridad, responsabilidad y respeto. Nuestro lema para este año, \"Aprendemos y crecemos siguiendo a Cristo y sirviendo al mundo\", resume nuestro anhelo como comunidad educativa: todos estamos llamados a aprender y desarrollarnos como personas, ya que el ser humano es siempre inacabado; en este proceso de crecimiento constante nuestro modelo y nuestra meta como comunidad es Jesús de Nazaret; en el Espíritu, es Él quien nos guía en la misión de construir un mundo más justo y solidario, donde cada persona sea respetada y pueda desarrollar sus potencialidades.",
-    
-    "Para la realización de esta gran tarea contamos con un gran equipo de profesores, que guían estos procesos buscando que cada estudiante desarrolle un amor por el aprendizaje, con altas expectativas respecto a cada uno de ellos y en constantes procesos de perfeccionamiento profesional. Este equipo es apoyado por todos quienes trabajamos en el colegio: orientadores, psicólogos, psicopedagogos, inspectores, auxiliares, administrativos y equipo directivo.",
-    
-    "Para que nuestro esfuerzo y dedicación nos permitan alcanzar nuestros objetivos contamos con el apoyo y trabajo conjunto con nuestras familias, con los padres y madres, como también con la creciente autonomía y compromiso de los estudiantes para con sus propios procesos de crecimiento y aprendizaje."
+    "Querida Comunidad del Colegio Sagrados Corazones de Manquehue:",
+    "¡Bienvenidos al año escolar 2026!",
+    "\"Ustedes son la luz del mundo\" (Mt 5,14).",
+    "Con especial alegría y emoción los saludo al iniciar este nuevo año. Para muchos será un comienzo lleno de expectativas; para otros, el cierre de una etapa significativa. Para mí, tiene un sentido muy especial, ya que asumo como rectora de un colegio que ha sido parte fundamental de mi vida.",
+    "Llegué el año 1999 como profesora de inglés, y aquí descubrí mucho más que un lugar de trabajo: una comunidad con identidad, sentido de pertenencia y una profunda vocación formativa. Inspirados en la espiritualidad de los Sagrados Corazones de Jesús y de María, entendemos la educación como un acto de amor, que busca formar personas íntegras, comprometidas y capaces de servir con generosidad.",
+    "Asumo este desafío con gratitud y responsabilidad, convencida de que el liderazgo es, ante todo, servicio. Confío plenamente en nuestra comunidad: en el compromiso de nuestros educadores, en la riqueza de nuestros estudiantes y en el rol fundamental de las familias, con quienes compartimos la misión de educar.",
+    "Seguiremos fortaleciendo nuestro proyecto educativo, poniendo a los estudiantes en el centro, promoviendo una formación integral que combine excelencia académica, desarrollo personal, innovación pedagógica y una vivencia profunda de nuestra espiritualidad. La vida pastoral, el deporte, las artes y las diversas actividades seguirán siendo espacios clave para crecer en comunidad y desarrollar talentos.",
+    "Encomendamos este año a los Sagrados Corazones de Jesús y de María, para que nos inspiren a amar, acoger y servir con alegría.",
+    "Los invito a caminar juntos, como una sola comunidad, construyendo un colegio donde cada persona se sienta valorada y llamada a aportar al bien común.",
+    "Con mucho cariño,"
   ];
 
   useEffect(() => {
     setIsVisible(true);
+    fetchLogo();
   }, []);
+
+  const fetchLogo = async () => {
+    try {
+      const { data: files, error } = await supabase.storage
+        .from('news-images')
+        .list('', {
+          search: LOGO_FILENAME
+        });
+
+      if (error) {
+        console.error('Error fetching logo:', error);
+        return;
+      }
+
+      const logoFile = files?.find((f) => f.name.startsWith(LOGO_FILENAME));
+
+      if (logoFile) {
+        const {
+          data: { publicUrl }
+        } = supabase.storage.from('news-images').getPublicUrl(logoFile.name);
+
+        setLogoUrl(publicUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching logo:', error);
+    }
+  };
 
   useEffect(() => {
     if (currentParagraph >= rectorMessage.length) return;
@@ -75,11 +110,15 @@ const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
         
         {/* Logo superpuesto */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-          <img
-            src="https://i.postimg.cc/pX9SpVm3/logosscc.png"
-            alt="Logo Colegio Manquehue SSCC"
-            className="h-48 w-48 object-contain drop-shadow-2xl"
-          />
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt="Logo Colegio Manquehue SSCC"
+              className="h-48 w-48 object-contain drop-shadow-2xl"
+            />
+          ) : (
+            <div className="h-48 w-48" aria-hidden="true"></div>
+          )}
         </div>
       </div>
 
@@ -89,23 +128,33 @@ const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
           <div className="p-8 md:p-12">
             {/* Rector's Message */}
             <div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg shadow-md p-8 border-t-4 border-blue-600">
-              <h2 className="text-2xl font-bold text-blue-900 mb-6 text-center">Mensaje del Rector</h2>
+              <h2 className="text-2xl font-bold text-blue-900 mb-6 text-center">Mensaje de la Rectora</h2>
               
-              <div className="space-y-4 text-gray-700 leading-relaxed min-h-[600px]">
+              <div className="space-y-4 text-gray-700 leading-relaxed min-h-[900px]">
+                <div className="float-right ml-4 mb-3 mt-1">
+                  <img
+                    src="https://i.postimg.cc/NfkX5tV7/Whats-App-Image-2026-03-16-at-15-42-42.jpg"
+                    alt="Comunidad educativa Colegio Sagrados Corazones de Manquehue"
+                    className="w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-lg shadow-md border border-blue-100"
+                  />
+                </div>
+
                 {rectorMessage.map((paragraph, index) => (
-                  <p key={index} className={index < currentParagraph ? 'opacity-100' : index === currentParagraph ? 'opacity-100' : 'opacity-0'}>
-                    {index < currentParagraph ? paragraph : index === currentParagraph ? displayedText : ''}
-                    {index === currentParagraph && displayedText.length < paragraph.length && (
-                      <span className="inline-block w-1 h-5 bg-blue-600 ml-1 animate-pulse"></span>
-                    )}
-                  </p>
+                  <React.Fragment key={index}>
+                    <p className={index < currentParagraph ? 'opacity-100' : index === currentParagraph ? 'opacity-100' : 'opacity-0'}>
+                      {index < currentParagraph ? paragraph : index === currentParagraph ? displayedText : ''}
+                      {index === currentParagraph && displayedText.length < paragraph.length && (
+                        <span className="inline-block w-1 h-5 bg-blue-600 ml-1 animate-pulse"></span>
+                      )}
+                    </p>
+                  </React.Fragment>
                 ))}
                 
                 {currentParagraph >= rectorMessage.length && (
-                  <div className="mt-8 text-center animate-fade-in">
-                    <p className="font-semibold text-gray-800">Les saluda afectuosamente,</p>
-                    <p className="text-xl font-bold text-blue-900 mt-2">Fernando Maffioletti Celedón</p>
-                    <p className="text-gray-600 italic">Rector</p>
+                  <div className="clear-both mt-8 text-center animate-fade-in">
+                    <p className="text-xl font-bold text-blue-900 mt-2">Sandra Durán Vega</p>
+                    <p className="text-gray-600 italic">Rectora</p>
+                    <p className="text-gray-700">Colegio Sagrados Corazones de Manquehue</p>
                   </div>
                 )}
               </div>
