@@ -10,8 +10,6 @@ const LOGO_FILENAME = 'site-main-logo';
 
 const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentParagraph, setCurrentParagraph] = useState(0);
   const [logoUrl, setLogoUrl] = useState<string>('');
   
   const rectorMessage = [
@@ -58,28 +56,6 @@ const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
       console.error('Error fetching logo:', error);
     }
   };
-
-  useEffect(() => {
-    if (currentParagraph >= rectorMessage.length) return;
-
-    const text = rectorMessage[currentParagraph];
-    let index = 0;
-
-    const timer = setInterval(() => {
-      if (index <= text.length) {
-        setDisplayedText(text.slice(0, index));
-        index++;
-      } else {
-        clearInterval(timer);
-        setTimeout(() => {
-          setCurrentParagraph(prev => prev + 1);
-          setDisplayedText('');
-        }, 500);
-      }
-    }, 15);
-
-    return () => clearInterval(timer);
-  }, [currentParagraph]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50 to-gray-100">
@@ -129,34 +105,30 @@ const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
             {/* Rector's Message */}
             <div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg shadow-md p-8 border-t-4 border-blue-600">
               <h2 className="text-2xl font-bold text-blue-900 mb-6 text-center">Mensaje de la Rectora</h2>
-              
-              <div className="space-y-4 text-gray-700 leading-relaxed min-h-[900px]">
-                <div className="float-right ml-4 mb-3 mt-1">
-                  <img
-                    src="https://i.postimg.cc/NfkX5tV7/Whats-App-Image-2026-03-16-at-15-42-42.jpg"
-                    alt="Comunidad educativa Colegio Sagrados Corazones de Manquehue"
-                    className="w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-lg shadow-md border border-blue-100"
-                  />
+
+              <div className="space-y-4 text-gray-700 leading-relaxed">
+                <div className="float-right ml-4 mb-3 mt-1 sm:ml-6 sm:mb-4">
+                  <div className="relative">
+                    <div className="absolute -top-2 -right-2 w-full h-full bg-gradient-to-br from-blue-300 to-blue-600 rounded-lg opacity-20"></div>
+                    <div className="relative w-72 h-96 sm:w-80 sm:h-[28rem] rounded-lg overflow-hidden shadow-xl border border-blue-100">
+                      <img
+                        src="https://i.postimg.cc/NfkX5tV7/Whats-App-Image-2026-03-16-at-15-42-42.jpg"
+                        alt="Rectoria Colegio Sagrados Corazones de Manquehue"
+                        className="w-full h-full object-cover object-center"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {rectorMessage.map((paragraph, index) => (
-                  <React.Fragment key={index}>
-                    <p className={index < currentParagraph ? 'opacity-100' : index === currentParagraph ? 'opacity-100' : 'opacity-0'}>
-                      {index < currentParagraph ? paragraph : index === currentParagraph ? displayedText : ''}
-                      {index === currentParagraph && displayedText.length < paragraph.length && (
-                        <span className="inline-block w-1 h-5 bg-blue-600 ml-1 animate-pulse"></span>
-                      )}
-                    </p>
-                  </React.Fragment>
+                  <p key={index}>{paragraph}</p>
                 ))}
-                
-                {currentParagraph >= rectorMessage.length && (
-                  <div className="clear-both mt-8 text-center animate-fade-in">
-                    <p className="text-xl font-bold text-blue-900 mt-2">Sandra Durán Vega</p>
-                    <p className="text-gray-600 italic">Rectora</p>
-                    <p className="text-gray-700">Colegio Sagrados Corazones de Manquehue</p>
-                  </div>
-                )}
+
+                <div className="clear-both pt-5 mt-6 border-t border-blue-200 text-center lg:text-left">
+                  <p className="text-xl font-bold text-blue-900">Sandra Duran Vega</p>
+                  <p className="text-gray-600 italic">Rectora</p>
+                  <p className="text-gray-700">Colegio Sagrados Corazones de Manquehue</p>
+                </div>
               </div>
             </div>
           </div>
