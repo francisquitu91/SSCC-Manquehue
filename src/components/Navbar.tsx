@@ -132,9 +132,10 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                     }}
                   />
                 ) : (
-                  <div className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44 flex items-center justify-center bg-gray-100 rounded-lg">
-                    <span className="text-xs text-gray-400 text-center px-2">Logo no configurado</span>
-                  </div>
+                  <div
+                    className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44"
+                    aria-hidden="true"
+                  />
                 )}
 
                 <div className="ml-2 sm:ml-4 md:ml-6 leading-tight -mt-4 sm:-mt-6">

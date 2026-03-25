@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface RectoriaSectionProps {
   onBack: () => void;
 }
 
-const LOGO_FILENAME = 'site-main-logo';
-
 const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [logoUrl, setLogoUrl] = useState<string>('');
   
   const rectorMessage = [
     "Querida Comunidad del Colegio Sagrados Corazones de Manquehue:",
@@ -27,35 +23,7 @@ const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
 
   useEffect(() => {
     setIsVisible(true);
-    fetchLogo();
   }, []);
-
-  const fetchLogo = async () => {
-    try {
-      const { data: files, error } = await supabase.storage
-        .from('news-images')
-        .list('', {
-          search: LOGO_FILENAME
-        });
-
-      if (error) {
-        console.error('Error fetching logo:', error);
-        return;
-      }
-
-      const logoFile = files?.find((f) => f.name.startsWith(LOGO_FILENAME));
-
-      if (logoFile) {
-        const {
-          data: { publicUrl }
-        } = supabase.storage.from('news-images').getPublicUrl(logoFile.name);
-
-        setLogoUrl(publicUrl);
-      }
-    } catch (error) {
-      console.error('Error fetching logo:', error);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50 to-gray-100">
@@ -78,24 +46,10 @@ const RectoriaSection: React.FC<RectoriaSectionProps> = ({ onBack }) => {
       {/* Hero Image Section */}
       <div className={`relative h-[500px] overflow-hidden transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
         <img
-          src="https://i.postimg.cc/QtzdTX6C/rectoria.jpg"
+          src="https://i.postimg.cc/HkmyszS3/COLE-0026.jpg"
           alt="Colegio Sagrados Corazones de Manquehue"
           className="w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40"></div>
-        
-        {/* Logo superpuesto */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt="Logo Colegio Manquehue SSCC"
-              className="h-48 w-48 object-contain drop-shadow-2xl"
-            />
-          ) : (
-            <div className="h-48 w-48" aria-hidden="true"></div>
-          )}
-        </div>
       </div>
 
       {/* Content Section */}

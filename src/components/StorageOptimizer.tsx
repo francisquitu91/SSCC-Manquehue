@@ -24,6 +24,30 @@ interface FileItem {
   cacheMaxAge?: number;
 }
 
+const parseCacheAges = (cacheControlHeader: string | null): { maxAge?: number; sMaxAge?: number; effectiveAge?: number } => {
+  if (!cacheControlHeader) {
+    return {};
+  }
+
+  const maxAgeMatch = cacheControlHeader.match(/(?:^|,)\s*max-age=(\d+)/i);
+  const sMaxAgeMatch = cacheControlHeader.match(/(?:^|,)\s*s-maxage=(\d+)/i);
+
+  const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : undefined;
+  const sMaxAge = sMaxAgeMatch ? parseInt(sMaxAgeMatch[1], 10) : undefined;
+
+  // Para Cached Egress, s-maxage (caché compartida/CDN) es más representativo.
+  const effectiveAge = sMaxAge ?? maxAge;
+
+  return { maxAge, sMaxAge, effectiveAge };
+};
+
+const getCacheControlFromMetadata = (metadata: any): string | null => {
+  if (!metadata || typeof metadata !== 'object') return null;
+
+  const value = metadata.cacheControl ?? metadata.cache_control ?? metadata['cache-control'];
+  return typeof value === 'string' ? value : null;
+};
+
 const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
   const [selectedBucket, setSelectedBucket] = useState<string>('');
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -79,23 +103,36 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
         return;
       }
 
-      // Cargar archivos inicialmente con estado "checking"
+      const expectedMaxAge = parseInt(getCacheConfig(selectedBucket), 10);
+
+      // Cargar archivos y usar metadata primero para evitar falsos positivos por HEAD/CDN
       const formattedFiles: FileItem[] = fileList.map(file => ({
         name: file.name,
         size: file.metadata?.size || 0,
         selected: false,
-        cacheStatus: 'checking' as const,
-        cacheMaxAge: undefined
+        cacheStatus: (() => {
+          const metadataCacheControl = getCacheControlFromMetadata(file.metadata);
+          const { effectiveAge } = parseCacheAges(metadataCacheControl);
+          if (effectiveAge === undefined) return 'checking' as const;
+          return effectiveAge >= expectedMaxAge * 0.8 ? 'cached' as const : 'needs-cache' as const;
+        })(),
+        cacheMaxAge: (() => {
+          const metadataCacheControl = getCacheControlFromMetadata(file.metadata);
+          return parseCacheAges(metadataCacheControl).effectiveAge;
+        })()
       }));
 
       setFiles(formattedFiles);
 
-      // Verificar headers de caché en paralelo (en lotes de 5 para no saturar)
+      // Verificar por HEAD solo los que no traen metadata util
       const batchSize = 5;
-      const expectedMaxAge = parseInt(getCacheConfig(selectedBucket));
+      const filesNeedingHeadCheck = fileList.filter(file => {
+        const metadataCacheControl = getCacheControlFromMetadata(file.metadata);
+        return parseCacheAges(metadataCacheControl).effectiveAge === undefined;
+      });
       
-      for (let i = 0; i < fileList.length; i += batchSize) {
-        const batch = fileList.slice(i, i + batchSize);
+      for (let i = 0; i < filesNeedingHeadCheck.length; i += batchSize) {
+        const batch = filesNeedingHeadCheck.slice(i, i + batchSize);
         
         await Promise.all(batch.map(async (file) => {
           try {
@@ -103,19 +140,22 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
               .from(selectedBucket)
               .getPublicUrl(file.name);
 
-            // Hacer petición HEAD para obtener headers
-            const response = await fetch(publicUrlData.publicUrl, { method: 'HEAD' });
+            // Hacer HEAD sin caché para evitar leer headers stale del navegador/CDN
+            const response = await fetch(`${publicUrlData.publicUrl}?_cache_check=${Date.now()}`, {
+              method: 'HEAD',
+              cache: 'no-store'
+            });
             const cacheControl = response.headers.get('cache-control');
             
             let status: 'cached' | 'needs-cache' = 'needs-cache';
             let maxAge: number | undefined = undefined;
 
             if (cacheControl) {
-              const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
-              if (maxAgeMatch) {
-                maxAge = parseInt(maxAgeMatch[1]);
-                // Considerar "cached" si tiene al menos el 80% del maxAge esperado
-                if (maxAge >= expectedMaxAge * 0.8) {
+              const { effectiveAge } = parseCacheAges(cacheControl);
+              if (effectiveAge !== undefined) {
+                maxAge = effectiveAge;
+                // Considerar "cached" si la caché efectiva (s-maxage o max-age) llega al 80% del esperado.
+                if (effectiveAge >= expectedMaxAge * 0.8) {
                   status = 'cached';
                 }
               }

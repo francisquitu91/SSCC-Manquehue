@@ -50,6 +50,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   const categories = [
     'Documentos de Matrícula 2026',
     'Documentos, protocolos y reglamentos del Colegio',
+    'Circulares',
     'Seguros escolares',
     'Otros',
     'Listas útiles escolares'
