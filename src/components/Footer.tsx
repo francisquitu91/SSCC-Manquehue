@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="text-center text-blue-100 text-sm mt-2">
-          <p>2179 Padre Damian Deveuster</p>
+          <p>Padre Damián de Veuster 2151</p>
           <p className="mt-1">Vitacura, Región Metropolitana</p>
         </div>
       </div>
