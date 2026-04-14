@@ -19,6 +19,11 @@ const baseSecciones = [
     onClick: () => window.navigateTo && window.navigateTo('cultura-pensamiento'),
   },
   {
+    title: "Aprendizaje Cooperativo",
+    description: "Aprendemos en equipo, donde el aporte de cada uno importa para crecer como comunidad",
+    onClick: () => window.navigateTo && window.navigateTo('aprendizaje-cooperativo'),
+  },
+  {
     title: "Conoce nuestros equipos",
     description: "Descubre los equipos docentes y de gestión que acompañan a nuestra comunidad.",
     onClick: () => window.navigateTo && window.navigateTo('consejo-directivo'),

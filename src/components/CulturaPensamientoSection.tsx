@@ -77,15 +77,6 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
           className="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/40 flex items-center justify-center">
-          <div className="text-center">
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-2xl inline-block">
-              <img
-                src="https://i.postimg.cc/pX9SpVm3/logosscc.png"
-                alt="Logo Sagrados Corazones"
-                className="h-20 md:h-28 w-auto"
-              />
-            </div>
-          </div>
         </div>
       </div>
 

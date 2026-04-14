@@ -65,6 +65,7 @@ import ValoresSection from './components/ValoresSection';
 import ValoresManagement from './components/ValoresManagement';
 import AdmisionKinderIISection from './components/AdmisionKinderIISection';
 import CalendarioCicloSection from './components/CalendarioCicloSection';
+import AprendizajeCooperativoSection from './components/AprendizajeCooperativoSection';
 
 const backgroundImages = [
   'https://i.postimg.cc/4N3HzXdH/mjsscc.jpg',
@@ -180,6 +181,10 @@ function App() {
 
   if (currentPage === 'rectoria') {
     return <RectoriaSection onBack={handleBackToHome} />;
+  }
+
+  if (currentPage === 'aprendizaje-cooperativo') {
+    return <AprendizajeCooperativoSection onBack={handleBackToHome} />;
   }
 
   if (currentPage === 'institutional-documents-management') {
