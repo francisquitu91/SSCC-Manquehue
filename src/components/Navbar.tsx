@@ -120,7 +120,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
 
             {/* LEFT: LOGO AND SCHOOL NAME */}
             <div className="flex items-center">
-              <a href="#" aria-label="Inicio" className="flex items-center mt-4 relative z-30">
+              <button type="button" onClick={() => handleNavigation('home')} aria-label="Inicio" className="flex items-center mt-4 relative z-30 text-left">
                 {logoUrl ? (
                   <img
                     src={logoUrl}
@@ -145,7 +145,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                     <span className="font-normal"> MANQUEHUE</span>
                   </div>
                 </div>
-              </a>
+              </button>
             </div>
 
             {/* CENTER: DESKTOP MAIN MENU */}

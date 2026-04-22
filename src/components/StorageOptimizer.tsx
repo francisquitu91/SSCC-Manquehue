@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
-import { ArrowLeft, HardDrive, Loader2, CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, HardDrive, Loader2, CheckCircle, XCircle, AlertCircle, RefreshCw, Save, Link as LinkIcon } from 'lucide-react';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
+import {
+  buildDriveDownloadUrl,
+  mergeDocumentsWithProjections,
+  normalizeRouteSlug,
+  type DocumentSourceType,
+  type InstitutionalDocumentProjection,
+  type ProjectedInstitutionalDocument,
+} from '../lib/institutionalDocuments';
 
 interface StorageOptimizerProps {
   onBack: () => void;
@@ -22,6 +30,35 @@ interface FileItem {
   selected: boolean;
   cacheStatus: 'checking' | 'cached' | 'needs-cache' | 'unknown';
   cacheMaxAge?: number;
+}
+
+interface ManagedInstitutionalDocument {
+  id: string;
+  source_document_id: string | null;
+  projection_id?: string;
+  is_projection_orphan?: boolean;
+  title: string;
+  category: string;
+  source_type: DocumentSourceType;
+  file_url: string;
+  file_name: string;
+  external_view_url: string | null;
+  external_download_url: string | null;
+  route_slug: string | null;
+  open_in_fullscreen: boolean;
+}
+
+interface PrimaryInstitutionalDocumentRow {
+  id: string;
+  title: string;
+  category: string;
+  file_url: string;
+  file_name: string;
+  source_type?: DocumentSourceType | null;
+  external_view_url?: string | null;
+  external_download_url?: string | null;
+  route_slug?: string | null;
+  open_in_fullscreen?: boolean | null;
 }
 
 const parseCacheAges = (cacheControlHeader: string | null): { maxAge?: number; sMaxAge?: number; effectiveAge?: number } => {
@@ -56,6 +93,10 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
   const [results, setResults] = useState<OptimizationResult[]>([]);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const [showOnlyNeedsCache, setShowOnlyNeedsCache] = useState(false);
+  const [documents, setDocuments] = useState<ManagedInstitutionalDocument[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [savingDocumentIds, setSavingDocumentIds] = useState<Set<string>>(new Set());
+  const [documentsMessage, setDocumentsMessage] = useState<string | null>(null);
 
   const bucketOptions = [
     { value: '', label: 'Selecciona un bucket...' },
@@ -68,6 +109,156 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
     { value: 'institutional-documents', label: 'Documentos Institucionales' },
     { value: 'recursos-digitales-files', label: 'Recursos Digitales' }
   ];
+
+  useEffect(() => {
+    loadInstitutionalDocuments();
+  }, []);
+
+  const loadInstitutionalDocuments = async () => {
+    setLoadingDocuments(true);
+    setDocumentsMessage(null);
+
+    try {
+      const { data: primaryData, error: primaryError } = await supabase
+        .from('institutional_documents')
+        .select('id,title,category,file_url,file_name')
+        .order('category')
+        .order('title');
+
+      if (primaryError) throw primaryError;
+
+      const { data: projectionData, error: projectionError } = await driveRoutesSupabase
+        .from('institutional_document_projections')
+        .select('*');
+
+      if (projectionError) {
+        console.warn('No se pudieron cargar proyecciones de documentos:', projectionError.message);
+        setDocumentsMessage('Se cargaron documentos del proyecto principal. Falta acceso a proyecciones Drive en el proyecto secundario.');
+      }
+
+      const primaryRows = (primaryData || []) as PrimaryInstitutionalDocumentRow[];
+      const normalizedPrimary = primaryRows.map((doc) => ({
+        ...doc,
+        source_type: doc.source_type || 'storage',
+        external_view_url: doc.external_view_url || null,
+        external_download_url: doc.external_download_url || null,
+        route_slug: doc.route_slug || null,
+        open_in_fullscreen: doc.open_in_fullscreen ?? true,
+      }));
+
+      const merged = mergeDocumentsWithProjections(
+        normalizedPrimary as ProjectedInstitutionalDocument[],
+        (projectionData || []) as InstitutionalDocumentProjection[]
+      );
+
+      setDocuments(
+        merged.map((doc) => ({
+          ...doc,
+          source_document_id: doc.source_document_id || (doc.is_projection_orphan ? null : doc.id),
+          projection_id: doc.projection_id,
+        }))
+      );
+    } catch (error) {
+      console.error('Error loading institutional documents for optimizer:', error);
+      setDocumentsMessage('No se pudieron cargar los documentos institucionales. Verifica que la migración esté aplicada.');
+    } finally {
+      setLoadingDocuments(false);
+    }
+  };
+
+  const updateManagedDocumentField = <K extends keyof ManagedInstitutionalDocument>(
+    id: string,
+    field: K,
+    value: ManagedInstitutionalDocument[K]
+  ) => {
+    setDocuments(prev => prev.map(doc => (
+      doc.id === id ? { ...doc, [field]: value } : doc
+    )));
+  };
+
+  const updateManagedDocumentDriveViewUrl = (id: string, viewUrl: string) => {
+    setDocuments(prev => prev.map(doc => (
+      doc.id === id
+        ? {
+            ...doc,
+            external_view_url: viewUrl,
+            external_download_url: viewUrl ? buildDriveDownloadUrl(viewUrl, null) : '',
+          }
+        : doc
+    )));
+  };
+
+  const saveManagedDocument = async (doc: ManagedInstitutionalDocument) => {
+    setDocumentsMessage(null);
+
+    if (doc.source_type === 'drive' && !(doc.external_view_url || '').trim()) {
+      setDocumentsMessage(`El documento "${doc.title}" necesita una URL de visualización de Drive.`);
+      return;
+    }
+
+    setSavingDocumentIds(prev => new Set(prev).add(doc.id));
+
+    try {
+      const routeSlug = normalizeRouteSlug(doc.route_slug || doc.title);
+      const payload = {
+        source_document_id: doc.source_document_id,
+        title: doc.title,
+        category: doc.category,
+        source_file_url: doc.file_url || null,
+        source_file_name: doc.file_name || null,
+        external_view_url: (doc.external_view_url || '').trim(),
+        external_download_url: (doc.external_download_url || '').trim() || null,
+        route_slug: routeSlug || null,
+        open_in_fullscreen: doc.open_in_fullscreen,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (!doc.projection_id && doc.source_document_id) {
+        const { data: existingProjection } = await driveRoutesSupabase
+          .from('institutional_document_projections')
+          .select('id')
+          .eq('source_document_id', doc.source_document_id)
+          .maybeSingle();
+
+        if (existingProjection?.id) {
+          doc.projection_id = existingProjection.id;
+        }
+      }
+
+      if (doc.projection_id) {
+        const { error } = await driveRoutesSupabase
+          .from('institutional_document_projections')
+          .update(payload)
+          .eq('id', doc.projection_id);
+
+        if (error) throw error;
+      } else {
+        const { data, error } = await driveRoutesSupabase
+          .from('institutional_document_projections')
+          .insert([payload])
+          .select('id')
+          .single();
+
+        if (error) throw error;
+
+        if (data?.id) {
+          doc.projection_id = data.id;
+        }
+      }
+
+      setDocumentsMessage(`Configuración actualizada: ${doc.title}`);
+      updateManagedDocumentField(doc.id, 'route_slug', routeSlug);
+    } catch (error: any) {
+      console.error('Error updating institutional document from optimizer:', error);
+      setDocumentsMessage(error.message || `No se pudo actualizar ${doc.title}`);
+    } finally {
+      setSavingDocumentIds(prev => {
+        const next = new Set(prev);
+        next.delete(doc.id);
+        return next;
+      });
+    }
+  };
 
   const getCacheConfig = (bucketName: string): string => {
     // Configurar caché según el tipo de bucket
@@ -362,6 +553,9 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
             Selecciona archivos individuales para optimizar y configurar caché
           </p>
         </div>
+
+        {/* Section 0: Drive Configuration (hidden but functional) */}
+        {/* Loading documents in background but not displaying UI */}
 
         {/* Bucket Selector */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">

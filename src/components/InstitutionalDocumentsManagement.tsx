@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit2, Trash2, Save, X, Upload, Loader2, FileText, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, Save, X, Upload, Loader2, FileText, AlertCircle, Link as LinkIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
+import { buildDriveDownloadUrl, normalizeRouteSlug, type DocumentSourceType } from '../lib/institutionalDocuments';
 
 interface InstitutionalDocumentsManagementProps {
   onBack: () => void;
@@ -18,6 +19,11 @@ interface Document {
   file_size: number | null;
   order_index: number;
   created_at: string;
+  source_type: DocumentSourceType;
+  external_view_url: string | null;
+  external_download_url: string | null;
+  route_slug: string | null;
+  open_in_fullscreen: boolean;
 }
 
 interface DocumentForm {
@@ -27,6 +33,11 @@ interface DocumentForm {
   file: File | null;
   order_index: number;
   subcategory?: string;
+  source_type: DocumentSourceType;
+  external_view_url: string;
+  external_download_url: string;
+  route_slug: string;
+  open_in_fullscreen: boolean;
 }
 
 const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagementProps> = ({ onBack }) => {
@@ -38,13 +49,20 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const documentsClients = [supabase];
+
   const [formData, setFormData] = useState<DocumentForm>({
     category: 'Documentos de Matrícula 2026',
     title: '',
     description: '',
     file: null,
     order_index: 0,
-    subcategory: 'Todos'
+    subcategory: 'Todos',
+    source_type: 'storage',
+    external_view_url: '',
+    external_download_url: '',
+    route_slug: '',
+    open_in_fullscreen: true
   });
 
   const categories = [
@@ -63,14 +81,26 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('institutional_documents')
-        .select('*')
-        .order('category')
-        .order('order_index');
+      let fetchedData: Document[] = [];
+      let loaded = false;
 
-      if (error) throw error;
-      setDocuments(data || []);
+      for (const client of documentsClients) {
+        const { data, error } = await client
+          .from('institutional_documents')
+          .select('*')
+          .order('category')
+          .order('order_index');
+
+        if (!error) {
+          fetchedData = (data || []) as Document[];
+          loaded = true;
+          break;
+        }
+      }
+
+      if (!loaded) throw new Error('No fue posible cargar documentos');
+
+      setDocuments(fetchedData);
     } catch (error) {
       console.error('Error fetching documents:', error);
       setError('Error al cargar los documentos');
@@ -120,25 +150,32 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       return;
     }
 
-    if (!editingId && !formData.file) {
-      setError('Debe seleccionar un archivo');
+    if (formData.source_type === 'storage' && !editingId && !formData.file) {
+      setError('Debe seleccionar un archivo para documentos internos');
+      return;
+    }
+
+    if (formData.source_type === 'drive' && !formData.external_view_url.trim()) {
+      setError('Debe ingresar el enlace de visualización de Google Drive');
       return;
     }
 
     try {
       setUploading(true);
 
-      let fileUrl = '';
-      let fileName = '';
-      let fileType = '';
+      let fileUrl = formData.external_view_url.trim();
+      let fileName = formData.file?.name || `${formData.title}.gdrive`;
+      let fileType = formData.source_type === 'drive' ? 'application/vnd.google-apps.document' : '';
       let fileSize = 0;
 
-      if (formData.file) {
+      if (formData.source_type === 'storage' && formData.file) {
         fileUrl = await uploadFile(formData.file);
         fileName = formData.file.name;
         fileType = formData.file.type;
         fileSize = formData.file.size;
       }
+
+      const normalizedRouteSlug = normalizeRouteSlug(formData.route_slug || formData.title);
 
       // compute final category value (include subcategory for listas útiles escolares)
       let finalCategory = formData.category;
@@ -157,40 +194,73 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
           title: formData.title,
           description: formData.description || null,
           order_index: formData.order_index,
+          source_type: formData.source_type,
+          external_view_url: formData.source_type === 'drive' ? formData.external_view_url.trim() : null,
+          external_download_url: formData.source_type === 'drive' ? (formData.external_download_url.trim() || null) : null,
+          route_slug: normalizedRouteSlug || null,
+          open_in_fullscreen: formData.open_in_fullscreen,
           updated_at: new Date().toISOString()
         };
 
         // Only update file fields if a new file was uploaded
-        if (formData.file) {
+        if (formData.source_type === 'storage' && formData.file) {
           updateData.file_url = fileUrl;
           updateData.file_name = fileName;
           updateData.file_type = fileType;
           updateData.file_size = fileSize;
         }
 
-        const { error } = await supabase
-          .from('institutional_documents')
-          .update(updateData)
-          .eq('id', editingId);
+        if (formData.source_type === 'drive') {
+          updateData.file_url = fileUrl;
+          updateData.file_name = fileName;
+          updateData.file_type = fileType;
+          updateData.file_size = null;
+        }
 
-        if (error) throw error;
+        let updated = false;
+        for (const client of documentsClients) {
+          const { error } = await client
+            .from('institutional_documents')
+            .update(updateData)
+            .eq('id', editingId);
+
+          if (!error) {
+            updated = true;
+            break;
+          }
+        }
+
+        if (!updated) throw new Error('No fue posible actualizar el documento');
         setSuccess('Documento actualizado exitosamente');
         } else {
         // Insert new document
-        const { error } = await supabase
-          .from('institutional_documents')
-          .insert([{ 
-            category: finalCategory,
-            title: formData.title,
-            description: formData.description || null,
-            file_url: fileUrl,
-            file_name: fileName,
-            file_type: fileType,
-            file_size: fileSize,
-            order_index: formData.order_index
-          }] );
+        let inserted = false;
+        for (const client of documentsClients) {
+          const { error } = await client
+            .from('institutional_documents')
+            .insert([{ 
+              category: finalCategory,
+              title: formData.title,
+              description: formData.description || null,
+              file_url: fileUrl,
+              file_name: fileName,
+              file_type: fileType,
+              file_size: fileSize,
+              order_index: formData.order_index,
+              source_type: formData.source_type,
+              external_view_url: formData.source_type === 'drive' ? formData.external_view_url.trim() : null,
+              external_download_url: formData.source_type === 'drive' ? (formData.external_download_url.trim() || null) : null,
+              route_slug: normalizedRouteSlug || null,
+              open_in_fullscreen: formData.open_in_fullscreen
+            }] );
 
-        if (error) throw error;
+          if (!error) {
+            inserted = true;
+            break;
+          }
+        }
+
+        if (!inserted) throw new Error('No fue posible crear el documento');
         setSuccess('Documento agregado exitosamente');
       }
 
@@ -201,7 +271,12 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
         description: '',
         file: null,
         order_index: 0,
-        subcategory: 'Todos'
+        subcategory: 'Todos',
+        source_type: 'storage',
+        external_view_url: '',
+        external_download_url: '',
+        route_slug: '',
+        open_in_fullscreen: true
       });
       setIsEditing(false);
       setEditingId(null);
@@ -230,7 +305,12 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       description: doc.description || '',
       file: null,
       order_index: doc.order_index,
-      subcategory: parsedSub
+      subcategory: parsedSub,
+      source_type: doc.source_type || 'storage',
+      external_view_url: doc.external_view_url || '',
+      external_download_url: doc.external_download_url || '',
+      route_slug: doc.route_slug || '',
+      open_in_fullscreen: doc.open_in_fullscreen ?? true
     });
     setEditingId(doc.id);
     setIsEditing(true);
@@ -242,12 +322,20 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     if (!confirm('¿Está seguro de que desea eliminar este documento?')) return;
 
     try {
-      const { error } = await supabase
-        .from('institutional_documents')
-        .delete()
-        .eq('id', id);
+      let deleted = false;
+      for (const client of documentsClients) {
+        const { error } = await client
+          .from('institutional_documents')
+          .delete()
+          .eq('id', id);
 
-      if (error) throw error;
+        if (!error) {
+          deleted = true;
+          break;
+        }
+      }
+
+      if (!deleted) throw new Error('No fue posible eliminar el documento');
       setSuccess('Documento eliminado exitosamente');
       fetchDocuments();
     } catch (error: any) {
@@ -263,7 +351,12 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       description: '',
       file: null,
       order_index: 0,
-      subcategory: 'Todos'
+      subcategory: 'Todos',
+      source_type: 'storage',
+      external_view_url: '',
+      external_download_url: '',
+      route_slug: '',
+      open_in_fullscreen: true
     });
     setIsEditing(false);
     setEditingId(null);
@@ -405,6 +498,36 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fuente del documento
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, source_type: 'storage' })}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    formData.source_type === 'storage'
+                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Archivo en Storage
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, source_type: 'drive' })}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    formData.source_type === 'drive'
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-700'
+                      : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Enlace de Google Drive
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Descripción
               </label>
               <textarea
@@ -416,30 +539,103 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Archivo {!editingId && '*'}
-              </label>
-              <div className="flex items-center space-x-4">
-                <label className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors">
-                  <Upload className="w-5 h-5" />
-                  <span>Seleccionar archivo</span>
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
-                  />
+            {formData.source_type === 'storage' ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Archivo {!editingId && '*'}
                 </label>
-                {formData.file && (
-                  <span className="text-sm text-gray-600">
-                    {formData.file.name} ({formatFileSize(formData.file.size)})
-                  </span>
-                )}
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors">
+                    <Upload className="w-5 h-5" />
+                    <span>Seleccionar archivo</span>
+                    <input
+                      type="file"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+                    />
+                  </label>
+                  {formData.file && (
+                    <span className="text-sm text-gray-600">
+                      {formData.file.name} ({formatFileSize(formData.file.size)})
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Formatos aceptados: PDF, Word, Excel, PowerPoint, Imágenes
+                </p>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Formatos aceptados: PDF, Word, Excel, PowerPoint, Imágenes
-              </p>
+            ) : (
+              <div className="space-y-4 rounded-lg border border-emerald-200 bg-emerald-50/40 p-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    URL de visualización (Google Drive Docs o Slides) *
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.external_view_url}
+                    onChange={(e) => {
+                      const viewUrl = e.target.value;
+                      setFormData({
+                        ...formData,
+                        external_view_url: viewUrl,
+                        external_download_url: viewUrl ? buildDriveDownloadUrl(viewUrl, null) : ''
+                      });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="https://docs.google.com/document/d/.../edit"
+                    required={formData.source_type === 'drive'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    URL de descarga (opcional)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.external_download_url}
+                    onChange={(e) => setFormData({ ...formData, external_download_url: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="https://drive.google.com/uc?export=download&id=..."
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Si lo dejas vacío, se intentará generar automáticamente desde el enlace de visualización.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ruta del documento
+                </label>
+                <div className="relative">
+                  <LinkIcon className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={formData.route_slug}
+                    onChange={(e) => setFormData({ ...formData, route_slug: normalizeRouteSlug(e.target.value) })}
+                    className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="reglamento-convivencia"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Se publicará como /documentos/tu-ruta. Si queda vacío, se genera desde el título.
+                </p>
+              </div>
+
+              <div className="flex items-center mt-8 md:mt-0">
+                <label className="inline-flex items-center gap-3 text-sm font-medium text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={formData.open_in_fullscreen}
+                    onChange={(e) => setFormData({ ...formData, open_in_fullscreen: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 rounded"
+                  />
+                  Abrir en visor de pantalla completa
+                </label>
+              </div>
             </div>
 
             <div className="flex justify-end space-x-4">
@@ -487,7 +683,9 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuente</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archivo</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ruta</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orden</th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
@@ -506,7 +704,15 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${doc.source_type === 'drive' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {doc.source_type === 'drive' ? 'Drive' : 'Storage'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm text-gray-600">{doc.file_name}</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-600">{doc.route_slug || 'Sin ruta'}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm text-gray-600">{formatFileSize(doc.file_size)}</span>

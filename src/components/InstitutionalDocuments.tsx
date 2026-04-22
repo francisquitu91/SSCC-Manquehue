@@ -1,23 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, Download, Calendar, FileType, Loader2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { ArrowLeft, FileText, Download, Loader2, X, Maximize2 } from 'lucide-react';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { handleProtectedDownload } from '../lib/downloadRateLimit';
+import {
+  getDocumentDownloadUrl,
+  getDocumentViewUrl,
+  mergeDocumentsWithProjections,
+  type InstitutionalDocumentProjection,
+  type ProjectedInstitutionalDocument,
+} from '../lib/institutionalDocuments';
 
 interface InstitutionalDocumentsProps {
   onBack: () => void;
 }
 
-interface Document {
-  id: string;
-  category: string;
-  title: string;
-  description: string | null;
-  file_url: string;
-  file_name: string;
-  file_type: string;
-  file_size: number | null;
-  order_index: number;
-  created_at: string;
+type Document = ProjectedInstitutionalDocument;
+
+const DOCUMENT_ROUTE_BASE = '/documentosinstitucionales';
+
+function normalizePathname(pathname: string) {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1);
+  }
+
+  return pathname || '/';
+}
+
+function getRouteSlugFromPath(pathname: string) {
+  const normalizedPath = normalizePathname(pathname);
+
+  if (normalizedPath.startsWith('/documentos/')) {
+    const legacySlug = normalizedPath.slice('/documentos/'.length).trim();
+    return legacySlug || null;
+  }
+
+  if (!normalizedPath.startsWith(`${DOCUMENT_ROUTE_BASE}/`)) {
+    return null;
+  }
+
+  const slug = normalizedPath.slice(`${DOCUMENT_ROUTE_BASE}/`.length).trim();
+  return slug || null;
 }
 
 const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack }) => {
@@ -26,6 +48,8 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeSubcategory, setActiveSubcategory] = useState<string>('Todos');
   const [isVisible, setIsVisible] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [requestedRouteSlug, setRequestedRouteSlug] = useState<string | null>(() => getRouteSlugFromPath(window.location.pathname));
 
   const categories = [
     { id: 'all', name: 'Todos', color: 'blue' },
@@ -42,30 +66,68 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     fetchDocuments();
   }, []);
 
+  useEffect(() => {
+    if (!documents.length || !requestedRouteSlug) {
+      return;
+    }
+
+    const matchingDocument = documents.find((doc) => doc.route_slug === requestedRouteSlug);
+    if (matchingDocument) {
+      setSelectedDocument(matchingDocument);
+    }
+  }, [documents, requestedRouteSlug]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      const routeSlug = getRouteSlugFromPath(window.location.pathname);
+      setRequestedRouteSlug(routeSlug);
+
+      if (!routeSlug) {
+        setSelectedDocument(null);
+        return;
+      }
+
+      const matchingDocument = documents.find((doc) => doc.route_slug === routeSlug);
+      setSelectedDocument(matchingDocument || null);
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [documents]);
+
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data: primaryData, error: primaryError } = await supabase
         .from('institutional_documents')
         .select('*')
         .order('category')
         .order('order_index');
 
-      if (error) throw error;
-      setDocuments(data || []);
+      if (primaryError) {
+        throw primaryError;
+      }
+
+      const { data: projectionData, error: projectionError } = await driveRoutesSupabase
+        .from('institutional_document_projections')
+        .select('*');
+
+      if (projectionError) {
+        // Keep main docs alive even if projection table isn't ready yet.
+        console.warn('No se pudieron cargar proyecciones de documentos:', projectionError.message);
+      }
+
+      const merged = mergeDocumentsWithProjections(
+        (primaryData || []) as Document[],
+        (projectionData || []) as InstitutionalDocumentProjection[]
+      );
+
+      setDocuments(merged);
     } catch (error) {
       console.error('Error fetching documents:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatFileSize = (bytes: number | null) => {
-    if (!bytes) return 'N/A';
-    const kb = bytes / 1024;
-    const mb = kb / 1024;
-    if (mb >= 1) return `${mb.toFixed(2)} MB`;
-    return `${kb.toFixed(2)} KB`;
   };
 
   const getFileIcon = (fileType: string) => {
@@ -74,6 +136,29 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     if (fileType.includes('excel') || fileType.includes('spreadsheet')) return '📊';
     if (fileType.includes('image')) return '🖼️';
     return '📎';
+  };
+
+  const openDocument = (doc: Document) => {
+    if (doc.open_in_fullscreen === false) {
+      window.open(getDocumentViewUrl(doc), '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    setSelectedDocument(doc);
+
+    if (doc.route_slug) {
+      window.history.pushState({}, '', `${DOCUMENT_ROUTE_BASE}/${doc.route_slug}`);
+      setRequestedRouteSlug(doc.route_slug);
+    }
+  };
+
+  const closeDocumentViewer = () => {
+    setSelectedDocument(null);
+
+    if (getRouteSlugFromPath(window.location.pathname)) {
+      window.history.replaceState({}, '', '/documentosinstitucionales');
+      setRequestedRouteSlug(null);
+    }
   };
 
   const MATR_2025 = 'Documentos de Matrícula 2025';
@@ -203,6 +288,15 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                           key={doc.id}
                           className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 hover:border-blue-300 group"
                         >
+                          {/* Source badges hidden - section 0 manages Drive/route config */}
+                          {doc.is_projection_orphan && (
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                Proyección huérfana
+                              </span>
+                            </div>
+                          )}
+
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center space-x-3 flex-1 min-w-0">
                               <span className="text-3xl flex-shrink-0">{getFileIcon(doc.file_type)}</span>
@@ -211,13 +305,22 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                               </h3>
                             </div>
 
-                            <button
-                              onClick={handleProtectedDownload(doc.file_url, doc.file_name)}
-                              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105 flex-shrink-0"
-                            >
-                              <Download className="w-4 h-4" />
-                              <span className="hidden sm:inline">Descargar</span>
-                            </button>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <button
+                                onClick={() => openDocument(doc)}
+                                className="flex items-center space-x-2 px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-300"
+                              >
+                                <Maximize2 className="w-4 h-4" />
+                                <span className="hidden sm:inline">Ver archivo</span>
+                              </button>
+                              <button
+                                onClick={handleProtectedDownload(getDocumentDownloadUrl(doc), doc.file_name)}
+                                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105"
+                              >
+                                <Download className="w-4 h-4" />
+                                <span className="hidden sm:inline">Descargar</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -229,6 +332,44 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
           </div>
         )}
       </div>
+
+      {selectedDocument && (
+        <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-sm">
+          <div className="h-full w-full flex flex-col">
+            <div className="bg-white border-b border-gray-200 px-4 py-3 sm:px-6 flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <h3 className="font-semibold text-gray-900 truncate">{selectedDocument.title}</h3>
+                <p className="text-sm text-gray-500 truncate">{selectedDocument.file_name}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleProtectedDownload(getDocumentDownloadUrl(selectedDocument), selectedDocument.file_name)}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  <Download className="w-4 h-4" />
+                  Descargar
+                </button>
+                <button
+                  onClick={closeDocumentViewer}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 text-red-700 hover:bg-red-50"
+                >
+                  <X className="w-4 h-4" />
+                  Cerrar
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 bg-gray-950">
+              <iframe
+                src={getDocumentViewUrl(selectedDocument)}
+                title={selectedDocument.title}
+                className="w-full h-full"
+                allow="autoplay; fullscreen"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

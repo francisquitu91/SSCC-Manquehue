@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const driveRoutesSupabaseUrl = import.meta.env.VITE_DRIVE_ROUTES_SUPABASE_URL || 'https://ntncdusmihemyaqrzajm.supabase.co';
+const driveRoutesSupabasePublishableKey = import.meta.env.VITE_DRIVE_ROUTES_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_kh_0x5npworQbEFVlyK3Xw_2kidvRNM';
 
 console.log('Supabase URL:', supabaseUrl);
 console.log('Supabase Anon Key:', supabaseAnonKey ? 'Present' : 'Missing');
@@ -10,6 +12,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const driveRoutesSupabase = createClient(driveRoutesSupabaseUrl, driveRoutesSupabasePublishableKey);
 
 export interface NewsItem {
   id: string;

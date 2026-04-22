@@ -79,9 +79,111 @@ const backgroundImages = [
   'https://i.postimg.cc/ryf35G2T/ninosprofe.jpg'
 ];
 
+const PAGE_PATHS: Record<string, string> = {
+  home: '/inicio',
+  historia: '/historia',
+  'historia-congregacion': '/historiacongregacion',
+  'historia-colegio': '/historiacolegio',
+  'vision-mision': '/visionmision',
+  acles: '/acles',
+  'departamento-orientacion': '/departamentoorientacion',
+  'vicerrectoria-formacion': '/vicerrectoriaformacion',
+  'tour-virtual': '/tour-virtual',
+  'documentos-institucionales': '/documentosinstitucionales',
+  ceal: '/ceal',
+  'pastoral-juvenil': '/pastoraljuvenil',
+  comunidad: '/comunidad',
+  'cultura-pensamiento': '/culturapensamiento',
+  rectoria: '/rectoria',
+  'fundacion-pentecostes': '/fundacionpentecostes',
+  'directorio-fundacion': '/directoriofundacion',
+  admision: '/admision',
+  'admision-prekinder': '/admision-prekinder',
+  biblioteca: '/biblioteca',
+  'utiles-escolares': '/utilesescolares',
+  'uniformes-escolares': '/uniformesescolares',
+  horarios: '/horarios',
+  pagos: '/pagos',
+  'recursos-digitales': '/recursosdigitales',
+  'fechas-importantes': '/fechasimportantes',
+  'proyecto-educativo': '/proyectoeducativo',
+  'proyecto-educativo-equipo': '/proyectoeducativo-equipo',
+  'consejo-directivo': '/consejodirectivo',
+  valores: '/valores',
+  'plan-lector': '/planlector',
+  'student-withdrawal': '/retiroestudiantes',
+  'admision-kinder-ii': '/admision-kinder-ii',
+  'calendario-primer-ciclo': '/calendario-primer-ciclo',
+  'calendario-segundo-ciclo': '/calendario-segundo-ciclo',
+  'calendario-tercer-ciclo': '/calendario-tercer-ciclo',
+  admin: '/admin',
+  'institutional-documents-management': '/admin/documentos-institucionales',
+  'ceal-management': '/admin/ceal',
+  'pastoral-management': '/admin/pastoral',
+  'comunidad-management': '/admin/comunidad',
+  'admision-management': '/admin/admision',
+  'biblioteca-management': '/admin/biblioteca',
+  'utiles-escolares-management': '/admin/utiles-escolares',
+  'casino-management': '/admin/casino',
+  'uniformes-escolares-management': '/admin/uniformes-escolares',
+  'horarios-management': '/admin/horarios',
+  'pagos-management': '/admin/pagos',
+  'recursos-digitales-management': '/admin/recursos-digitales',
+  'fechas-importantes-management': '/admin/fechas-importantes',
+  'valores-management': '/admin/valores',
+  'announcement-management': '/admin/anuncios',
+  'logo-management': '/admin/logo',
+  'storage-optimizer': '/admin/storage-optimizer',
+  'departamento-orientacion-management': '/admin/departamento-orientacion',
+  'news-management': '/admin/noticias',
+  'directory-management': '/admin/directorio',
+  'directorio-fundacion-management': '/admin/directorio-fundacion',
+  'consejo-directivo-management': '/admin/consejo-directivo',
+  'proyecto-educativo-management': '/admin/proyecto-educativo',
+  'plan-lector-management': '/admin/plan-lector',
+  'proyecto-educativo-documento-management': '/admin/proyecto-educativo-documento',
+};
+
+function normalizePathname(pathname: string) {
+  let normalizedPathname = pathname;
+
+  try {
+    normalizedPathname = decodeURI(pathname);
+  } catch {
+    normalizedPathname = pathname;
+  }
+
+  normalizedPathname = normalizedPathname.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  if (normalizedPathname.length > 1 && normalizedPathname.endsWith('/')) {
+    return normalizedPathname.slice(0, -1);
+  }
+
+  return normalizedPathname || '/';
+}
+
+function getPageFromPathname(pathname: string) {
+  const normalizedPathname = normalizePathname(pathname);
+
+  if (normalizedPathname === '/' || normalizedPathname === '/inicio') {
+    return 'home';
+  }
+
+  if (normalizedPathname.startsWith('/documentosinstitucionales/') || normalizedPathname.startsWith('/documentos/')) {
+    return 'documentos-institucionales';
+  }
+
+  const entry = Object.entries(PAGE_PATHS).find(([, routePath]) => routePath === normalizedPathname);
+  return entry?.[0] ?? 'home';
+}
+
+function getPathForPage(page: string) {
+  return PAGE_PATHS[page] ?? '/inicio';
+}
+
 function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(() => getPageFromPathname(window.location.pathname));
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [showCasinoModal, setShowCasinoModal] = useState(false);
 
@@ -95,36 +197,77 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const currentPath = normalizePathname(window.location.pathname);
+    const canonicalPath = getPathForPage(currentPage);
+
+    if (
+      currentPage === 'documentos-institucionales' &&
+      (currentPath.startsWith('/documentosinstitucionales/') || currentPath.startsWith('/documentos/'))
+    ) {
+      return;
+    }
+
+    if (currentPath !== canonicalPath) {
+      window.history.replaceState({}, '', canonicalPath);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getPageFromPathname(window.location.pathname));
+      setShowCasinoModal(false);
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   const handlePageChange = (page: string) => {
     if (page === 'casino') {
       setShowCasinoModal(true);
     } else {
+      const nextPath = getPathForPage(page);
+      const currentPath = normalizePathname(window.location.pathname);
+
+      if (currentPath !== nextPath) {
+        window.history.pushState({}, '', nextPath);
+      }
+
       setCurrentPage(page);
+      setShowCasinoModal(false);
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }
   };
 
-  // Expose a simple global navigation helper so inner components
-  // can switch pages without threading the onPageChange prop everywhere.
-  // This keeps existing state-driven navigation but allows button links
-  // in components like BibliotecaSection to open the Plan Lector view.
-  (window as any).navigateTo = handlePageChange;
+  useEffect(() => {
+    (window as any).navigateTo = handlePageChange;
+
+    return () => {
+      delete (window as any).navigateTo;
+    };
+  }, [handlePageChange]);
 
   const handleBackToHome = () => {
-    setCurrentPage('home');
+    handlePageChange('home');
   };
 
   const handleAdminLogin = () => {
     setIsAdminAuthenticated(true);
-    setCurrentPage('admin');
+    handlePageChange('admin');
   };
 
   const handleAdminLogout = () => {
     setIsAdminAuthenticated(false);
-    setCurrentPage('home');
+    handlePageChange('home');
   };
 
   const handleBackToAdmin = () => {
-    setCurrentPage('admin');
+    handlePageChange('admin');
   };
 
   if (currentPage === 'historia') {
