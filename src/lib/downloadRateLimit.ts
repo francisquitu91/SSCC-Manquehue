@@ -176,15 +176,36 @@ export function handleProtectedDownload(
       console.warn('Te acercas al límite de descargas para este archivo');
     }
     
-    // Realizar la descarga
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName || '';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Realizar la descarga sin navegar a la URL pública
+    void (async () => {
+      try {
+        const response = await fetch(fileUrl, { cache: 'no-store' });
+
+        if (!response.ok) {
+          throw new Error(`No se pudo descargar el archivo (${response.status})`);
+        }
+
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = fileName || '';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(objectUrl);
+      } catch (error) {
+        console.error('Error al descargar archivo:', error);
+
+        // Fallback si falla la descarga directa
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName || '';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    })();
   };
 }
 

@@ -98,14 +98,29 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const { data: primaryData, error: primaryError } = await supabase
-        .from('institutional_documents')
-        .select('*')
-        .order('category')
-        .order('order_index');
+      const [secondaryResult, primaryResult] = await Promise.allSettled([
+        driveRoutesSupabase
+          .from('institutional_documents')
+          .select('*')
+          .order('category')
+          .order('order_index'),
+        supabase
+          .from('institutional_documents')
+          .select('*')
+          .order('category')
+          .order('order_index')
+      ]);
 
-      if (primaryError) {
-        throw primaryError;
+      const secondaryData = secondaryResult.status === 'fulfilled' && !secondaryResult.value.error
+        ? (secondaryResult.value.data || []) as Document[]
+        : [];
+
+      const primaryData = primaryResult.status === 'fulfilled' && !primaryResult.value.error
+        ? (primaryResult.value.data || []) as Document[]
+        : [];
+
+      if (secondaryResult.status === 'rejected' && primaryResult.status === 'rejected') {
+        throw new Error('No fue posible cargar documentos');
       }
 
       const { data: projectionData, error: projectionError } = await driveRoutesSupabase
@@ -118,7 +133,7 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
       }
 
       const merged = mergeDocumentsWithProjections(
-        (primaryData || []) as Document[],
+        [...secondaryData, ...primaryData],
         (projectionData || []) as InstitutionalDocumentProjection[]
       );
 

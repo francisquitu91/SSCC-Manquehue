@@ -119,13 +119,30 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
     setDocumentsMessage(null);
 
     try {
-      const { data: primaryData, error: primaryError } = await supabase
-        .from('institutional_documents')
-        .select('id,title,category,file_url,file_name')
-        .order('category')
-        .order('title');
+      const [secondaryResult, primaryResult] = await Promise.allSettled([
+        driveRoutesSupabase
+          .from('institutional_documents')
+          .select('id,title,category,file_url,file_name')
+          .order('category')
+          .order('title'),
+        supabase
+          .from('institutional_documents')
+          .select('id,title,category,file_url,file_name')
+          .order('category')
+          .order('title')
+      ]);
 
-      if (primaryError) throw primaryError;
+      const secondaryData = secondaryResult.status === 'fulfilled' && !secondaryResult.value.error
+        ? (secondaryResult.value.data || []) as PrimaryInstitutionalDocumentRow[]
+        : [];
+
+      const primaryData = primaryResult.status === 'fulfilled' && !primaryResult.value.error
+        ? (primaryResult.value.data || []) as PrimaryInstitutionalDocumentRow[]
+        : [];
+
+      if (secondaryData.length === 0 && primaryData.length === 0) {
+        throw new Error('No fue posible cargar documentos');
+      }
 
       const { data: projectionData, error: projectionError } = await driveRoutesSupabase
         .from('institutional_document_projections')
@@ -136,7 +153,7 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
         setDocumentsMessage('Se cargaron documentos del proyecto principal. Falta acceso a proyecciones Drive en el proyecto secundario.');
       }
 
-      const primaryRows = (primaryData || []) as PrimaryInstitutionalDocumentRow[];
+      const primaryRows = [...secondaryData, ...primaryData];
       const normalizedPrimary = primaryRows.map((doc) => ({
         ...doc,
         source_type: doc.source_type || 'storage',

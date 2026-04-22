@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit2, Trash2, Save, X, Upload, Loader2, FileText, AlertCircle, Link as LinkIcon } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
 import { buildDriveDownloadUrl, normalizeRouteSlug, type DocumentSourceType } from '../lib/institutionalDocuments';
 
@@ -49,7 +49,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const documentsClients = [supabase];
+  const documentsClients = [driveRoutesSupabase, supabase];
 
   const [formData, setFormData] = useState<DocumentForm>({
     category: 'Documentos de Matrícula 2026',
@@ -81,24 +81,25 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      let fetchedData: Document[] = [];
-      let loaded = false;
+      const settledResults = await Promise.allSettled(
+        documentsClients.map((client) =>
+          client
+            .from('institutional_documents')
+            .select('*')
+            .order('category')
+            .order('order_index')
+        )
+      );
 
-      for (const client of documentsClients) {
-        const { data, error } = await client
-          .from('institutional_documents')
-          .select('*')
-          .order('category')
-          .order('order_index');
-
-        if (!error) {
-          fetchedData = (data || []) as Document[];
-          loaded = true;
-          break;
+      const fetchedData = settledResults.flatMap((result) => {
+        if (result.status !== 'fulfilled' || result.value.error) {
+          return [] as Document[];
         }
-      }
 
-      if (!loaded) throw new Error('No fue posible cargar documentos');
+        return (result.value.data || []) as Document[];
+      });
+
+      if (fetchedData.length === 0) throw new Error('No fue posible cargar documentos');
 
       setDocuments(fetchedData);
     } catch (error) {
@@ -124,7 +125,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await driveRoutesSupabase.storage
       .from('institutional-documents')
       .upload(filePath, optimizedFile, {
         cacheControl: '31536000',
@@ -133,11 +134,23 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
 
     if (uploadError) throw uploadError;
 
-    const { data } = supabase.storage
+    const { data } = driveRoutesSupabase.storage
       .from('institutional-documents')
       .getPublicUrl(filePath);
 
     return data.publicUrl;
+  };
+
+  const getStorageFilePathFromUrl = (fileUrl: string): string | null => {
+    if (!fileUrl) return null;
+
+    try {
+      const url = new URL(fileUrl);
+      const segments = url.pathname.split('/').filter(Boolean);
+      return segments[segments.length - 1] || null;
+    } catch {
+      return null;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -217,50 +230,36 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
           updateData.file_size = null;
         }
 
-        let updated = false;
-        for (const client of documentsClients) {
-          const { error } = await client
-            .from('institutional_documents')
-            .update(updateData)
-            .eq('id', editingId);
-
-          if (!error) {
-            updated = true;
-            break;
-          }
-        }
-
-        if (!updated) throw new Error('No fue posible actualizar el documento');
+        await Promise.all(
+          documentsClients.map((client) =>
+            client
+              .from('institutional_documents')
+              .update(updateData)
+              .eq('id', editingId)
+          )
+        );
         setSuccess('Documento actualizado exitosamente');
-        } else {
+      } else {
         // Insert new document
-        let inserted = false;
-        for (const client of documentsClients) {
-          const { error } = await client
-            .from('institutional_documents')
-            .insert([{ 
-              category: finalCategory,
-              title: formData.title,
-              description: formData.description || null,
-              file_url: fileUrl,
-              file_name: fileName,
-              file_type: fileType,
-              file_size: fileSize,
-              order_index: formData.order_index,
-              source_type: formData.source_type,
-              external_view_url: formData.source_type === 'drive' ? formData.external_view_url.trim() : null,
-              external_download_url: formData.source_type === 'drive' ? (formData.external_download_url.trim() || null) : null,
-              route_slug: normalizedRouteSlug || null,
-              open_in_fullscreen: formData.open_in_fullscreen
-            }] );
+        const { error } = await driveRoutesSupabase
+          .from('institutional_documents')
+          .insert([{ 
+            category: finalCategory,
+            title: formData.title,
+            description: formData.description || null,
+            file_url: fileUrl,
+            file_name: fileName,
+            file_type: fileType,
+            file_size: fileSize,
+            order_index: formData.order_index,
+            source_type: formData.source_type,
+            external_view_url: formData.source_type === 'drive' ? formData.external_view_url.trim() : null,
+            external_download_url: formData.source_type === 'drive' ? (formData.external_download_url.trim() || null) : null,
+            route_slug: normalizedRouteSlug || null,
+            open_in_fullscreen: formData.open_in_fullscreen
+          }]);
 
-          if (!error) {
-            inserted = true;
-            break;
-          }
-        }
-
-        if (!inserted) throw new Error('No fue posible crear el documento');
+        if (error) throw error;
         setSuccess('Documento agregado exitosamente');
       }
 
@@ -322,20 +321,28 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     if (!confirm('¿Está seguro de que desea eliminar este documento?')) return;
 
     try {
-      let deleted = false;
-      for (const client of documentsClients) {
-        const { error } = await client
-          .from('institutional_documents')
-          .delete()
-          .eq('id', id);
+      const targetDocument = documents.find((doc) => doc.id === id);
+      const storageFilePath = targetDocument?.source_type === 'storage'
+        ? getStorageFilePathFromUrl(targetDocument.file_url)
+        : null;
 
-        if (!error) {
-          deleted = true;
-          break;
-        }
+      await Promise.all(
+        documentsClients.map((client) =>
+          client
+            .from('institutional_documents')
+            .delete()
+            .eq('id', id)
+        )
+      );
+
+      if (storageFilePath) {
+        await Promise.allSettled(
+          documentsClients.map((client) =>
+            client.storage.from('institutional-documents').remove([storageFilePath])
+          )
+        );
       }
 
-      if (!deleted) throw new Error('No fue posible eliminar el documento');
       setSuccess('Documento eliminado exitosamente');
       fetchDocuments();
     } catch (error: any) {
