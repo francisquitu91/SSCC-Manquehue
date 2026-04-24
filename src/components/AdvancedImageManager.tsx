@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Upload, Trash2, Star, StarOff, AlignLeft, AlignCenter, AlignRight, MoveUp, MoveDown, Edit2, Save, X } from 'lucide-react'
-import { supabase } from '../lib/supabase'
 import type { ContentImage } from '../lib/contentImages'
+import { getNewsImagePathFromUrl, removeNewsImages, uploadNewsImage } from '../lib/newsImagesStorage'
 import { 
   fetchContentImages, 
   saveContentImage, 
@@ -52,20 +52,10 @@ export default function AdvancedImageManager({
         const fileExt = file.name.split('.').pop()
         const fileName = `content/${contentType}/${Math.random()}.${fileExt}`
 
-        // Upload to Supabase Storage
-        const { error: uploadError } = await supabase.storage
-          .from('news-images')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-
-        if (uploadError) throw uploadError
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('news-images')
-          .getPublicUrl(fileName)
+        const { publicUrl } = await uploadNewsImage(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
 
         // Save to content_images table
         await saveContentImage({
@@ -95,12 +85,11 @@ export default function AdvancedImageManager({
 
     try {
       // Delete from storage
-      const urlParts = image.url.split('/')
-      const fileName = urlParts.slice(-3).join('/')
-      
-      await supabase.storage
-        .from('news-images')
-        .remove([fileName])
+      const fileName = getNewsImagePathFromUrl(image.url)
+
+      if (fileName) {
+        await removeNewsImages([fileName])
+      }
 
       // Delete from database
       await deleteContentImage(image.id)

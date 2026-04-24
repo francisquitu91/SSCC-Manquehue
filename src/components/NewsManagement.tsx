@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit3, Trash2, Eye, Calendar, Image, Video, ArrowLeft } from 'lucide-react';
-import { supabase, NewsItem } from '../lib/supabase';
+import { driveRoutesSupabase, supabase, NewsItem } from '../lib/supabase';
 import NewsEditor from './NewsEditor';
 
 interface NewsManagementProps {
@@ -19,13 +19,33 @@ const NewsManagement: React.FC<NewsManagementProps> = ({ onBack }) => {
 
   const fetchNews = async () => {
     try {
-      const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .order('date', { ascending: false });
+      const [secondaryResult, primaryResult] = await Promise.allSettled([
+        driveRoutesSupabase
+          .from('news')
+          .select('*')
+          .order('date', { ascending: false }),
+        supabase
+          .from('news')
+          .select('*')
+          .order('date', { ascending: false }),
+      ]);
 
-      if (error) throw error;
-      setNews(data || []);
+      const secondaryNews = secondaryResult.status === 'fulfilled' && !secondaryResult.value.error
+        ? (secondaryResult.value.data || [])
+        : [];
+      const primaryNews = primaryResult.status === 'fulfilled' && !primaryResult.value.error
+        ? (primaryResult.value.data || [])
+        : [];
+
+      const mergedById = new Map<string, NewsItem>();
+      primaryNews.forEach((item) => mergedById.set(item.id, item as NewsItem));
+      secondaryNews.forEach((item) => mergedById.set(item.id, item as NewsItem));
+
+      const mergedNews = Array.from(mergedById.values()).sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      setNews(mergedNews);
     } catch (error) {
       console.error('Error fetching news:', error);
     } finally {
@@ -44,12 +64,18 @@ const NewsManagement: React.FC<NewsManagementProps> = ({ onBack }) => {
     }
 
     try {
-      const { error } = await supabase
-        .from('news')
-        .delete()
-        .eq('id', id);
+      const [{ error: secondaryError }, { error: primaryError }] = await Promise.all([
+        driveRoutesSupabase
+          .from('news')
+          .delete()
+          .eq('id', id),
+        supabase
+          .from('news')
+          .delete()
+          .eq('id', id),
+      ]);
 
-      if (error) throw error;
+      if (secondaryError && primaryError) throw secondaryError;
       
       setNews(news.filter(item => item.id !== id));
     } catch (error) {

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, Mail, Instagram } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { getSiteLogoUrl } from '../lib/siteLogo';
 
 interface NavbarProps {
   onPageChange: (page: string) => void;
 }
-
-const LOGO_FILENAME = 'site-main-logo';
 
 const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,35 +17,12 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [logoUrl, setLogoUrl] = useState<string>('');
 
   useEffect(() => {
-    // Fetch the logo from storage bucket
-    const fetchLogo = async () => {
-      try {
-        const { data: files, error } = await supabase.storage
-          .from('news-images')
-          .list('', {
-            search: LOGO_FILENAME
-          });
-
-        if (error) {
-          console.error('Error fetching logo:', error);
-          return;
-        }
-
-        const logoFile = files?.find(f => f.name.startsWith(LOGO_FILENAME));
-        
-        if (logoFile) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('news-images')
-            .getPublicUrl(logoFile.name);
-          
-          setLogoUrl(publicUrl);
-        }
-      } catch (error) {
-        console.error('Error:', error);
+    void (async () => {
+      const logoUrl = await getSiteLogoUrl();
+      if (logoUrl) {
+        setLogoUrl(logoUrl);
       }
-    };
-
-    fetchLogo();
+    })();
   }, []);
 
   const handleNavigation = (page: string) => {

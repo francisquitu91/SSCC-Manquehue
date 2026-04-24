@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Upload, Trash2, Edit2, Plus, Loader2, AlertCircle, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
+import { getNewsImagePathFromUrl, removeNewsImages, uploadNewsImage } from '../lib/newsImagesStorage';
 
 interface ComunidadManagementProps {
   onBack: () => void;
@@ -165,22 +166,16 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
       console.log(`Foto optimizada - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
       
       const fileName = `comunidad/${bloqueId}/${Date.now()}-${optimizedFile.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(fileName, optimizedFile, {
-          cacheControl: '2592000',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from('news-images').getPublicUrl(fileName);
+      const { publicUrl } = await uploadNewsImage(fileName, optimizedFile, {
+        cacheControl: '2592000',
+        upsert: false
+      });
 
       const currentFotos = fotos[bloqueId] || [];
       const { error: insertError } = await supabase.from('comunidad_fotos').insert([
         {
           bloque_id: bloqueId,
-          photo_url: data.publicUrl,
+          photo_url: publicUrl,
           photo_name: fileName,
           order_index: currentFotos.length,
         },
@@ -200,7 +195,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
     if (!confirm('¿Eliminar esta foto?')) return;
     setSaving(true);
     try {
-      await supabase.storage.from('news-images').remove([foto.photo_name]);
+      await removeNewsImages([foto.photo_name]);
       await supabase.from('comunidad_fotos').delete().eq('id', foto.id);
       setSuccess('Foto eliminada');
       fetchData();
@@ -216,7 +211,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
     try {
       if (editingIntegrante && editingIntegrante.id) {
         // Actualizar integrante existente - excluir id, bloque_id, order_index, created_at, updated_at
-        const { id, bloque_id, order_index, created_at, updated_at, ...updateData } = integrante;
+        const { id, bloque_id, order_index, ...updateData } = integrante;
         const { error } = await supabase
           .from('comunidad_integrantes')
           .update(updateData)
@@ -226,7 +221,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
       } else {
         // Crear nuevo integrante - excluir id, created_at, updated_at
         const currentIntegrantes = integrantes[bloqueId] || [];
-        const { id, created_at, updated_at, ...insertData } = integrante;
+        const { id, ...insertData } = integrante;
         const { error } = await supabase.from('comunidad_integrantes').insert([
           {
             ...insertData,
@@ -251,10 +246,9 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
     setSaving(true);
     try {
       if (integrante.foto_url) {
-        const urlParts = integrante.foto_url.split('/');
-        const fileName = urlParts.slice(-3).join('/');
+        const fileName = getNewsImagePathFromUrl(integrante.foto_url);
         if (fileName && fileName.startsWith('comunidad/integrantes/')) {
-          await supabase.storage.from('news-images').remove([fileName]);
+          await removeNewsImages([fileName]);
         }
       }
       await supabase.from('comunidad_integrantes').delete().eq('id', integrante.id);
@@ -271,20 +265,14 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
     setSaving(true);
     try {
       const fileName = `comunidad/integrantes/${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(fileName, file, {
-          cacheControl: '2592000',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from('news-images').getPublicUrl(fileName);
+      const { publicUrl } = await uploadNewsImage(fileName, file, {
+        cacheControl: '2592000',
+        upsert: false
+      });
 
       const { error: updateError } = await supabase
         .from('comunidad_integrantes')
-        .update({ foto_url: data.publicUrl })
+        .update({ foto_url: publicUrl })
         .eq('id', integranteId);
 
       if (updateError) throw updateError;

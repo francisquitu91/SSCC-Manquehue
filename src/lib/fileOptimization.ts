@@ -22,6 +22,9 @@ export async function optimizeImage(
     return file;
   }
 
+  const preserveTransparency = file.type === 'image/png' || file.type === 'image/webp';
+  const outputMimeType = preserveTransparency ? file.type : 'image/jpeg';
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
@@ -67,7 +70,7 @@ export async function optimizeImage(
 
             // Crear nuevo archivo con el blob comprimido
             const optimizedFile = new File([blob], file.name, {
-              type: 'image/jpeg', // Convertir a JPEG para mejor compresión
+              type: outputMimeType,
               lastModified: Date.now()
             });
 
@@ -80,8 +83,8 @@ export async function optimizeImage(
               resolve(file);
             }
           },
-          'image/jpeg',
-          quality
+          outputMimeType,
+          preserveTransparency ? undefined : quality
         );
       };
 

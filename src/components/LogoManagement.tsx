@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { optimizeFile } from '../lib/fileOptimization';
+import { deleteExistingSiteLogos, getSiteLogoUrl, SITE_LOGO_BUCKET, SITE_LOGO_FILENAME } from '../lib/siteLogo';
+import { driveRoutesSupabase } from '../lib/supabase';
 
 interface LogoManagementProps {
   onNavigate: (page: string) => void;
 }
-
-// Nombre fijo para el logo - siempre será el mismo archivo
-const LOGO_FILENAME = 'site-main-logo';
 
 const LogoManagement: React.FC<LogoManagementProps> = ({ onNavigate }) => {
   const [loading, setLoading] = useState(true);
@@ -23,29 +20,11 @@ const LogoManagement: React.FC<LogoManagementProps> = ({ onNavigate }) => {
 
   const checkExistingLogo = async () => {
     try {
-      // Buscar si existe un logo en el bucket
-      const { data: files, error } = await supabase.storage
-        .from('news-images')
-        .list('', {
-          search: LOGO_FILENAME
-        });
+      const logoUrl = await getSiteLogoUrl();
 
-      if (error) {
-        console.error('Error checking for logo:', error);
-        setLoading(false);
-        return;
-      }
-
-      // Buscar el archivo del logo
-      const logoFile = files?.find(f => f.name.startsWith(LOGO_FILENAME));
-      
-      if (logoFile) {
-        const { data: { publicUrl } } = supabase.storage
-          .from('news-images')
-          .getPublicUrl(logoFile.name);
-        
-        setCurrentLogoUrl(publicUrl);
-        setPreviewUrl(publicUrl);
+      if (logoUrl) {
+        setCurrentLogoUrl(logoUrl);
+        setPreviewUrl(logoUrl);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -85,36 +64,16 @@ const LogoManagement: React.FC<LogoManagementProps> = ({ onNavigate }) => {
 
     setUploading(true);
     try {
-      // Primero eliminar logos anteriores
-      const { data: existingFiles } = await supabase.storage
-        .from('news-images')
-        .list('', {
-          search: LOGO_FILENAME
-        });
+      // Primero eliminar logos anteriores en el proyecto secundario
+      await deleteExistingSiteLogos();
 
-      if (existingFiles && existingFiles.length > 0) {
-        const filesToDelete = existingFiles
-          .filter(f => f.name.startsWith(LOGO_FILENAME))
-          .map(f => f.name);
-        
-        if (filesToDelete.length > 0) {
-          await supabase.storage
-            .from('news-images')
-            .remove(filesToDelete);
-        }
-      }
-
-      // Optimizar imagen antes de subir
-      const optimizedFile = await optimizeFile(selectedFile);
-      console.log(`Logo optimizado - Original: ${selectedFile.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
-      
       // Subir nuevo logo con nombre fijo + extensión
-      const fileExt = optimizedFile.name.split('.').pop();
-      const fileName = `${LOGO_FILENAME}.${fileExt}`;
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${SITE_LOGO_FILENAME}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(fileName, optimizedFile, {
+      const { error: uploadError } = await driveRoutesSupabase.storage
+        .from(SITE_LOGO_BUCKET)
+        .upload(fileName, selectedFile, {
           cacheControl: '3600',
           upsert: true
         });
@@ -126,8 +85,8 @@ const LogoManagement: React.FC<LogoManagementProps> = ({ onNavigate }) => {
       }
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('news-images')
+      const { data: { publicUrl } } = driveRoutesSupabase.storage
+        .from(SITE_LOGO_BUCKET)
         .getPublicUrl(fileName);
 
       setCurrentLogoUrl(publicUrl);
@@ -147,23 +106,7 @@ const LogoManagement: React.FC<LogoManagementProps> = ({ onNavigate }) => {
     if (!confirm('¿Estás seguro de que quieres eliminar el logo?')) return;
 
     try {
-      const { data: existingFiles } = await supabase.storage
-        .from('news-images')
-        .list('', {
-          search: LOGO_FILENAME
-        });
-
-      if (existingFiles && existingFiles.length > 0) {
-        const filesToDelete = existingFiles
-          .filter(f => f.name.startsWith(LOGO_FILENAME))
-          .map(f => f.name);
-        
-        if (filesToDelete.length > 0) {
-          await supabase.storage
-            .from('news-images')
-            .remove(filesToDelete);
-        }
-      }
+      await deleteExistingSiteLogos();
 
       setCurrentLogoUrl(null);
       setPreviewUrl(null);

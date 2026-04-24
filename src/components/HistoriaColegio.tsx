@@ -4,8 +4,7 @@ import DirectoryCarousel, { DirectoryItem } from './DirectoryCarousel';
 import FlipCard from './FlipCard';
 import { supabase } from '../lib/supabase';
 import type { DirectoryMember } from '../lib/supabase';
-
-const LOGO_FILENAME = 'site-main-logo';
+import { getSiteLogoUrl } from '../lib/siteLogo';
 
 interface HistoriaColegioProps {
   onBack: () => void;
@@ -85,25 +84,10 @@ const HistoriaColegio: React.FC<HistoriaColegioProps> = ({ onBack }) => {
 
   const fetchLogo = async () => {
     try {
-      const { data: files, error } = await supabase.storage
-        .from('news-images')
-        .list('', {
-          search: LOGO_FILENAME
-        });
+      const logoUrl = await getSiteLogoUrl();
 
-      if (error) {
-        console.error('Error fetching logo:', error);
-        return;
-      }
-
-      const logoFile = files?.find((f) => f.name.startsWith(LOGO_FILENAME));
-
-      if (logoFile) {
-        const {
-          data: { publicUrl }
-        } = supabase.storage.from('news-images').getPublicUrl(logoFile.name);
-
-        setLogoUrl(publicUrl);
+      if (logoUrl) {
+        setLogoUrl(logoUrl);
       }
     } catch (error) {
       console.error('Error fetching logo:', error);

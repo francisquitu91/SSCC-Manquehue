@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Play } from 'lucide-react';
-import { supabase, NewsItem } from '../lib/supabase';
+import { driveRoutesSupabase, supabase, NewsItem } from '../lib/supabase';
 import NewsDetailModal from './NewsDetailModal';
 
 const NewsSection: React.FC = () => {
@@ -18,17 +18,34 @@ const NewsSection: React.FC = () => {
   const fetchNews = async () => {
     try {
       console.log('Fetching news from Supabase...');
-      const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .order('date', { ascending: false })
+      const [secondaryResult, primaryResult] = await Promise.allSettled([
+        driveRoutesSupabase
+          .from('news')
+          .select('*')
+          .order('date', { ascending: false }),
+        supabase
+          .from('news')
+          .select('*')
+          .order('date', { ascending: false }),
+      ]);
 
-      if (error) {
-        console.error('Fetch error:', error);
-        throw error;
-      }
-      console.log('News fetched successfully:', data);
-      setNews(data || []);
+      const secondaryNews = secondaryResult.status === 'fulfilled' && !secondaryResult.value.error
+        ? (secondaryResult.value.data || [])
+        : [];
+      const primaryNews = primaryResult.status === 'fulfilled' && !primaryResult.value.error
+        ? (primaryResult.value.data || [])
+        : [];
+
+      const mergedById = new Map<string, NewsItem>();
+      primaryNews.forEach((item) => mergedById.set(item.id, item as NewsItem));
+      secondaryNews.forEach((item) => mergedById.set(item.id, item as NewsItem));
+
+      const mergedNews = Array.from(mergedById.values()).sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      console.log('News fetched successfully:', mergedNews);
+      setNews(mergedNews);
     } catch (error) {
       console.error('Error fetching news:', error);
     } finally {

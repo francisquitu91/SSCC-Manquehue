@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Plus, Trash2, Upload, Edit2, X, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { uploadNewsImage } from '../lib/newsImagesStorage';
 
 interface DepartamentoOrientacionManagementProps {
   onBack: () => void;
@@ -68,18 +69,10 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
       const fileExt = file.name.split('.').pop();
       const fileName = `orientacion/cover-${Math.random()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(fileName, file, {
-          cacheControl: '2592000',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('news-images')
-        .getPublicUrl(fileName);
+      const { publicUrl } = await uploadNewsImage(fileName, file, {
+        cacheControl: '2592000',
+        upsert: false
+      });
 
       const { error: updateError } = await supabase
         .from('departamento_orientacion')

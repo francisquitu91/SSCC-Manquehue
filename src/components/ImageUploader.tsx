@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import { optimizeFile, validateFile } from '../lib/fileOptimization';
+import { getNewsImagePathFromUrl, removeNewsImages, uploadNewsImage } from '../lib/newsImagesStorage';
 
 interface ImageUploaderProps {
   images: string[];
@@ -25,27 +25,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     console.log('Uploading file:', fileName, 'Original:', file.size, 'Optimized:', optimizedFile.size, 'bytes');
 
-    const { data, error } = await supabase.storage
-      .from('news-images')
-      .upload(filePath, optimizedFile, {
-        cacheControl: '3600',
-        upsert: false
-      });
+    const { publicUrl } = await uploadNewsImage(filePath, optimizedFile, {
+      cacheControl: '3600',
+      upsert: false
+    });
 
-    if (error) {
-      console.error('Upload error:', error);
-      throw error;
-    }
-
-    console.log('Upload successful:', data);
-
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('news-images')
-      .getPublicUrl(filePath);
-
-    console.log('Public URL:', urlData.publicUrl);
-    return urlData.publicUrl;
+    console.log('Upload successful:', filePath);
+    console.log('Public URL:', publicUrl);
+    return publicUrl;
   };
 
   const handleFileSelect = async (files: FileList) => {
@@ -108,15 +95,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     // Try to delete from storage if it's a Supabase URL
     if (imageUrl.includes('supabase.co')) {
       try {
-        const urlParts = imageUrl.split('/');
-        const fileName = urlParts[urlParts.length - 1];
-        const filePath = `news/${fileName}`;
-        
-        await supabase.storage
-          .from('news-images')
-          .remove([filePath]);
-        
-        console.log('Image deleted from storage:', filePath);
+        const filePath = getNewsImagePathFromUrl(imageUrl);
+
+        if (filePath) {
+          await removeNewsImages([filePath]);
+          console.log('Image deleted from storage:', filePath);
+        }
       } catch (error) {
         console.error('Error deleting image from storage:', error);
       }

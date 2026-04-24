@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { supabase, NewsItem } from '../lib/supabase';
+import { driveRoutesSupabase, NewsItem } from '../lib/supabase';
 import ImageUploader from './ImageUploader';
 import AdvancedImageManager from './AdvancedImageManager';
 
@@ -122,7 +122,7 @@ const NewsEditor: React.FC<NewsEditorProps> = ({ onClose, onSave, editingNews })
 
       console.log('Saving news data:', newsData);
       if (editingNews) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('news')
           .update(newsData)
           .eq('id', editingNews.id);
@@ -133,7 +133,7 @@ const NewsEditor: React.FC<NewsEditorProps> = ({ onClose, onSave, editingNews })
         }
         console.log('News updated successfully');
       } else {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('news')
           .insert([newsData]);
         

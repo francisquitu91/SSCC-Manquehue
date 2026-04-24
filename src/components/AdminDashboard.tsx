@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Users, ArrowLeft, LogOut, BookOpen, FolderOpen, UserCheck, Heart, Library, ShoppingBag, UtensilsCrossed, Shirt, Clock, CreditCard, Monitor, Calendar, Bell, Users2, Image, HardDrive } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-
-const LOGO_FILENAME = 'site-main-logo';
+import { getSiteLogoUrl } from '../lib/siteLogo';
 
 interface AdminDashboardProps {
   onNavigate: (page: string) => void;
@@ -13,28 +11,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout })
   const [logoUrl, setLogoUrl] = useState<string>('https://ssccmanquehue.cl/wp-content/uploads/2025/03/70SSCC_OK_transparente-4-1-1-1.png');
   
   useEffect(() => {
-    loadLogo();
+    void loadLogo();
   }, []);
 
   const loadLogo = async () => {
     try {
-      const { data: files, error } = await supabase.storage
-        .from('news-images')
-        .list('', { search: LOGO_FILENAME });
+      const logoUrl = await getSiteLogoUrl();
 
-      if (error) {
-        console.error('Error loading logo:', error);
-        return;
-      }
-
-      const logoFile = files?.find(f => f.name.startsWith(LOGO_FILENAME));
-      
-      if (logoFile) {
-        const { data: { publicUrl } } = supabase.storage
-          .from('news-images')
-          .getPublicUrl(logoFile.name);
-        
-        setLogoUrl(publicUrl);
+      if (logoUrl) {
+        setLogoUrl(logoUrl);
       }
     } catch (error) {
       console.error('Error:', error);
