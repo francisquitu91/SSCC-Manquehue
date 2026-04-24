@@ -171,6 +171,11 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
       setDocuments(
         merged.map((doc) => ({
           ...doc,
+          source_type: doc.source_type ?? 'storage',
+          external_view_url: doc.external_view_url ?? null,
+          external_download_url: doc.external_download_url ?? null,
+          route_slug: doc.route_slug ?? null,
+          open_in_fullscreen: doc.open_in_fullscreen ?? true,
           source_document_id: doc.source_document_id || (doc.is_projection_orphan ? null : doc.id),
           projection_id: doc.projection_id,
         }))
@@ -573,6 +578,127 @@ const StorageOptimizer: React.FC<StorageOptimizerProps> = ({ onBack }) => {
 
         {/* Section 0: Drive Configuration (hidden but functional) */}
         {/* Loading documents in background but not displaying UI */}
+        <div className="hidden" aria-hidden="true">
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">0. Configuración Drive + Rutas</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Ajusta la URL de visualización de Drive y el slug público para documentos institucionales.
+                </p>
+              </div>
+              <button
+                onClick={loadInstitutionalDocuments}
+                disabled={loadingDocuments || optimizing}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+              >
+                {loadingDocuments ? 'Cargando...' : 'Actualizar listado'}
+              </button>
+            </div>
+
+            {documentsMessage && (
+              <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                {documentsMessage}
+              </div>
+            )}
+
+            {loadingDocuments ? (
+              <div className="flex items-center text-gray-600 py-4">
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                Cargando documentos institucionales...
+              </div>
+            ) : documents.length === 0 ? (
+              <p className="text-sm text-gray-600 py-2">No hay documentos disponibles para configurar.</p>
+            ) : (
+              <div className="space-y-4 max-h-[30rem] overflow-y-auto pr-1">
+                {documents.map((doc) => {
+                  const isSaving = savingDocumentIds.has(doc.id);
+                  const isDrive = doc.source_type === 'drive';
+
+                  return (
+                    <div key={doc.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div>
+                          <p className="font-semibold text-gray-900">{doc.title}</p>
+                          <p className="text-xs text-gray-500">{doc.category}</p>
+                        </div>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${isDrive ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-700'}`}>
+                          {isDrive ? 'Drive' : 'Storage'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">URL visualización Drive</label>
+                          <input
+                            type="url"
+                            value={doc.external_view_url || ''}
+                            onChange={(e) => updateManagedDocumentDriveViewUrl(doc.id, e.target.value)}
+                            placeholder="https://drive.google.com/file/d/.../view"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Ruta pública (slug)</label>
+                          <input
+                            type="text"
+                            value={doc.route_slug || ''}
+                            onChange={(e) => updateManagedDocumentField(doc.id, 'route_slug', e.target.value)}
+                            placeholder="reglamento-interno"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3">
+                        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={doc.open_in_fullscreen}
+                            onChange={(e) => updateManagedDocumentField(doc.id, 'open_in_fullscreen', e.target.checked)}
+                            className="w-4 h-4 rounded text-blue-600"
+                          />
+                          Abrir en vista completa
+                        </label>
+
+                        <button
+                          onClick={() => saveManagedDocument(doc)}
+                          disabled={isSaving}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-semibold transition-colors"
+                        >
+                          {isSaving ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Guardando...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-4 h-4" />
+                              Guardar
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {doc.external_download_url && (
+                        <a
+                          href={doc.external_download_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700"
+                        >
+                          <LinkIcon className="w-3 h-3" />
+                          Ver enlace de descarga generado
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Bucket Selector */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
