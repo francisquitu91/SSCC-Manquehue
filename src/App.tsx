@@ -66,18 +66,7 @@ import ValoresManagement from './components/ValoresManagement';
 import AdmisionKinderIISection from './components/AdmisionKinderIISection';
 import CalendarioCicloSection from './components/CalendarioCicloSection';
 import AprendizajeCooperativoSection from './components/AprendizajeCooperativoSection';
-
-const backgroundImages = [
-  'https://i.postimg.cc/4N3HzXdH/mjsscc.jpg',
-  'https://i.postimg.cc/sg7jWLpM/hbasquetsscc.jpg',
-  'https://i.postimg.cc/ydkYD8n8/voleysscc.jpg',
-  'https://i.postimg.cc/fRfbFFJD/ateltasscc.jpg',
-  'https://i.postimg.cc/BbSpTR8R/ceremonia1sscc.jpg',
-  'https://i.postimg.cc/fWCBzWph/ceremonia2sscc.jpg',
-  'https://i.postimg.cc/8CG6fMft/frasesscc.jpg',
-  'https://i.postimg.cc/fLZpfBbR/ninosjugando.jpg',
-  'https://i.postimg.cc/ryf35G2T/ninosprofe.jpg'
-];
+import { getHomeHeroBaseImages, getHomeHeroUrl, HOME_HERO_DEFAULT_IMAGES, HOME_HERO_UPDATED_EVENT } from './lib/siteHero';
 
 const PAGE_PATHS: Record<string, string> = {
   home: '/inicio',
@@ -183,9 +172,40 @@ function getPathForPage(page: string) {
 
 function App() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [backgroundImages, setBackgroundImages] = useState<string[]>(HOME_HERO_DEFAULT_IMAGES);
   const [currentPage, setCurrentPage] = useState(() => getPageFromPathname(window.location.pathname));
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [showCasinoModal, setShowCasinoModal] = useState(false);
+
+  useEffect(() => {
+    const loadHomeHeroImage = async () => {
+      try {
+        const baseImages = await getHomeHeroBaseImages();
+        const homeHeroUrl = await getHomeHeroUrl();
+
+        if (!homeHeroUrl) {
+          setBackgroundImages(baseImages);
+          return;
+        }
+
+        setBackgroundImages([homeHeroUrl, ...baseImages]);
+      } catch (error) {
+        console.error('Error loading home hero image:', error);
+        setBackgroundImages(HOME_HERO_DEFAULT_IMAGES);
+      }
+    };
+
+    const onHeroUpdated = () => {
+      void loadHomeHeroImage();
+    };
+
+    void loadHomeHeroImage();
+    window.addEventListener(HOME_HERO_UPDATED_EVENT, onHeroUpdated);
+
+    return () => {
+      window.removeEventListener(HOME_HERO_UPDATED_EVENT, onHeroUpdated);
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -195,7 +215,7 @@ function App() {
     }, 4000); // Change image every 4 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [backgroundImages.length]);
 
   useEffect(() => {
     const currentPath = normalizePathname(window.location.pathname);

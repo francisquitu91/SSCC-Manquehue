@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
-import { X, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Calendar, ChevronLeft, ChevronRight, Link2 } from 'lucide-react';
 import { NewsItem } from '../lib/supabase';
 import { ContentRenderer } from './ContentRenderer';
 
 interface NewsDetailModalProps {
   news: NewsItem;
   onClose: () => void;
+  shareUrl: string;
 }
 
-const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ news, onClose }) => {
+const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ news, onClose, shareUrl }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [linkCopied, setLinkCopied] = useState(false);
   const images = Array.isArray(news.images) ? news.images : [];
+
+  useEffect(() => {
+    if (!linkCopied) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => setLinkCopied(false), 1800);
+    return () => window.clearTimeout(timeoutId);
+  }, [linkCopied]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
@@ -40,6 +51,15 @@ const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ news, onClose }) => {
     const regExp = /(?:vimeo)\.com.*(?:videos|video|channels|)\/([\d]+)/i;
     const match = url.match(regExp);
     return match ? match[1] : null;
+  };
+
+  const copyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+    } catch {
+      window.prompt('Copia este enlace', shareUrl);
+    }
   };
 
   const renderVideo = () => {
@@ -86,9 +106,19 @@ const NewsDetailModal: React.FC<NewsDetailModalProps> = ({ news, onClose }) => {
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10">
-          <div className="flex items-center space-x-3 text-red-600">
-            <Calendar className="w-5 h-5" />
-            <span className="text-sm font-medium">{formatDate(news.date)}</span>
+          <div className="flex items-center gap-3 text-red-600 flex-wrap">
+            <div className="flex items-center space-x-3">
+              <Calendar className="w-5 h-5" />
+              <span className="text-sm font-medium">{formatDate(news.date)}</span>
+            </div>
+            <button
+              onClick={copyShareUrl}
+              className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100"
+              type="button"
+            >
+              <Link2 className="w-4 h-4" />
+              {linkCopied ? 'URL copiada' : 'Copiar URL'}
+            </button>
           </div>
           <button
             onClick={onClose}

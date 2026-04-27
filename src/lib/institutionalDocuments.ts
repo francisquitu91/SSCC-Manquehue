@@ -16,6 +16,7 @@ export interface InstitutionalDocumentRecord {
   external_download_url?: string | null;
   route_slug?: string | null;
   open_in_fullscreen?: boolean | null;
+  is_hidden?: boolean | null;
 }
 
 export interface InstitutionalDocumentProjection {
@@ -29,6 +30,7 @@ export interface InstitutionalDocumentProjection {
   external_download_url: string | null;
   route_slug: string | null;
   open_in_fullscreen: boolean;
+  is_hidden: boolean;
 }
 
 export interface ProjectedInstitutionalDocument extends InstitutionalDocumentRecord {
@@ -132,6 +134,7 @@ export function mergeDocumentsWithProjections(
         ...doc,
         source_type: doc.source_type || 'storage',
         open_in_fullscreen: doc.open_in_fullscreen ?? true,
+        is_hidden: doc.is_hidden ?? false,
         is_projection_orphan: false,
         source_document_id: doc.id,
       } satisfies ProjectedInstitutionalDocument;
@@ -144,6 +147,7 @@ export function mergeDocumentsWithProjections(
       external_download_url: projection.external_download_url,
       route_slug: projection.route_slug,
       open_in_fullscreen: projection.open_in_fullscreen,
+      is_hidden: Boolean(projection.is_hidden) || Boolean(doc.is_hidden),
       projection_id: projection.id,
       source_document_id: doc.id,
       is_projection_orphan: false,
@@ -171,6 +175,7 @@ export function mergeDocumentsWithProjections(
         external_download_url: projection.external_download_url,
         route_slug: projection.route_slug,
         open_in_fullscreen: projection.open_in_fullscreen,
+        is_hidden: projection.is_hidden,
         projection_id: projection.id,
         source_document_id: projection.source_document_id,
         is_projection_orphan: true,

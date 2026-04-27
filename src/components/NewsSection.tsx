@@ -3,6 +3,24 @@ import { Calendar, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { driveRoutesSupabase, supabase, NewsItem } from '../lib/supabase';
 import NewsDetailModal from './NewsDetailModal';
 
+const NEWS_SHARE_PARAM = 'noticia';
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80) || 'noticia';
+
+const buildNewsShareToken = (item: NewsItem) => `${slugify(item.title)}--${item.id}`;
+
+const resolveNewsIdFromToken = (token: string) => {
+  const separatorIndex = token.lastIndexOf('--');
+  return separatorIndex >= 0 ? token.slice(separatorIndex + 2) : token;
+};
+
 const NewsSection: React.FC = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +32,67 @@ const NewsSection: React.FC = () => {
   useEffect(() => {
     fetchNews();
   }, []);
+
+  useEffect(() => {
+    if (news.length === 0) {
+      return;
+    }
+
+    const token = new URLSearchParams(window.location.search).get(NEWS_SHARE_PARAM);
+    if (!token) {
+      return;
+    }
+
+    const newsId = resolveNewsIdFromToken(token);
+    const matchedNews = news.find((item) => item.id === newsId);
+
+    if (matchedNews) {
+      setSelectedNews(matchedNews);
+    }
+  }, [news]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const token = new URLSearchParams(window.location.search).get(NEWS_SHARE_PARAM);
+
+      if (!token) {
+        setSelectedNews(null);
+        return;
+      }
+
+      const newsId = resolveNewsIdFromToken(token);
+      const matchedNews = news.find((item) => item.id === newsId);
+      setSelectedNews(matchedNews || null);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [news]);
+
+  const getNewsShareUrl = (item: NewsItem) => {
+    const url = new URL(window.location.origin);
+    url.pathname = '/inicio';
+    url.searchParams.set(NEWS_SHARE_PARAM, buildNewsShareToken(item));
+    return url.toString();
+  };
+
+  const openNewsDetail = (item: NewsItem) => {
+    setSelectedNews(item);
+
+    const shareUrl = getNewsShareUrl(item);
+    window.history.pushState({}, '', shareUrl);
+  };
+
+  const closeNewsDetail = () => {
+    setSelectedNews(null);
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete(NEWS_SHARE_PARAM);
+    window.history.replaceState({}, '', url.toString());
+  };
 
   const fetchNews = async () => {
     try {
@@ -164,7 +243,7 @@ const NewsSection: React.FC = () => {
               <div 
                 key={item.id} 
                 className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
-                onClick={() => setSelectedNews(item)}
+                onClick={() => openNewsDetail(item)}
               >
                 {/* Image Carousel */}
                 {images.length > 0 && (
@@ -305,7 +384,8 @@ const NewsSection: React.FC = () => {
       {selectedNews && (
         <NewsDetailModal
           news={selectedNews}
-          onClose={() => setSelectedNews(null)}
+          onClose={closeNewsDetail}
+          shareUrl={getNewsShareUrl(selectedNews)}
         />
       )}
     </section>

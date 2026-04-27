@@ -178,8 +178,9 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
 
   const MATR_2025 = 'Documentos de Matrícula 2025';
   const MATR_2026 = 'Documentos de Matrícula 2026';
+  const publicDocuments = documents.filter((doc) => !doc.is_hidden);
 
-  let filteredDocuments: Document[] = documents;
+  let filteredDocuments: Document[] = publicDocuments;
   if (activeCategory !== 'all') {
     if (activeCategory === 'Listas útiles escolares') {
       // Filter documentos for listas útiles escolares and its subcategories

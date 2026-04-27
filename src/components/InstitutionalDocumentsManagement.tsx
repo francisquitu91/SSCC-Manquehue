@@ -24,6 +24,7 @@ interface Document {
   external_download_url: string | null;
   route_slug: string | null;
   open_in_fullscreen: boolean;
+  is_hidden: boolean;
 }
 
 interface DocumentForm {
@@ -38,6 +39,7 @@ interface DocumentForm {
   external_download_url: string;
   route_slug: string;
   open_in_fullscreen: boolean;
+  is_hidden: boolean;
 }
 
 const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagementProps> = ({ onBack }) => {
@@ -62,7 +64,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     external_view_url: '',
     external_download_url: '',
     route_slug: '',
-    open_in_fullscreen: true
+    open_in_fullscreen: true,
+    is_hidden: false
   });
 
   const categories = [
@@ -212,6 +215,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
           external_download_url: formData.source_type === 'drive' ? (formData.external_download_url.trim() || null) : null,
           route_slug: normalizedRouteSlug || null,
           open_in_fullscreen: formData.open_in_fullscreen,
+          is_hidden: formData.is_hidden,
           updated_at: new Date().toISOString()
         };
 
@@ -256,7 +260,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
             external_view_url: formData.source_type === 'drive' ? formData.external_view_url.trim() : null,
             external_download_url: formData.source_type === 'drive' ? (formData.external_download_url.trim() || null) : null,
             route_slug: normalizedRouteSlug || null,
-            open_in_fullscreen: formData.open_in_fullscreen
+            open_in_fullscreen: formData.open_in_fullscreen,
+            is_hidden: formData.is_hidden
           }]);
 
         if (error) throw error;
@@ -275,7 +280,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
         external_view_url: '',
         external_download_url: '',
         route_slug: '',
-        open_in_fullscreen: true
+        open_in_fullscreen: true,
+        is_hidden: false
       });
       setIsEditing(false);
       setEditingId(null);
@@ -309,7 +315,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       external_view_url: doc.external_view_url || '',
       external_download_url: doc.external_download_url || '',
       route_slug: doc.route_slug || '',
-      open_in_fullscreen: doc.open_in_fullscreen ?? true
+      open_in_fullscreen: doc.open_in_fullscreen ?? true,
+      is_hidden: doc.is_hidden ?? false
     });
     setEditingId(doc.id);
     setIsEditing(true);
@@ -363,7 +370,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       external_view_url: '',
       external_download_url: '',
       route_slug: '',
-      open_in_fullscreen: true
+      open_in_fullscreen: true,
+      is_hidden: false
     });
     setIsEditing(false);
     setEditingId(null);
@@ -628,7 +636,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Se publicará como /documentos/tu-ruta. Si queda vacío, se genera desde el título.
+                  Se publicará como /documentosinstitucionales/tu-ruta. Si queda vacío, se genera desde el título.
                 </p>
               </div>
 
@@ -643,6 +651,23 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                   Abrir en visor de pantalla completa
                 </label>
               </div>
+            </div>
+
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <label className="inline-flex items-start gap-3 text-sm text-amber-900">
+                <input
+                  type="checkbox"
+                  checked={formData.is_hidden}
+                  onChange={(e) => setFormData({ ...formData, is_hidden: e.target.checked })}
+                  className="w-4 h-4 mt-0.5 text-amber-600 rounded"
+                />
+                <span>
+                  <span className="font-semibold block">Ocultar en el listado público</span>
+                  <span className="text-amber-800">
+                    El documento no aparecerá en la sección pública, pero seguirá accesible por enlace directo.
+                  </span>
+                </span>
+              </label>
             </div>
 
             <div className="flex justify-end space-x-4">
@@ -691,6 +716,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuente</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visibilidad</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archivo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ruta</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño</th>
@@ -713,6 +739,11 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${doc.source_type === 'drive' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
                           {doc.source_type === 'drive' ? 'Drive' : 'Storage'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${doc.is_hidden ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-700'}`}>
+                          {doc.is_hidden ? 'Oculto (solo link)' : 'Visible'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
