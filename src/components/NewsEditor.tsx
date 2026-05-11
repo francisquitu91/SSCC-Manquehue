@@ -124,7 +124,7 @@ const NewsEditor: React.FC<NewsEditorProps> = ({ onClose, onSave, editingNews })
       if (editingNews) {
         const { error } = await driveRoutesSupabase
           .from('news')
-          .update(newsData)
+          .upsert(newsData)
           .eq('id', editingNews.id);
         
         if (error) {

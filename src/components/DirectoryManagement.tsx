@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Trash2, Save, Upload } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import type { DirectoryMember } from '../lib/supabase';
 
 interface DirectoryManagementProps {
@@ -21,7 +21,7 @@ const DirectoryManagement: React.FC<DirectoryManagementProps> = ({ onBack }) => 
 
   const fetchMembers = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('directory_members')
         .select('*')
         .order('order_index', { ascending: true });
@@ -43,7 +43,7 @@ const DirectoryManagement: React.FC<DirectoryManagementProps> = ({ onBack }) => 
       const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
       const filePath = `directory/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await driveRoutesSupabase.storage
         .from('images')
         .upload(filePath, file, {
           cacheControl: '2592000',
@@ -52,7 +52,7 @@ const DirectoryManagement: React.FC<DirectoryManagementProps> = ({ onBack }) => 
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = driveRoutesSupabase.storage
         .from('images')
         .getPublicUrl(filePath);
 
@@ -96,7 +96,7 @@ const DirectoryManagement: React.FC<DirectoryManagementProps> = ({ onBack }) => 
 
     try {
       if (isCreating) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('directory_members')
           .insert([{
             ...editingMember,
@@ -106,9 +106,9 @@ const DirectoryManagement: React.FC<DirectoryManagementProps> = ({ onBack }) => 
 
         if (error) throw error;
       } else if (editingMember.id) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('directory_members')
-          .update(editingMember)
+          .upsert(editingMember)
           .eq('id', editingMember.id);
 
         if (error) throw error;
@@ -127,7 +127,7 @@ const DirectoryManagement: React.FC<DirectoryManagementProps> = ({ onBack }) => 
     if (!confirm('¿Estás seguro de eliminar este miembro?')) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('directory_members')
         .delete()
         .eq('id', id);

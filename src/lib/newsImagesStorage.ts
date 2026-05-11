@@ -34,13 +34,12 @@ export const removeNewsImages = async (filePaths: string[]) => {
   const uniquePaths = Array.from(new Set(filePaths.filter(Boolean)));
   if (uniquePaths.length === 0) return;
 
-  const [{ error: secondaryError }, { error: primaryError }] = await Promise.all([
-    driveRoutesSupabase.storage.from(NEWS_IMAGES_BUCKET).remove(uniquePaths),
-    supabase.storage.from(NEWS_IMAGES_BUCKET).remove(uniquePaths),
-  ]);
+  const { error } = await driveRoutesSupabase.storage
+    .from(NEWS_IMAGES_BUCKET)
+    .remove(uniquePaths);
 
-  if (secondaryError && primaryError) {
-    throw secondaryError;
+  if (error) {
+    throw error;
   }
 };
 

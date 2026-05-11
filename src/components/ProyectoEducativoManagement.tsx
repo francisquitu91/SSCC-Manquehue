@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Edit2, Trash2, Save, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase } from '../lib/supabase';
 import type { DepartmentHead, OrientationTeamMember, CycleCoordinator, PastoralTeamMember } from '../lib/supabase';
 
 interface ProyectoEducativoManagementProps {
@@ -70,7 +70,7 @@ const ProyectoEducativoManagement: React.FC<ProyectoEducativoManagementProps> = 
       pastoralTeam: 'pastoral_team'
     };
 
-    const { error } = await supabase.from(tableMap[section]).delete().eq('id', id);
+    const { error } = await driveRoutesSupabase.from(tableMap[section]).delete().eq('id', id);
 
     if (error) {
       alert('Error al eliminar');
@@ -92,9 +92,9 @@ const ProyectoEducativoManagement: React.FC<ProyectoEducativoManagementProps> = 
 
     if (editingItem) {
       // Update
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from(table)
-        .update({ ...formData, updated_at: new Date().toISOString() })
+        .upsert({ ...formData, updated_at: new Date().toISOString() })
         .eq('id', editingItem.id);
 
       if (error) {
@@ -104,7 +104,7 @@ const ProyectoEducativoManagement: React.FC<ProyectoEducativoManagementProps> = 
       }
     } else {
       // Insert
-      const { error } = await supabase.from(table).insert([formData]);
+      const { error } = await driveRoutesSupabase.from(table).insert([formData]);
 
       if (error) {
         alert('Error al crear');

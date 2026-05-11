@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, X, Upload, Trash2, Edit2, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase } from '../lib/supabase';
 
 interface PastoralManagementProps {
   onBack: () => void;
@@ -26,9 +26,9 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
   const fetchData = async () => {
     try {
       const [coreRes, teachersRes, photosRes] = await Promise.all([
-        supabase.from('pastoral_core_members').select('*').order('order_index'),
-        supabase.from('pastoral_teachers').select('*').order('order_index'),
-        supabase.from('pastoral_photos').select('*').order('order_index')
+        driveRoutesSupabase.from('pastoral_core_members').select('*').order('order_index'),
+        driveRoutesSupabase.from('pastoral_teachers').select('*').order('order_index'),
+        driveRoutesSupabase.from('pastoral_photos').select('*').order('order_index')
       ]);
       setCoreMembers(coreRes.data || []);
       setTeachers(teachersRes.data || []);
@@ -44,10 +44,10 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
     setSaving(true);
     try {
       if (editingCore) {
-        await supabase.from('pastoral_core_members').update(editingCore).eq('id', editingCore.id);
+        await driveRoutesSupabase.from('pastoral_core_members').upsert(editingCore).eq('id', editingCore.id);
         setSuccess('Miembro actualizado');
       } else {
-        await supabase.from('pastoral_core_members').insert([newCore]);
+        await driveRoutesSupabase.from('pastoral_core_members').insert([newCore]);
         setSuccess('Miembro agregado');
         setNewCore({ name: '', order_index: 0, year: 2025 });
       }
@@ -64,10 +64,10 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
     setSaving(true);
     try {
       if (editingTeacher) {
-        await supabase.from('pastoral_teachers').update(editingTeacher).eq('id', editingTeacher.id);
+        await driveRoutesSupabase.from('pastoral_teachers').upsert(editingTeacher).eq('id', editingTeacher.id);
         setSuccess('Profesor actualizado');
       } else {
-        await supabase.from('pastoral_teachers').insert([newTeacher]);
+        await driveRoutesSupabase.from('pastoral_teachers').insert([newTeacher]);
         setSuccess('Profesor agregado');
         setNewTeacher({ name: '', order_index: 0 });
       }
@@ -83,7 +83,7 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
   const handleDeleteCore = async (id: string) => {
     if (!confirm('¿Eliminar miembro?')) return;
     try {
-      await supabase.from('pastoral_core_members').delete().eq('id', id);
+      await driveRoutesSupabase.from('pastoral_core_members').delete().eq('id', id);
       fetchData();
       setSuccess('Miembro eliminado');
     } catch (err: any) {
@@ -94,7 +94,7 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
   const handleDeleteTeacher = async (id: string) => {
     if (!confirm('¿Eliminar profesor?')) return;
     try {
-      await supabase.from('pastoral_teachers').delete().eq('id', id);
+      await driveRoutesSupabase.from('pastoral_teachers').delete().eq('id', id);
       fetchData();
       setSuccess('Profesor eliminado');
     } catch (err: any) {
@@ -108,14 +108,14 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
     try {
       const file = e.target.files[0];
       const fileName = `${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from('pastoral-photos').upload(fileName, file, {
+      const { error: uploadError } = await driveRoutesSupabase.storage.from('pastoral-photos').upload(fileName, file, {
         cacheControl: '2592000',
         upsert: false
       });
       if (uploadError) throw uploadError;
       
-      const { data } = supabase.storage.from('pastoral-photos').getPublicUrl(fileName);
-      await supabase.from('pastoral_photos').insert([{ photo_url: data.publicUrl, photo_name: fileName, order_index: photos.length }]);
+      const { data } = driveRoutesSupabase.storage.from('pastoral-photos').getPublicUrl(fileName);
+      await driveRoutesSupabase.from('pastoral_photos').insert([{ photo_url: data.publicUrl, photo_name: fileName, order_index: photos.length }]);
       fetchData();
       setSuccess('Foto subida');
     } catch (err: any) {
@@ -128,8 +128,8 @@ const PastoralManagement: React.FC<PastoralManagementProps> = ({ onBack }) => {
   const handleDeletePhoto = async (id: string, fileName: string) => {
     if (!confirm('¿Eliminar foto?')) return;
     try {
-      await supabase.storage.from('pastoral-photos').remove([fileName]);
-      await supabase.from('pastoral_photos').delete().eq('id', id);
+      await driveRoutesSupabase.storage.from('pastoral-photos').remove([fileName]);
+      await driveRoutesSupabase.from('pastoral_photos').delete().eq('id', id);
       fetchData();
       setSuccess('Foto eliminada');
     } catch (err: any) {

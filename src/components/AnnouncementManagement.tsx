@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, Save, Upload, Trash2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
 
 interface AnnouncementData {
@@ -46,14 +46,34 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
   const fetchAnnouncement = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('announcement_popup')
         .select('*')
-        .single();
+        .order('id', { ascending: true })
+        .limit(1);
 
-      if (error) throw error;
-      if (data) {
-        setAnnouncement(data);
+      // Si no hay error pero tampoco datos, crear un registro vacío por defecto
+      if (!error && (!data || data.length === 0)) {
+        setAnnouncement({
+          id: 0,
+          is_active: false,
+          title: '',
+          message: '',
+          document_url: null,
+          document_name: null,
+          image_url: null,
+          image_name: null,
+          image_enabled: false,
+          link_url: null,
+          link_text: null
+        });
+      } else if (data && data.length > 0) {
+        setAnnouncement(data[0]);
+      }
+
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 es "no rows found", que es OK - significa tabla vacía
+        console.error('Error fetching announcement:', error);
       }
     } catch (error) {
       console.error('Error fetching announcement:', error);
@@ -66,21 +86,34 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
     try {
       setSaving(true);
 
-      const { error } = await supabase
-        .from('announcement_popup')
-        .update({
-          is_active: announcement.is_active,
-          title: announcement.title,
-          message: announcement.message,
-          document_url: announcement.document_url,
-          document_name: announcement.document_name
-          ,image_url: announcement.image_url || null,
-          image_name: announcement.image_name || null,
-          image_enabled: announcement.image_enabled || false,
-          link_url: announcement.link_url || null,
-          link_text: announcement.link_text || null
-        })
-        .eq('id', announcement.id);
+      const updateData = {
+        is_active: announcement.is_active,
+        title: announcement.title,
+        message: announcement.message,
+        document_url: announcement.document_url,
+        document_name: announcement.document_name,
+        image_url: announcement.image_url || null,
+        image_name: announcement.image_name || null,
+        image_enabled: announcement.image_enabled || false,
+        link_url: announcement.link_url || null,
+        link_text: announcement.link_text || null
+      };
+
+      let error;
+      
+      // Si tiene ID, actualiza; si no, inserta
+      if (announcement.id > 0) {
+        const result = await driveRoutesSupabase
+          .from('announcement_popup')
+          .update(updateData)
+          .eq('id', announcement.id);
+        error = result.error;
+      } else {
+        const result = await driveRoutesSupabase
+          .from('announcement_popup')
+          .insert([updateData]);
+        error = result.error;
+      }
 
       if (error) throw error;
 
@@ -89,6 +122,9 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
         localStorage.removeItem('lastSeenAnnouncementId');
       }
 
+      // Recarga datos del servidor para asegurar que están en sync
+      await fetchAnnouncement();
+      
       alert('Anuncio guardado exitosamente');
     } catch (error) {
       console.error('Error saving announcement:', error);
@@ -113,7 +149,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
       const fileName = `announcements/${Math.random()}.${fileExt}`;
 
       // Use 'recursos-digitales-files' bucket which accepts all file types
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await driveRoutesSupabase.storage
         .from('recursos-digitales-files')
         .upload(fileName, optimizedFile, {
           cacheControl: '3600',
@@ -122,7 +158,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl } } = driveRoutesSupabase.storage
         .from('recursos-digitales-files')
         .getPublicUrl(fileName);
 
@@ -154,13 +190,13 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
       const fileExt = optimizedFile.name.split('.').pop();
       const fileName = `announcements/images/${Math.random()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await driveRoutesSupabase.storage
         .from('recursos-digitales-files')
         .upload(fileName, optimizedFile, { cacheControl: '3600', upsert: false });
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl } } = driveRoutesSupabase.storage
         .from('recursos-digitales-files')
         .getPublicUrl(fileName);
 
@@ -185,7 +221,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
       const urlParts = announcement.image_url.split('/');
       const fileName = urlParts.slice(-2).join('/');
 
-      await supabase.storage
+      await driveRoutesSupabase.storage
         .from('recursos-digitales-files')
         .remove([fileName]);
 
@@ -208,7 +244,7 @@ export default function AnnouncementManagement({ onBack }: AnnouncementManagemen
       const urlParts = announcement.document_url.split('/');
       const fileName = urlParts.slice(-2).join('/');
 
-      await supabase.storage
+      await driveRoutesSupabase.storage
         .from('recursos-digitales-files')
         .remove([fileName]);
 

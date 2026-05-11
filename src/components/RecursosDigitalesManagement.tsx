@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Trash2, X, Upload, FileText, Download } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase } from '../lib/supabase';
 
 interface RecursosDigitalesManagementProps {
   onBack: () => void;
@@ -91,9 +91,9 @@ const RecursosDigitalesManagement: React.FC<RecursosDigitalesManagementProps> = 
     try {
       if (instructivo.id) {
         // Update existing
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('instructivo_classroom')
-          .update({
+          .upsert({
             title: instructivo.title,
             file_url: instructivo.file_url
           })
@@ -103,7 +103,7 @@ const RecursosDigitalesManagement: React.FC<RecursosDigitalesManagementProps> = 
         setMessage('Instructivo actualizado exitosamente');
       } else {
         // Insert new
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('instructivo_classroom')
           .insert([{
             title: instructivo.title,

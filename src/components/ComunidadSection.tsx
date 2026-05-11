@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Users, ExternalLink } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase } from '../lib/supabase';
 
 interface ComunidadSectionProps {
   onBack: () => void;
@@ -57,23 +57,42 @@ const ComunidadSection: React.FC<ComunidadSectionProps> = ({ onBack }) => {
     try {
       setLoading(true);
 
-      // Obtener bloques activos
-      const { data: bloquesData, error: bloquesError } = await supabase
+      // Obtener bloques activos - intentar servidor secundario primero
+      let bloquesResult = await supabase
         .from('comunidad_bloques')
         .select('*')
         .eq('activo', true)
         .order('order_index');
 
-      if (bloquesError) throw bloquesError;
-      setBloques(bloquesData || []);
+      if (bloquesResult.error || !bloquesResult.data || bloquesResult.data.length === 0) {
+        console.log('Fallback a servidor principal para comunidad_bloques');
+        bloquesResult = await driveRoutesSupabase
+          .from('comunidad_bloques')
+          .select('*')
+          .eq('activo', true)
+          .order('order_index');
+      }
 
-      // Obtener fotos para cada bloque
-      const { data: fotosData, error: fotosError } = await supabase
+      if (bloquesResult.error) throw bloquesResult.error;
+      const bloquesData = bloquesResult.data || [];
+      setBloques(bloquesData);
+
+      // Obtener fotos para cada bloque - intentar servidor secundario primero
+      let fotosResult = await supabase
         .from('comunidad_fotos')
         .select('*')
         .order('order_index');
 
-      if (fotosError) throw fotosError;
+      if (fotosResult.error || !fotosResult.data) {
+        console.log('Fallback a servidor principal para comunidad_fotos');
+        fotosResult = await driveRoutesSupabase
+          .from('comunidad_fotos')
+          .select('*')
+          .order('order_index');
+      }
+
+      if (fotosResult.error) throw fotosResult.error;
+      const fotosData = fotosResult.data || [];
 
       // Organizar fotos por bloque
       const fotosPorBloque: { [bloqueId: string]: Foto[] } = {};
@@ -90,13 +109,22 @@ const ComunidadSection: React.FC<ComunidadSectionProps> = ({ onBack }) => {
       setFotos(fotosPorBloque);
       setCurrentPhotoIndex(indices);
 
-      // Obtener integrantes para cada bloque
-      const { data: integrantesData, error: integrantesError } = await supabase
+      // Obtener integrantes para cada bloque - intentar servidor secundario primero
+      let integrantesResult = await supabase
         .from('comunidad_integrantes')
         .select('*')
         .order('order_index');
 
-      if (integrantesError) throw integrantesError;
+      if (integrantesResult.error || !integrantesResult.data) {
+        console.log('Fallback a servidor principal para comunidad_integrantes');
+        integrantesResult = await driveRoutesSupabase
+          .from('comunidad_integrantes')
+          .select('*')
+          .order('order_index');
+      }
+
+      if (integrantesResult.error) throw integrantesResult.error;
+      const integrantesData = integrantesResult.data || [];
 
       // Organizar integrantes por bloque
       const integrantesPorBloque: { [bloqueId: string]: Integrante[] } = {};

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, ArrowLeft, Search } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface Fecha {
   id: number;
@@ -28,11 +28,20 @@ export default function FechasImportantesSection({ onBack }: FechasImportantesSe
 
   const fetchAvailableYears = async () => {
     try {
-      const { data, error } = await supabase
+      // Intentar leer del servidor secundario (antiguo) primero
+      let result = await supabase
         .from('fechas_importantes')
         .select('year');
 
-      if (error) throw error;
+      if (result.error || !result.data) {
+        console.log('Fallback a servidor principal para años de fechas_importantes');
+        result = await driveRoutesSupabase
+          .from('fechas_importantes')
+          .select('year');
+      }
+
+      if (result.error) throw result.error;
+      const data = result.data;
 
       // Get unique years and sort descending
       const years = [...new Set(data?.map((item: { year: number }) => item.year) || [])].sort((a, b) => b - a);
@@ -45,14 +54,24 @@ export default function FechasImportantesSection({ onBack }: FechasImportantesSe
   const fetchFechas = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Intentar leer del servidor secundario (antiguo) primero
+      let result = await supabase
         .from('fechas_importantes')
         .select('*')
         .eq('year', selectedYear)
         .order('fecha', { ascending: true });
 
-      if (error) throw error;
-      setFechas(data || []);
+      if (result.error || !result.data) {
+        console.log('Fallback a servidor principal para fechas_importantes');
+        result = await driveRoutesSupabase
+          .from('fechas_importantes')
+          .select('*')
+          .eq('year', selectedYear)
+          .order('fecha', { ascending: true });
+      }
+
+      if (result.error) throw result.error;
+      setFechas(result.data || []);
     } catch (error) {
       console.error('Error fetching fechas:', error);
     } finally {

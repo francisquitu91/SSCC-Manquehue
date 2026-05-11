@@ -51,7 +51,9 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const documentsClients = [driveRoutesSupabase, supabase];
+  const documentsClients = [driveRoutesSupabase, supabase].filter((client, index, arr) => 
+    index === 0 || client !== arr[0]  // Evitar duplicados si ambos clientes son iguales
+  );
 
   const [formData, setFormData] = useState<DocumentForm>({
     category: 'Documentos de Matrícula 2026',
@@ -234,14 +236,12 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
           updateData.file_size = null;
         }
 
-        await Promise.all(
-          documentsClients.map((client) =>
-            client
-              .from('institutional_documents')
-              .update(updateData)
-              .eq('id', editingId)
-          )
-        );
+        const { error: updateError } = await driveRoutesSupabase
+          .from('institutional_documents')
+          .upsert(updateData)
+          .eq('id', editingId);
+        
+        if (updateError) throw updateError;
         setSuccess('Documento actualizado exitosamente');
       } else {
         // Insert new document
@@ -333,21 +333,18 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
         ? getStorageFilePathFromUrl(targetDocument.file_url)
         : null;
 
-      await Promise.all(
-        documentsClients.map((client) =>
-          client
-            .from('institutional_documents')
-            .delete()
-            .eq('id', id)
-        )
-      );
+      const { error: deleteError } = await driveRoutesSupabase
+        .from('institutional_documents')
+        .delete()
+        .eq('id', id);
+      
+      if (deleteError) throw deleteError;
 
       if (storageFilePath) {
-        await Promise.allSettled(
-          documentsClients.map((client) =>
-            client.storage.from('institutional-documents').remove([storageFilePath])
-          )
-        );
+        await driveRoutesSupabase.storage
+          .from('institutional-documents')
+          .remove([storageFilePath])
+          .catch(err => console.warn('File deletion warning:', err));
       }
 
       setSuccess('Documento eliminado exitosamente');

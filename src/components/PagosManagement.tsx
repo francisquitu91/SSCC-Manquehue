@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, X, Link as LinkIcon } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface PagosManagementProps {
   onBack: () => void;
@@ -23,7 +23,7 @@ const PagosManagement: React.FC<PagosManagementProps> = ({ onBack }) => {
   const fetchPagosInfo = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('pagos_info')
         .select('*')
         .single();
@@ -47,16 +47,16 @@ const PagosManagement: React.FC<PagosManagementProps> = ({ onBack }) => {
     try {
       if (pagosInfo.id) {
         // Update existing
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('pagos_info')
-          .update({ payment_link: pagosInfo.payment_link })
+          .upsert({ payment_link: pagosInfo.payment_link })
           .eq('id', pagosInfo.id);
 
         if (error) throw error;
         setMessage('Link actualizado exitosamente');
       } else {
         // Insert new
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('pagos_info')
           .insert([{ payment_link: pagosInfo.payment_link }]);
 

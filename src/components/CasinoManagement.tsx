@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, X, Upload, FileText, Trash2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
 
 interface CasinoManagementProps {
@@ -27,7 +27,7 @@ const CasinoManagement: React.FC<CasinoManagementProps> = ({ onBack }) => {
   const fetchDocumento = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('casino_menu')
         .select('*')
         .order('created_at', { ascending: false })
@@ -51,7 +51,7 @@ const CasinoManagement: React.FC<CasinoManagementProps> = ({ onBack }) => {
     const fileExt = optimizedFile.name.split('.').pop()?.toLowerCase();
     const fileName = `casino/${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
     
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await driveRoutesSupabase.storage
       .from('casino-files')
       .upload(fileName, optimizedFile, {
         cacheControl: '604800',
@@ -60,7 +60,7 @@ const CasinoManagement: React.FC<CasinoManagementProps> = ({ onBack }) => {
 
     if (uploadError) throw uploadError;
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = driveRoutesSupabase.storage
       .from('casino-files')
       .getPublicUrl(fileName);
 
@@ -106,13 +106,13 @@ const CasinoManagement: React.FC<CasinoManagementProps> = ({ onBack }) => {
     try {
       // Delete old document if exists
       if (documento.id) {
-        await supabase.from('casino_menu').delete().neq('id', 0);
+        await driveRoutesSupabase.from('casino_menu').delete().neq('id', 0);
       } else {
-        await supabase.from('casino_menu').delete().neq('id', 0);
+        await driveRoutesSupabase.from('casino_menu').delete().neq('id', 0);
       }
 
       // Insert new document
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('casino_menu')
         .insert([{
           title: documento.title,
@@ -136,7 +136,7 @@ const CasinoManagement: React.FC<CasinoManagementProps> = ({ onBack }) => {
 
     setLoading(true);
     try {
-      await supabase.from('casino_menu').delete().neq('id', 0);
+      await driveRoutesSupabase.from('casino_menu').delete().neq('id', 0);
       setDocumento(null);
       setMessage('Menú eliminado');
     } catch (error) {

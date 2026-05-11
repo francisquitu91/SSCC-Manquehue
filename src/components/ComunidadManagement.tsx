@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Upload, Trash2, Edit2, Plus, Loader2, AlertCircle, ChevronDown, ChevronUp, Users } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { ArrowLeft, Save, Upload, Trash2, Edit2, Plus, Loader2, AlertCircle, ChevronDown, ChevronUp, Users, Copy } from 'lucide-react';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
 import { getNewsImagePathFromUrl, removeNewsImages, uploadNewsImage } from '../lib/newsImagesStorage';
 
@@ -45,9 +45,14 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
   const [bloques, setBloques] = useState<Bloque[]>([]);
   const [fotos, setFotos] = useState<{ [bloqueId: string]: Foto[] }>({});
   const [integrantes, setIntegrantes] = useState<{ [bloqueId: string]: Integrante[] }>({});
+  const [oldBloques, setOldBloques] = useState<Bloque[]>([]);
+  const [oldFotos, setOldFotos] = useState<{ [bloqueId: string]: Foto[] }>({});
+  const [oldIntegrantes, setOldIntegrantes] = useState<{ [bloqueId: string]: Integrante[] }>({});
   const [expandedBloque, setExpandedBloque] = useState<string | null>(null);
   const [editingBloque, setEditingBloque] = useState<Bloque | null>(null);
   const [editingIntegrante, setEditingIntegrante] = useState<Integrante | null>(null);
+  const [showMigration, setShowMigration] = useState(false);
+  const [migratingIds, setMigratingIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,28 +76,18 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
     try {
       setLoading(true);
 
-      const { data: bloquesData, error: bloquesError } = await supabase
-        .from('comunidad_bloques')
-        .select('*')
-        .order('order_index');
+      // Fetch from primary server (driveRoutesSupabase)
+      const [primaryBloques, primaryFotos, primaryIntegrantes] = await Promise.all([
+        driveRoutesSupabase.from('comunidad_bloques').select('*').order('order_index'),
+        driveRoutesSupabase.from('comunidad_fotos').select('*').order('order_index'),
+        driveRoutesSupabase.from('comunidad_integrantes').select('*').order('order_index'),
+      ]);
 
-      if (bloquesError) {
-        console.error('Error fetching bloques:', bloquesError);
-        throw bloquesError;
-      }
-      
-      console.log('Bloques fetched:', bloquesData);
-      setBloques(bloquesData || []);
-
-      const { data: fotosData, error: fotosError } = await supabase
-        .from('comunidad_fotos')
-        .select('*')
-        .order('order_index');
-
-      if (fotosError) throw fotosError;
+      if (primaryBloques.error) throw primaryBloques.error;
+      setBloques(primaryBloques.data || []);
 
       const fotosPorBloque: { [bloqueId: string]: Foto[] } = {};
-      fotosData?.forEach((foto) => {
+      primaryFotos.data?.forEach((foto) => {
         if (!fotosPorBloque[foto.bloque_id]) {
           fotosPorBloque[foto.bloque_id] = [];
         }
@@ -100,21 +95,41 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
       });
       setFotos(fotosPorBloque);
 
-      const { data: integrantesData, error: integrantesError } = await supabase
-        .from('comunidad_integrantes')
-        .select('*')
-        .order('order_index');
-
-      if (integrantesError) throw integrantesError;
-
       const integrantesPorBloque: { [bloqueId: string]: Integrante[] } = {};
-      integrantesData?.forEach((integrante) => {
+      primaryIntegrantes.data?.forEach((integrante) => {
         if (!integrantesPorBloque[integrante.bloque_id]) {
           integrantesPorBloque[integrante.bloque_id] = [];
         }
         integrantesPorBloque[integrante.bloque_id].push(integrante);
       });
       setIntegrantes(integrantesPorBloque);
+
+      // Fetch from secondary server (supabase) for old data
+      const [oldBloq, oldFot, oldInteg] = await Promise.all([
+        supabase.from('comunidad_bloques').select('*').order('order_index'),
+        supabase.from('comunidad_fotos').select('*').order('order_index'),
+        supabase.from('comunidad_integrantes').select('*').order('order_index'),
+      ]);
+
+      setOldBloques(oldBloq.data || []);
+
+      const oldFotosPorBloque: { [bloqueId: string]: Foto[] } = {};
+      oldFot.data?.forEach((foto) => {
+        if (!oldFotosPorBloque[foto.bloque_id]) {
+          oldFotosPorBloque[foto.bloque_id] = [];
+        }
+        oldFotosPorBloque[foto.bloque_id].push(foto);
+      });
+      setOldFotos(oldFotosPorBloque);
+
+      const oldIntegrantesPorBloque: { [bloqueId: string]: Integrante[] } = {};
+      oldInteg.data?.forEach((integrante) => {
+        if (!oldIntegrantesPorBloque[integrante.bloque_id]) {
+          oldIntegrantesPorBloque[integrante.bloque_id] = [];
+        }
+        oldIntegrantesPorBloque[integrante.bloque_id].push(integrante);
+      });
+      setOldIntegrantes(oldIntegrantesPorBloque);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -127,9 +142,9 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
     setSaving(true);
     setError(null);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('comunidad_bloques')
-        .update({
+        .upsert({
           titulo: editingBloque.titulo,
           descripcion: editingBloque.descripcion,
           boton_texto: editingBloque.boton_texto,
@@ -172,7 +187,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
       });
 
       const currentFotos = fotos[bloqueId] || [];
-      const { error: insertError } = await supabase.from('comunidad_fotos').insert([
+      const { error: insertError } = await driveRoutesSupabase.from('comunidad_fotos').insert([
         {
           bloque_id: bloqueId,
           photo_url: publicUrl,
@@ -196,7 +211,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
     setSaving(true);
     try {
       await removeNewsImages([foto.photo_name]);
-      await supabase.from('comunidad_fotos').delete().eq('id', foto.id);
+      await driveRoutesSupabase.from('comunidad_fotos').delete().eq('id', foto.id);
       setSuccess('Foto eliminada');
       fetchData();
     } catch (err: any) {
@@ -212,7 +227,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
       if (editingIntegrante && editingIntegrante.id) {
         // Actualizar integrante existente - excluir id, bloque_id, order_index, created_at, updated_at
         const { id, bloque_id, order_index, ...updateData } = integrante;
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('comunidad_integrantes')
           .update(updateData)
           .eq('id', editingIntegrante.id);
@@ -222,7 +237,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
         // Crear nuevo integrante - excluir id, created_at, updated_at
         const currentIntegrantes = integrantes[bloqueId] || [];
         const { id, ...insertData } = integrante;
-        const { error } = await supabase.from('comunidad_integrantes').insert([
+        const { error } = await driveRoutesSupabase.from('comunidad_integrantes').insert([
           {
             ...insertData,
             bloque_id: bloqueId,
@@ -251,7 +266,7 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
           await removeNewsImages([fileName]);
         }
       }
-      await supabase.from('comunidad_integrantes').delete().eq('id', integrante.id);
+      await driveRoutesSupabase.from('comunidad_integrantes').delete().eq('id', integrante.id);
       setSuccess('Integrante eliminado');
       fetchData();
     } catch (err: any) {
@@ -270,13 +285,81 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
         upsert: false
       });
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = await driveRoutesSupabase
         .from('comunidad_integrantes')
         .update({ foto_url: publicUrl })
         .eq('id', integranteId);
 
       if (updateError) throw updateError;
       setSuccess('Foto de integrante subida');
+      fetchData();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const migrateBloqueToMain = async (bloqueId: string) => {
+    setSaving(true);
+    try {
+      const bloqueToMigrate = oldBloques.find(b => b.id === bloqueId);
+      if (!bloqueToMigrate) return;
+
+      // Migrate bloque
+      const { error: bloqueError } = await driveRoutesSupabase
+        .from('comunidad_bloques')
+        .upsert({
+          id: bloqueToMigrate.id,
+          bloque_numero: bloqueToMigrate.bloque_numero,
+          titulo: bloqueToMigrate.titulo,
+          descripcion: bloqueToMigrate.descripcion,
+          boton_texto: bloqueToMigrate.boton_texto,
+          boton_url: bloqueToMigrate.boton_url,
+          mostrar_integrantes: bloqueToMigrate.mostrar_integrantes,
+          activo: bloqueToMigrate.activo,
+          order_index: bloqueToMigrate.order_index,
+        });
+
+      if (bloqueError) throw bloqueError;
+
+      // Migrate fotos
+      const fotosToMigrate = oldFotos[bloqueId] || [];
+      if (fotosToMigrate.length > 0) {
+        const { error: fotosError } = await driveRoutesSupabase
+          .from('comunidad_fotos')
+          .upsert(fotosToMigrate.map(f => ({
+            id: f.id,
+            bloque_id: f.bloque_id,
+            photo_url: f.photo_url,
+            photo_name: f.photo_name,
+            caption: f.caption,
+            order_index: f.order_index,
+          })));
+        if (fotosError) throw fotosError;
+      }
+
+      // Migrate integrantes
+      const integrantesToMigrate = oldIntegrantes[bloqueId] || [];
+      if (integrantesToMigrate.length > 0) {
+        const { error: integrantesError } = await driveRoutesSupabase
+          .from('comunidad_integrantes')
+          .upsert(integrantesToMigrate.map(i => ({
+            id: i.id,
+            bloque_id: i.bloque_id,
+            nombre: i.nombre,
+            cargo: i.cargo,
+            foto_url: i.foto_url,
+            email: i.email,
+            telefono: i.telefono,
+            descripcion: i.descripcion,
+            order_index: i.order_index,
+          })));
+        if (integrantesError) throw integrantesError;
+      }
+
+      setSuccess(`Bloque "${bloqueToMigrate.titulo}" migrado correctamente`);
+      setMigratingIds(prev => new Set(prev).add(bloqueId));
       fetchData();
     } catch (err: any) {
       setError(err.message);
@@ -719,6 +802,88 @@ const ComunidadManagement: React.FC<ComunidadManagementProps> = ({ onBack }) => 
             );
           })}
         </div>
+
+        {/* Sección de Migración de Datos Antiguos */}
+        {oldBloques.length > 0 && (
+          <div className="mt-12 bg-amber-50 border-2 border-amber-300 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Copy className="text-amber-600" size={24} />
+                <div>
+                  <h2 className="text-2xl font-bold text-amber-900">Datos para Migrar</h2>
+                  <p className="text-sm text-amber-700">Del servidor antiguo al proyecto principal</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowMigration(!showMigration)}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors"
+              >
+                {showMigration ? 'Ocultar' : 'Mostrar'} ({oldBloques.length})
+              </button>
+            </div>
+
+            {showMigration && (
+              <div className="space-y-4">
+                {oldBloques.map((bloque) => {
+                  const alreadyMigrated = bloques.some(b => b.id === bloque.id);
+                  const isMigrating = migratingIds.has(bloque.id);
+                  const oldFotoCount = oldFotos[bloque.id]?.length || 0;
+                  const oldIntegranteCount = oldIntegrantes[bloque.id]?.length || 0;
+
+                  return (
+                    <div
+                      key={bloque.id}
+                      className={`p-4 rounded-lg border-2 transition-all ${
+                        alreadyMigrated
+                          ? 'border-green-300 bg-green-50'
+                          : 'border-amber-300 bg-white hover:bg-amber-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900">{bloque.titulo}</h3>
+                          <p className="text-sm text-gray-600 mt-1">{bloque.descripcion}</p>
+                          <div className="flex gap-6 mt-2 text-xs text-gray-500">
+                            <span>📷 {oldFotoCount} fotos</span>
+                            <span>👥 {oldIntegranteCount} integrantes</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {alreadyMigrated && (
+                            <span className="text-green-700 font-medium text-sm">✓ Migrado</span>
+                          )}
+                          {!alreadyMigrated && (
+                            <button
+                              onClick={() => migrateBloqueToMain(bloque.id)}
+                              disabled={isMigrating || saving}
+                              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                                isMigrating || saving
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : 'bg-amber-600 hover:bg-amber-700 text-white'
+                              }`}
+                            >
+                              {isMigrating ? (
+                                <>
+                                  <Loader2 className="animate-spin" size={16} />
+                                  Migrando...
+                                </>
+                              ) : (
+                                <>
+                                  <Copy size={16} />
+                                  Migrar
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

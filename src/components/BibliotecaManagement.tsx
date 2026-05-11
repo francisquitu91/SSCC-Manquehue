@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Trash2, Plus, X, Upload, FileText, Download } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile, validateFile } from '../lib/fileOptimization';
 
 interface BibliotecaManagementProps {
@@ -28,7 +28,7 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
   const fetchPlanesLectores = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('planes_lectores')
         .select('*')
         .order('year', { ascending: false });
@@ -51,7 +51,7 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
     const fileExt = optimizedFile.name.split('.').pop();
     const fileName = `planes-lectores/${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
     
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await driveRoutesSupabase.storage
       .from('biblioteca-files')
       .upload(fileName, optimizedFile, {
         cacheControl: '31536000',
@@ -60,7 +60,7 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
 
     if (uploadError) throw uploadError;
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = driveRoutesSupabase.storage
       .from('biblioteca-files')
       .getPublicUrl(fileName);
 
@@ -102,9 +102,10 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
     setLoading(true);
     try {
       if (editingPlan.id) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('planes_lectores')
-          .update({
+          .upsert({
+            id: editingPlan.id,
             title: editingPlan.title,
             year: editingPlan.year,
             file_url: editingPlan.file_url
@@ -114,7 +115,7 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
         if (error) throw error;
         setMessage('Plan lector actualizado exitosamente');
       } else {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('planes_lectores')
           .insert([{
             title: editingPlan.title,
@@ -141,7 +142,7 @@ const BibliotecaManagement: React.FC<BibliotecaManagementProps> = ({ onBack }) =
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('planes_lectores')
         .delete()
         .eq('id', id);

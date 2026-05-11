@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Trash2, Plus, X, Upload, FileText, Download, Edit, Clock } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
 
 interface HorariosManagementProps {
@@ -37,7 +37,7 @@ const HorariosManagement: React.FC<HorariosManagementProps> = ({ onBack }) => {
   const fetchDocumentos = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('horarios')
         .select('*')
         .order('year', { ascending: false });
@@ -60,7 +60,7 @@ const HorariosManagement: React.FC<HorariosManagementProps> = ({ onBack }) => {
     const fileExt = optimizedFile.name.split('.').pop();
     const fileName = `horarios/${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
     
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await driveRoutesSupabase.storage
       .from('horarios-files')
       .upload(fileName, optimizedFile, {
         cacheControl: '31536000',
@@ -69,7 +69,7 @@ const HorariosManagement: React.FC<HorariosManagementProps> = ({ onBack }) => {
 
     if (uploadError) throw uploadError;
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = driveRoutesSupabase.storage
       .from('horarios-files')
       .getPublicUrl(fileName);
 
@@ -111,9 +111,9 @@ const HorariosManagement: React.FC<HorariosManagementProps> = ({ onBack }) => {
     setLoading(true);
     try {
       if (editingDoc.id) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('horarios')
-          .update({
+          .upsert({
             title: editingDoc.title,
             year: editingDoc.year,
             categoria: editingDoc.categoria,
@@ -124,7 +124,7 @@ const HorariosManagement: React.FC<HorariosManagementProps> = ({ onBack }) => {
         if (error) throw error;
         setMessage('Documento actualizado exitosamente');
       } else {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('horarios')
           .insert([{
             title: editingDoc.title,
@@ -152,7 +152,7 @@ const HorariosManagement: React.FC<HorariosManagementProps> = ({ onBack }) => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('horarios')
         .delete()
         .eq('id', id);

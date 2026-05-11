@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, FileText, Download } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase } from '../lib/supabase';
 import { handleProtectedDownload } from '../lib/downloadRateLimit';
 
 interface AnnouncementData {
@@ -24,22 +24,32 @@ export default function AnnouncementPopup() {
 
   useEffect(() => {
     fetchAnnouncement();
+    
+    // Polling cada 30 segundos para refrescar el anuncio si cambió desde el admin
+    const intervalId = setInterval(fetchAnnouncement, 30000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchAnnouncement = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('announcement_popup')
         .select('*')
-        .single();
+        .order('id', { ascending: true })
+        .limit(1);
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 es "no rows found", es OK
+        console.error('Error fetching announcement:', error);
+        return;
+      }
 
-      if (data && data.is_active) {
+      if (data && data.length > 0 && data[0].is_active) {
         // Check if user has already seen this announcement
         const lastSeenId = localStorage.getItem('lastSeenAnnouncementId');
-        if (lastSeenId !== data.id.toString()) {
-          setAnnouncement(data);
+        if (lastSeenId !== data[0].id.toString()) {
+          setAnnouncement(data[0]);
           setIsVisible(true);
         }
       }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Upload, Trash2, Plus, X, Edit2, MoveUp, MoveDown } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface ConsejoDirectivoManagementProps {
   onBack: () => void;
@@ -53,7 +53,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
       setLoading(true);
 
       // Cargar datos del JSON
-      const { data: fileData, error: fileError } = await supabase.storage
+      const { data: fileData, error: fileError } = await driveRoutesSupabase.storage
         .from('images')
         .download('consejo_directivo/data.json');
 
@@ -67,7 +67,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
 
         // Cargar vista previa de la imagen actual
         if (jsonData.photoPath) {
-          const { data: urlData } = supabase.storage
+          const { data: urlData } = driveRoutesSupabase.storage
             .from('images')
             .getPublicUrl(jsonData.photoPath);
           
@@ -127,7 +127,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
       if (photoFile) {
         // Eliminar foto anterior si existe
         if (currentPhotoPath) {
-          await supabase.storage
+          await driveRoutesSupabase.storage
             .from('images')
             .remove([currentPhotoPath]);
         }
@@ -137,7 +137,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
         const fileName = `consejo-${Date.now()}.${fileExt}`;
         photoPath = `consejo_directivo/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await driveRoutesSupabase.storage
           .from('images')
           .upload(photoPath, photoFile, {
             cacheControl: '3600',
@@ -161,7 +161,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
         type: 'application/json'
       });
 
-      const { error: jsonError } = await supabase.storage
+      const { error: jsonError } = await driveRoutesSupabase.storage
         .from('images')
         .upload('consejo_directivo/data.json', jsonBlob, {
           cacheControl: '3600',
@@ -191,7 +191,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
 
   const fetchMiembros = async () => {
     try {
-      const { data: membersData, error } = await supabase
+      const { data: membersData, error } = await driveRoutesSupabase
         .from('equipo_consejo_directivo')
         .select('*')
         .order('orden', { ascending: true });
@@ -212,7 +212,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
       const fileExt = file.name.split('.').pop();
       const fileName = `consejo_directivo/${Date.now()}.${fileExt}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await driveRoutesSupabase.storage
         .from('images')
         .upload(fileName, file, { 
           upsert: true,
@@ -224,7 +224,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
         throw new Error(`Error al subir: ${uploadError.message}`);
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = driveRoutesSupabase.storage
         .from('images')
         .getPublicUrl(fileName);
 
@@ -249,7 +249,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
         ? Math.max(...miembros.map(m => m.orden))
         : 0;
 
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('equipo_consejo_directivo')
         .insert([{
           nombre: formData.nombre,
@@ -291,9 +291,9 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('equipo_consejo_directivo')
-        .update({
+        .upsert({
           nombre: formData.nombre,
           cargo: formData.cargo || null,
           curriculum: formData.curriculum || null,
@@ -317,7 +317,7 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
     if (!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('equipo_consejo_directivo')
         .delete()
         .eq('id', id);
@@ -337,12 +337,12 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
     if (!targetMiembro) return;
 
     try {
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_consejo_directivo')
         .update({ orden: currentOrden })
         .eq('id', targetMiembro.id);
 
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_consejo_directivo')
         .update({ orden: targetMiembro.orden })
         .eq('id', id);
@@ -359,12 +359,12 @@ const ConsejoDirectivoManagement: React.FC<ConsejoDirectivoManagementProps> = ({
     if (!targetMiembro) return;
 
     try {
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_consejo_directivo')
         .update({ orden: currentOrden })
         .eq('id', targetMiembro.id);
 
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_consejo_directivo')
         .update({ orden: targetMiembro.orden })
         .eq('id', id);

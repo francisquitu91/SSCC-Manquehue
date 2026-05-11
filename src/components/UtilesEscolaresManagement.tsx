@@ -101,9 +101,9 @@ const UtilesEscolaresManagement: React.FC<UtilesEscolaresManagementProps> = ({ o
     setLoading(true);
     try {
       if (editingDoc.id) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('utiles_escolares')
-          .update({
+          .upsert({
             title: editingDoc.title,
             year: editingDoc.year,
             nivel: editingDoc.nivel,
@@ -114,7 +114,7 @@ const UtilesEscolaresManagement: React.FC<UtilesEscolaresManagementProps> = ({ o
         if (error) throw error;
         setMessage('Documento actualizado exitosamente');
       } else {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('utiles_escolares')
           .insert([{
             title: editingDoc.title,

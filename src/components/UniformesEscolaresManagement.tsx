@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Trash2, Plus, X, Upload, FileText, Download, Edit } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase } from '../lib/supabase';
 
 interface UniformesEscolaresManagementProps {
   onBack: () => void;
@@ -101,9 +101,9 @@ const UniformesEscolaresManagement: React.FC<UniformesEscolaresManagementProps> 
     setLoading(true);
     try {
       if (editingDoc.id) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('uniformes_escolares')
-          .update({
+          .upsert({
             title: editingDoc.title,
             year: editingDoc.year,
             tipo: editingDoc.tipo,
@@ -114,7 +114,7 @@ const UniformesEscolaresManagement: React.FC<UniformesEscolaresManagementProps> 
         if (error) throw error;
         setMessage('Documento actualizado exitosamente');
       } else {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('uniformes_escolares')
           .insert([{
             title: editingDoc.title,

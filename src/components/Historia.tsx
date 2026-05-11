@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Users, MapPin, Award } from 'lucide-react';
 import DirectoryCarousel, { DirectoryItem } from './DirectoryCarousel';
 import FlipCard from './FlipCard';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import type { DirectoryMember } from '../lib/supabase';
 
 interface HistoriaProps {
@@ -37,12 +37,23 @@ const Historia: React.FC<HistoriaProps> = ({ onBack }) => {
 
   const fetchDirectoryMembers = async () => {
     try {
-      const { data, error } = await supabase
+      // Intentar leer del servidor secundario (antiguo) primero
+      let result = await supabase
         .from('directory_members')
         .select('*')
         .order('order_index', { ascending: true });
 
-      if (error) throw error;
+      // Si falla o no hay datos, usar servidor principal
+      if (result.error || !result.data || result.data.length === 0) {
+        console.log('Fallback a servidor principal para directory_members');
+        result = await driveRoutesSupabase
+          .from('directory_members')
+          .select('*')
+          .order('order_index', { ascending: true });
+      }
+
+      if (result.error) throw result.error;
+      const data = result.data;
 
       const directorio = (data || [])
         .filter((m: DirectoryMember) => m.category === 'directorio')

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { supabase, EditorialItem } from '../lib/supabase';
+import { driveRoutesSupabase, EditorialItem } from '../lib/supabase';
 import ImageUploader from './ImageUploader';
 import AdvancedImageManager from './AdvancedImageManager';
 
@@ -82,9 +82,9 @@ const EditorialEditor: React.FC<EditorialEditorProps> = ({ onClose, onSave, edit
 
       console.log('Saving editorial data:', editorialData);
       if (editingEditorial) {
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('editorial')
-          .update(editorialData)
+          .upsert(editorialData)
           .eq('id', editingEditorial.id);
         
         if (error) {

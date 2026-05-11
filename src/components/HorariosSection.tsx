@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Download, FileText, Calendar, ArrowLeft } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface DocumentoHorario {
   id: number;
@@ -34,13 +34,23 @@ const HorariosSection: React.FC<HorariosSectionProps> = ({ onBack }) => {
   const fetchDocumentos = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Intentar leer del servidor secundario (antiguo) primero
+      let result = await supabase
         .from('horarios')
         .select('*')
         .order('year', { ascending: false });
 
-      if (error) throw error;
-      if (data) setDocumentos(data);
+      // Si falla o no hay datos, usar servidor principal
+      if (result.error || !result.data || result.data.length === 0) {
+        console.log('Fallback a servidor principal para horarios');
+        result = await driveRoutesSupabase
+          .from('horarios')
+          .select('*')
+          .order('year', { ascending: false });
+      }
+
+      if (result.error) throw result.error;
+      if (result.data) setDocumentos(result.data);
     } catch (error) {
       console.error('Error fetching horarios:', error);
     } finally {

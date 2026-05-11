@@ -64,18 +64,12 @@ const NewsManagement: React.FC<NewsManagementProps> = ({ onBack }) => {
     }
 
     try {
-      const [{ error: secondaryError }, { error: primaryError }] = await Promise.all([
-        driveRoutesSupabase
-          .from('news')
-          .delete()
-          .eq('id', id),
-        supabase
-          .from('news')
-          .delete()
-          .eq('id', id),
-      ]);
+      const { error } = await driveRoutesSupabase
+        .from('news')
+        .delete()
+        .eq('id', id);
 
-      if (secondaryError && primaryError) throw secondaryError;
+      if (error) throw error;
       
       setNews(news.filter(item => item.id !== id));
     } catch (error) {

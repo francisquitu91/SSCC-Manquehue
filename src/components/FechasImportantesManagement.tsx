@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Plus, Trash2, Save, X, ArrowLeft } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface Fecha {
   id?: number;
@@ -34,7 +34,7 @@ export default function FechasImportantesManagement({ onBack }: FechasImportante
 
   const fetchAvailableYears = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('fechas_importantes')
         .select('year');
 
@@ -50,7 +50,7 @@ export default function FechasImportantesManagement({ onBack }: FechasImportante
   const fetchFechas = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await driveRoutesSupabase
         .from('fechas_importantes')
         .select('*')
         .eq('year', selectedYear)
@@ -74,9 +74,9 @@ export default function FechasImportantesManagement({ onBack }: FechasImportante
 
       if (editingFecha.id) {
         // Update existing
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('fechas_importantes')
-          .update({
+          .upsert({
             fecha: editingFecha.fecha,
             hora: editingFecha.hora || null,
             actividad: editingFecha.actividad,
@@ -87,7 +87,7 @@ export default function FechasImportantesManagement({ onBack }: FechasImportante
         if (error) throw error;
       } else {
         // Insert new
-        const { error } = await supabase
+        const { error } = await driveRoutesSupabase
           .from('fechas_importantes')
           .insert({
             fecha: editingFecha.fecha,
@@ -124,7 +124,7 @@ export default function FechasImportantesManagement({ onBack }: FechasImportante
     if (!confirm('¿Estás seguro de eliminar esta fecha?')) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('fechas_importantes')
         .delete()
         .eq('id', id);

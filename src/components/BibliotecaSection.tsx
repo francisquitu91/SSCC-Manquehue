@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, BookOpen, Search, Globe, FileText, Download, ExternalLink } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface BibliotecaSectionProps {
   onBack: () => void;
@@ -26,13 +26,23 @@ const BibliotecaSection: React.FC<BibliotecaSectionProps> = ({ onBack }) => {
 
   const fetchPlanesLectores = async () => {
     try {
-      const { data, error } = await supabase
+      // Intentar leer del servidor secundario (antiguo) primero
+      let result = await supabase
         .from('planes_lectores')
         .select('*')
         .order('year', { ascending: false });
 
-      if (error) throw error;
-      if (data) setPlanesLectores(data);
+      // Si falla o no hay datos, usar servidor principal
+      if (result.error || !result.data || result.data.length === 0) {
+        console.log('Fallback a servidor principal para planes_lectores');
+        result = await driveRoutesSupabase
+          .from('planes_lectores')
+          .select('*')
+          .order('year', { ascending: false });
+      }
+
+      if (result.error) throw result.error;
+      if (result.data) setPlanesLectores(result.data);
     } catch (error) {
       console.error('Error fetching planes lectores:', error);
     } finally {

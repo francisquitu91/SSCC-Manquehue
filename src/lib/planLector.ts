@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { driveRoutesSupabase } from './supabase'
 
 export interface PlanBook {
   id: string
@@ -18,7 +18,7 @@ export interface PlanBook {
 
 export async function fetchPlanBooks(filters: { course?: string; q?: string } = {}): Promise<PlanBook[]> {
   try {
-    let query = supabase.from('plan_lector_books').select('*')
+    let query = driveRoutesSupabase.from('plan_lector_books').select('*')
     if (filters.course) query = query.eq('course', filters.course)
     if (filters.q) {
       const q = filters.q.trim()
@@ -48,7 +48,7 @@ export async function fetchPlanBooks(filters: { course?: string; q?: string } = 
 
 export async function addPlanBook(book: Partial<PlanBook>) {
   try {
-    const { data, error } = await supabase.from('plan_lector_books').insert([book]).select().single()
+    const { data, error } = await driveRoutesSupabase.from('plan_lector_books').insert([book]).select().single()
     if (error) throw error
     return data as PlanBook
   } catch (error) {
@@ -59,7 +59,7 @@ export async function addPlanBook(book: Partial<PlanBook>) {
 
 export async function updatePlanBook(id: string, updates: Partial<PlanBook>) {
   try {
-    const { data, error } = await supabase.from('plan_lector_books').update(updates).eq('id', id).select().single()
+    const { data, error } = await driveRoutesSupabase.from('plan_lector_books').upsert(updates).eq('id', id).select().single()
     if (error) throw error
     return data as PlanBook
   } catch (error) {
@@ -70,7 +70,7 @@ export async function updatePlanBook(id: string, updates: Partial<PlanBook>) {
 
 export async function deletePlanBook(id: string) {
   try {
-    const { error } = await supabase.from('plan_lector_books').delete().eq('id', id)
+    const { error } = await driveRoutesSupabase.from('plan_lector_books').delete().eq('id', id)
     if (error) throw error
     return true
   } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, X, Upload, Trash2, Edit2, Plus, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
 
 interface CEALManagementProps {
@@ -24,8 +24,8 @@ const CEALManagement: React.FC<CEALManagementProps> = ({ onBack }) => {
   const fetchData = async () => {
     try {
       const [membersRes, photosRes] = await Promise.all([
-        supabase.from('ceal_members').select('*').order('order_index'),
-        supabase.from('ceal_photos').select('*').order('order_index')
+        driveRoutesSupabase.from('ceal_members').select('*').order('order_index'),
+        driveRoutesSupabase.from('ceal_photos').select('*').order('order_index')
       ]);
       setMembers(membersRes.data || []);
       setPhotos(photosRes.data || []);
@@ -40,10 +40,10 @@ const CEALManagement: React.FC<CEALManagementProps> = ({ onBack }) => {
     setSaving(true);
     try {
       if (editingMember) {
-        await supabase.from('ceal_members').update(editingMember).eq('id', editingMember.id);
+        await driveRoutesSupabase.from('ceal_members').upsert(editingMember).eq('id', editingMember.id);
         setSuccess('Miembro actualizado');
       } else {
-        await supabase.from('ceal_members').insert([newMember]);
+        await driveRoutesSupabase.from('ceal_members').insert([newMember]);
         setSuccess('Miembro agregado');
         setNewMember({ position: '', name: '', order_index: 0, year: 2025 });
       }
@@ -59,7 +59,7 @@ const CEALManagement: React.FC<CEALManagementProps> = ({ onBack }) => {
   const handleDeleteMember = async (id: string) => {
     if (!confirm('¿Eliminar miembro?')) return;
     try {
-      await supabase.from('ceal_members').delete().eq('id', id);
+      await driveRoutesSupabase.from('ceal_members').delete().eq('id', id);
       fetchData();
       setSuccess('Miembro eliminado');
     } catch (err: any) {
@@ -78,14 +78,14 @@ const CEALManagement: React.FC<CEALManagementProps> = ({ onBack }) => {
       console.log(`Foto optimizada - Original: ${file.size} bytes, Optimizado: ${optimizedFile.size} bytes`);
       
       const fileName = `${Date.now()}-${optimizedFile.name}`;
-      const { error: uploadError } = await supabase.storage.from('ceal-photos').upload(fileName, optimizedFile, {
+      const { error: uploadError } = await driveRoutesSupabase.storage.from('ceal-photos').upload(fileName, optimizedFile, {
         cacheControl: '2592000',
         upsert: false
       });
       if (uploadError) throw uploadError;
       
-      const { data } = supabase.storage.from('ceal-photos').getPublicUrl(fileName);
-      await supabase.from('ceal_photos').insert([{ photo_url: data.publicUrl, photo_name: fileName, order_index: photos.length }]);
+      const { data } = driveRoutesSupabase.storage.from('ceal-photos').getPublicUrl(fileName);
+      await driveRoutesSupabase.from('ceal_photos').insert([{ photo_url: data.publicUrl, photo_name: fileName, order_index: photos.length }]);
       fetchData();
       setSuccess('Foto subida');
     } catch (err: any) {
@@ -98,8 +98,8 @@ const CEALManagement: React.FC<CEALManagementProps> = ({ onBack }) => {
   const handleDeletePhoto = async (id: string, fileName: string) => {
     if (!confirm('¿Eliminar foto?')) return;
     try {
-      await supabase.storage.from('ceal-photos').remove([fileName]);
-      await supabase.from('ceal_photos').delete().eq('id', id);
+      await driveRoutesSupabase.storage.from('ceal-photos').remove([fileName]);
+      await driveRoutesSupabase.from('ceal_photos').delete().eq('id', id);
       fetchData();
       setSuccess('Foto eliminada');
     } catch (err: any) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Plus, Trash2, Upload, Edit2, X, Users } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { uploadNewsImage } from '../lib/newsImagesStorage';
 
 interface DepartamentoOrientacionManagementProps {
@@ -37,7 +37,7 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
   const loadData = async () => {
     try {
       // Load info
-      const { data: infoData, error: infoError } = await supabase
+      const { data: infoData, error: infoError } = await driveRoutesSupabase
         .from('departamento_orientacion')
         .select('*')
         .single();
@@ -47,7 +47,7 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
       setIntroText(infoData.intro_text || '');
 
       // Load team members
-      const { data: teamData, error: teamError } = await supabase
+      const { data: teamData, error: teamError } = await driveRoutesSupabase
         .from('orientacion_team_members')
         .select('*')
         .order('order_index');
@@ -74,7 +74,7 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
         upsert: false
       });
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = await driveRoutesSupabase
         .from('departamento_orientacion')
         .update({ cover_image_url: publicUrl })
         .eq('id', info.id);
@@ -96,7 +96,7 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
 
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('departamento_orientacion')
         .update({ intro_text: introText })
         .eq('id', info.id);
@@ -121,7 +121,7 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
     try {
       const maxOrder = Math.max(...teamMembers.map(m => m.order_index), 0);
       
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('orientacion_team_members')
         .insert([{
           name: newMember.name.trim(),
@@ -145,9 +145,9 @@ export default function DepartamentoOrientacionManagement({ onBack }: Departamen
     if (!editingMember) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('orientacion_team_members')
-        .update({
+        .upsert({
           name: editingMember.name,
           position: editingMember.position
         })

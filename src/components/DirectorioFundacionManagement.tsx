@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { Trash2, Edit2, Save, X, Plus, MoveUp, MoveDown } from 'lucide-react';
 
 interface FundacionData {
@@ -45,7 +45,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { data: file, error } = await supabase.storage.from(BUCKET).download(JSON_PATH);
+      const { data: file, error } = await driveRoutesSupabase.storage.from(BUCKET).download(JSON_PATH);
       if (!error && file) {
         const text = await file.text();
         const parsed = JSON.parse(text) as FundacionData;
@@ -53,7 +53,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
         setDescription(parsed.description || '');
         setNamesText((parsed.names || []).join(', '));
         if (parsed.photoPath) {
-          const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(parsed.photoPath);
+          const { data: urlData } = driveRoutesSupabase.storage.from(BUCKET).getPublicUrl(parsed.photoPath);
           setPhotoUrl(urlData.publicUrl);
         }
       }
@@ -66,7 +66,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
 
   const fetchMiembros = async () => {
     try {
-      const { data: membersData, error } = await supabase
+      const { data: membersData, error } = await driveRoutesSupabase
         .from('equipo_fundacion')
         .select('*')
         .order('orden', { ascending: true });
@@ -85,12 +85,12 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     const path = `fundacion_directorio/fundacion-${Date.now()}.${ext}`;
     try {
       setUploading(true);
-      const { data: up, error } = await supabase.storage.from(BUCKET).upload(path, file, { 
+      const { data: up, error } = await driveRoutesSupabase.storage.from(BUCKET).upload(path, file, { 
         upsert: true,
         cacheControl: '2592000'
       });
       if (error) throw error;
-      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(up.path);
+      const { data: urlData } = driveRoutesSupabase.storage.from(BUCKET).getPublicUrl(up.path);
       setPhotoUrl(urlData.publicUrl);
       setData((d) => ({ ...d, photoPath: up.path }));
     } catch (err) {
@@ -110,7 +110,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
       const fileExt = file.name.split('.').pop();
       const fileName = `equipo_fundacion/${Date.now()}.${fileExt}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await driveRoutesSupabase.storage
         .from('images')
         .upload(fileName, file, { 
           upsert: true,
@@ -122,7 +122,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
         throw new Error(`Error al subir: ${uploadError.message}`);
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = driveRoutesSupabase.storage
         .from('images')
         .getPublicUrl(fileName);
 
@@ -147,7 +147,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
         ? Math.max(...miembros.map(m => m.orden))
         : 0;
 
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('equipo_fundacion')
         .insert([{
           nombre: formData.nombre,
@@ -189,9 +189,9 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('equipo_fundacion')
-        .update({
+        .upsert({
           nombre: formData.nombre,
           cargo: formData.cargo || null,
           curriculum: formData.curriculum || null,
@@ -215,7 +215,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     if (!confirm(`¿Estás seguro de eliminar a ${nombre}?`)) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await driveRoutesSupabase
         .from('equipo_fundacion')
         .delete()
         .eq('id', id);
@@ -235,12 +235,12 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     if (!targetMiembro) return;
 
     try {
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_fundacion')
         .update({ orden: currentOrden })
         .eq('id', targetMiembro.id);
 
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_fundacion')
         .update({ orden: targetMiembro.orden })
         .eq('id', id);
@@ -257,12 +257,12 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     if (!targetMiembro) return;
 
     try {
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_fundacion')
         .update({ orden: currentOrden })
         .eq('id', targetMiembro.id);
 
-      await supabase
+      await driveRoutesSupabase
         .from('equipo_fundacion')
         .update({ orden: targetMiembro.orden })
         .eq('id', id);
@@ -292,7 +292,7 @@ const DirectorioFundacionManagement: React.FC<{ onBack: () => void }> = ({ onBac
     const payload: FundacionData = { description, names: namesText.split(',').map(s => s.trim()).filter(Boolean), photoPath: data.photoPath };
     try {
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      await supabase.storage.from(BUCKET).upload(JSON_PATH, blob, { 
+      await driveRoutesSupabase.storage.from(BUCKET).upload(JSON_PATH, blob, { 
         upsert: true,
         cacheControl: '2592000'
       });

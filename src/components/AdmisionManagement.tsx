@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Trash2, Plus, X, Edit } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface AdmisionManagementProps {
   onBack: () => void;
@@ -46,21 +46,21 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
     setLoading(true);
     try {
       // Fetch info sections
-      const { data: sectionsData } = await supabase
+      const { data: sectionsData } = await driveRoutesSupabase
         .from('admision_info_sections')
         .select('*')
         .order('order_index');
       if (sectionsData) setInfoSections(sectionsData);
 
       // Fetch vacantes
-      const { data: vacantesData } = await supabase
+      const { data: vacantesData } = await driveRoutesSupabase
         .from('admision_vacantes')
         .select('*')
         .order('order_index');
       if (vacantesData) setVacantes(vacantesData);
 
       // Fetch fecha actualización
-      const { data: fechaData } = await supabase
+      const { data: fechaData } = await driveRoutesSupabase
         .from('admision_vacantes_fecha')
         .select('*')
         .single();
@@ -81,9 +81,9 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
     setLoading(true);
     try {
       if (section.id) {
-        await supabase
+        await driveRoutesSupabase
           .from('admision_info_sections')
-          .update({
+          .upsert({
             title: section.title,
             content: section.content,
             icon_name: section.icon_name,
@@ -92,7 +92,7 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
           })
           .eq('id', section.id);
       } else {
-        await supabase
+        await driveRoutesSupabase
           .from('admision_info_sections')
           .insert([section]);
       }
@@ -112,7 +112,7 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
     
     setLoading(true);
     try {
-      await supabase
+      await driveRoutesSupabase
         .from('admision_info_sections')
         .delete()
         .eq('id', id);
@@ -130,7 +130,7 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
     setLoading(true);
     try {
       if (vacante.id) {
-        await supabase
+        await driveRoutesSupabase
           .from('admision_vacantes')
           .update({
             curso: vacante.curso,
@@ -139,7 +139,7 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
           })
           .eq('id', vacante.id);
       } else {
-        await supabase
+        await driveRoutesSupabase
           .from('admision_vacantes')
           .insert([vacante]);
       }
@@ -159,7 +159,7 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
     
     setLoading(true);
     try {
-      await supabase
+      await driveRoutesSupabase
         .from('admision_vacantes')
         .delete()
         .eq('id', id);
@@ -177,12 +177,12 @@ const AdmisionManagement: React.FC<AdmisionManagementProps> = ({ onBack }) => {
     setLoading(true);
     try {
       if (fechaId) {
-        await supabase
+        await driveRoutesSupabase
           .from('admision_vacantes_fecha')
           .update({ fecha_actualizacion: fechaActualizacion })
           .eq('id', fechaId);
       } else {
-        const { data } = await supabase
+        const { data } = await driveRoutesSupabase
           .from('admision_vacantes_fecha')
           .insert([{ fecha_actualizacion: fechaActualizacion }])
           .select()

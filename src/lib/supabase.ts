@@ -1,18 +1,42 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Configuración principal - Supabase principal
+const PRIMARY_SUPABASE_URL = 'https://ntncdusmihemyaqrzajm.supabase.co';
+const PRIMARY_SUPABASE_KEY = 'sb_publishable_kh_0x5npworQbEFVlyK3Xw_2kidvRNM';
+
+// Configuración de fallback (variables de entorno)
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const driveRoutesSupabaseUrl = import.meta.env.VITE_DRIVE_ROUTES_SUPABASE_URL || 'https://ntncdusmihemyaqrzajm.supabase.co';
-const driveRoutesSupabasePublishableKey = import.meta.env.VITE_DRIVE_ROUTES_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_kh_0x5npworQbEFVlyK3Xw_2kidvRNM';
+const driveRoutesSupabaseUrl = import.meta.env.VITE_DRIVE_ROUTES_SUPABASE_URL || PRIMARY_SUPABASE_URL;
+const driveRoutesSupabasePublishableKey = import.meta.env.VITE_DRIVE_ROUTES_SUPABASE_PUBLISHABLE_KEY || PRIMARY_SUPABASE_KEY;
 
-console.log('Supabase URL:', supabaseUrl);
-console.log('Supabase Anon Key:', supabaseAnonKey ? 'Present' : 'Missing');
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+// Validar que la URL principal esté disponible
+console.log('Primary Supabase URL (ntncdusmihemyaqrzajm):', driveRoutesSupabaseUrl);
+console.log('Fallback Supabase URL:', supabaseUrl || 'Not configured');
+
+if (!driveRoutesSupabaseUrl || !driveRoutesSupabasePublishableKey) {
+  throw new Error('Missing primary Supabase configuration');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Verificar si hay un Supabase secundario configurado
+if (supabaseUrl && supabaseAnonKey) {
+  if (supabaseUrl !== driveRoutesSupabaseUrl) {
+    console.warn(
+      'WARNING: Secondary Supabase configured. Primary will be used: ' + driveRoutesSupabaseUrl,
+      'Secondary (fallback only):', supabaseUrl
+    );
+  }
+} else {
+  console.warn('No secondary Supabase configured. Using primary only.');
+}
+
+// Cliente principal - SIEMPRE apunta a https://ntncdusmihemyaqrzajm.supabase.co
 export const driveRoutesSupabase = createClient(driveRoutesSupabaseUrl, driveRoutesSupabasePublishableKey);
+
+// Cliente secundario - para fallback (usa variables de entorno si está configurado, sino usa la principal)
+export const supabase = (supabaseUrl && supabaseAnonKey && supabaseUrl !== driveRoutesSupabaseUrl)
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : driveRoutesSupabase; // Si no hay secundario configurado, usa el principal
 
 export interface NewsItem {
   id: string;
