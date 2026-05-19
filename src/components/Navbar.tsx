@@ -11,9 +11,11 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
   const [isOurOpen, setIsOurOpen] = useState(false);
   const [isAdmisionOpen, setIsAdmisionOpen] = useState(false);
   const [calendarsOpen, setCalendarsOpen] = useState(false);
+  const [isFamiliaOpen, setIsFamiliaOpen] = useState(false);
   const [mobileNuestroColegioOpen, setMobileNuestroColegioOpen] = useState(false);
   const [mobileAdmisionOpen, setMobileAdmisionOpen] = useState(false);
   const [mobileCalendariosOpen, setMobileCalendariosOpen] = useState(false);
+  const [mobileFamiliaOpen, setMobileFamiliaOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string>('');
 
   useEffect(() => {
@@ -166,6 +168,19 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                       </button>
                     </li>
                     <li>
+                      <button onClick={() => setIsFamiliaOpen(!isFamiliaOpen)} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors flex items-center justify-between">
+                        Familia
+                        <span className={`transform transition-transform ${isFamiliaOpen ? 'rotate-180' : ''}`}>▼</span>
+                      </button>
+                    </li>
+                    {isFamiliaOpen && (
+                      <li className="pl-4 border-l border-blue-500">
+                        <a href="https://schoolnet.colegium.com/webapp/es_CL/login" target="_blank" rel="noopener noreferrer" className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors block">
+                          Portal SchoolNet
+                        </a>
+                      </li>
+                    )}
+                    <li>
                       <button onClick={() => handleNavigation('rectoria')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
                         Rectoría
                       </button>
@@ -315,6 +330,15 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                     <button onClick={() => handleNavigation('documentos-institucionales')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
                       Documentos Oficiales
                     </button>
+                    <button onClick={() => setMobileFamiliaOpen(!mobileFamiliaOpen)} className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800 flex items-center justify-between">
+                      Familia
+                      <span className={`transform transition-transform ${mobileFamiliaOpen ? 'rotate-180' : ''}`}>▼</span>
+                    </button>
+                    {mobileFamiliaOpen && (
+                      <a href="https://schoolnet.colegium.com/webapp/es_CL/login" target="_blank" rel="noopener noreferrer" className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700 pl-6 border-l ml-2">
+                        Portal SchoolNet
+                      </a>
+                    )}
                     <button onClick={() => handleNavigation('rectoria')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
                       Rectoría
                     </button>
