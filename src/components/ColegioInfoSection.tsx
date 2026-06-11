@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 export interface ColegioSectionItem {
   title: string;
@@ -44,26 +44,14 @@ const baseSecciones = [
     onClick: () => window.navigateTo && window.navigateTo('documentos-institucionales'),
   },
   {
-    title: "Admisión",
-    description: "Infórmate sobre el proceso de admisión y requisitos.",
-    onClick: null, // Se maneja con popup
+    title: "Programa Intercambio Escolar Internacional",
+    description: "Dirigido a estudiantes de II medio para fortalecer el inglés en Sudáfrica.",
+    onClick: () => window.open('https://intercambio-sscc-manqueh-0osu0ay.gamma.site/', '_blank'),
   },
 ];
 
 
 export const ColegioInfoSection: React.FC = () => {
-  const [showAdmisionPopup, setShowAdmisionPopup] = useState(false);
-
-  const secciones = baseSecciones.map((item) => {
-    if (item.title === 'Admisión') {
-      return {
-        ...item,
-        onClick: () => setShowAdmisionPopup(true),
-      };
-    }
-    return item;
-  });
-
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,7 +60,7 @@ export const ColegioInfoSection: React.FC = () => {
           Te invitamos a explorar las secciones y conocer todo lo que ofrece nuestro colegio.
         </p>
         <div className="flex flex-wrap justify-center gap-8 mt-10">
-          {secciones.map((item) => (
+          {baseSecciones.map((item) => (
             <button
               key={item.title}
               onClick={item.onClick || undefined}
@@ -86,34 +74,6 @@ export const ColegioInfoSection: React.FC = () => {
             </button>
           ))}
         </div>
-
-        {/* Popup para Admisión */}
-        {showAdmisionPopup && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-xs flex flex-col items-center relative animate-fade-in">
-              <button
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl font-bold"
-                onClick={() => setShowAdmisionPopup(false)}
-                aria-label="Cerrar"
-              >
-                ×
-              </button>
-              <h3 className="text-xl font-bold text-blue-900 mb-4">Admisión</h3>
-              <button
-                className="w-full mb-3 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-                onClick={() => { setShowAdmisionPopup(false); window.navigateTo && window.navigateTo('admision-prekinder'); }}
-              >
-                Admisión Pre Kínder
-              </button>
-              <button
-                className="w-full py-3 rounded-lg bg-blue-100 text-blue-900 font-semibold hover:bg-blue-200 transition"
-                onClick={() => { setShowAdmisionPopup(false); window.navigateTo && window.navigateTo('admision-kinder-ii'); }}
-              >
-                Admisión Kínder a II°
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
