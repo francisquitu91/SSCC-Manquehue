@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Lightbulb, Brain, Users, Target } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Brain, Target } from 'lucide-react';
 
 interface CulturaPensamientoSectionProps {
   onBack: () => void;
@@ -98,7 +98,19 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
                 <p>
-                  En el Colegio Sagrados Corazones Manquehue promovemos una <strong>Cultura de Pensamiento</strong> que pone al estudiante en el centro del aprendizaje, fomentando el desarrollo de habilidades cognitivas, sociales y metacognitivas necesarias para comprender, reflexionar y actuar en el mundo actual.
+                  Una Cultura de Pensamiento es un enfoque educativo en el que el pensamiento crítico, creativo y reflexivo es valorado, promovido y visibilizado de manera intencionada en la vida cotidiana.
+                </p>
+                <p>
+                  Este enfoque busca transformar el aprendizaje, pasando de la memorización a la comprensión profunda, donde los estudiantes no solo adquieren conocimientos, sino que desarrollan la capacidad de pensar sobre lo que aprenden y cómo lo aprenden.
+                </p>
+                <p>
+                  Para ello, se utilizan herramientas, tales como, rutinas y llaves de pensamiento, organizadores gráficos, entre otras, que permiten hacer visible el pensamiento, evidenciando los procesos mentales, ideas y el razonamiento de los estudiantes.
+                </p>
+                <p>
+                  En este contexto, el aula se transforma en una comunidad de aprendizaje, donde se fomenta la reflexión, se cuestiona el conocimiento y se construyen significados de manera cooperativa. Se promueve el desarrollo de habilidades de pensamiento crítico, habilidades creativas y la metacognición (pensar sobre el propio pensamiento).
+                </p>
+                <p>
+                  Este enfoque, impulsado por investigadores del Proyecto Zero de Harvard como David Perkins y Ron Ritchhart, busca formar aprendices autónomos, capaces de aplicar el pensamiento de manera eficaz en distintos contextos.
                 </p>
               </div>
               <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden shadow-lg">
@@ -134,14 +146,20 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
               </div>
               <div className="space-y-6 text-gray-700 leading-relaxed text-lg order-1 lg:order-2">
                 <p>
-                  Creemos que aprender no es solo adquirir contenidos, sino desarrollar la capacidad de pensar de manera crítica, creativa y colaborativa. Por ello, impulsamos prácticas pedagógicas que hacen visible el pensamiento en el aula, promoviendo la curiosidad, la reflexión profunda, el diálogo respetuoso y la toma de conciencia sobre cómo aprendemos.
+                  En nuestro Colegio vivimos la Cultura de Pensamiento a través de la implementación, desde hace más de 11 años, del Modelo VESS (Vida Equilibrada con Sentido y Sabiduría).
                 </p>
                 
-                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 border-l-4 border-indigo-600">
-                  <p className="text-gray-700 leading-relaxed">
-                    La Cultura de Pensamiento se vive cotidianamente a través de estrategias y rutinas que fortalecen la <strong>comprensión</strong>, el <strong>análisis</strong>, la <strong>argumentación</strong> y la <strong>resolución de problemas</strong>, permitiendo que nuestros estudiantes construyan aprendizajes significativos y duraderos.
-                  </p>
-                </div>
+                <p>
+                  Este modelo integra neuroeducación, desarrollo emocional, de habilidades, competencias y hábitos de mente. Todo esto con el propósito de generar experiencias de aprendizaje significativas e innovadoras.
+                </p>
+
+                <p>
+                  El modelo VESS responde a las necesidades de un mundo en constante cambio, promoviendo una formación integral, donde lo académico es fundamental, pero se complementa con el desarrollo de personas integrales y conscientes.
+                </p>
+
+                <p>
+                  Formamos parte de la Red de Colegios VESS, una comunidad internacional de aprendizaje que colabora para sostener cambios profundos y duraderos en educación.
+                </p>
               </div>
             </div>
           </div>
@@ -163,7 +181,10 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
               <div className="grid lg:grid-cols-2 gap-8 items-center">
                 <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
                   <p>
-                    De este modo, formamos <strong>personas autónomas, reflexivas y comprometidas</strong> con su propio aprendizaje, capaces de enfrentar los desafíos académicos y personales con sentido, responsabilidad y apertura al cambio.
+                    Nuestro principal objetivo es desarrollar al máximo el potencial de cada uno de nuestros estudiantes, que sean autónomos en su aprendizaje, reflexivos y conscientes de sus procesos, abiertos al cambio, comprometidos con su entorno.
+                  </p>
+                  <p>
+                    Creemos que aprender no es solo adquirir contenidos, sino desarrollar la capacidad de pensar de manera profunda, creativa y colaborativa, para enfrentar los desafíos académicos y personales con sentido y responsabilidad.
                   </p>
                 </div>
                 <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden shadow-lg">
@@ -175,30 +196,23 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-blue-50 rounded-lg p-6 text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 mb-2">Autonomía</h3>
-                  <p className="text-gray-600 text-sm">Estudiantes capaces de dirigir su propio aprendizaje</p>
-                </div>
-
-                <div className="bg-purple-50 rounded-lg p-6 text-center">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Brain className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 mb-2">Reflexión</h3>
-                  <p className="text-gray-600 text-sm">Pensamiento crítico y profundo sobre el mundo</p>
-                </div>
-
-                <div className="bg-indigo-50 rounded-lg p-6 text-center">
-                  <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Target className="w-8 h-8 text-indigo-600" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 mb-2">Compromiso</h3>
-                  <p className="text-gray-600 text-sm">Responsabilidad con el aprendizaje y el cambio</p>
-                </div>
+              {/* Bibliografía Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 border-l-4 border-blue-600">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Bibliografía para profundizar</h3>
+                <ul className="space-y-4 text-gray-700">
+                  <li className="flex items-start">
+                    <span className="mr-3 text-blue-600 font-bold">●</span>
+                    <a href="https://pz.harvard.edu/projects/cultures-of-thinking" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline">PZ Harvard</a>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-3 text-blue-600 font-bold">●</span>
+                    <a href="https://edu1stvess.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline">Modelo VESS</a>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-3 text-blue-600 font-bold">●</span>
+                    <a href="https://educaixa.org/es/-/entrevista-a-ron-ritchhart-la-cultura-de-pensamiento-y-como-fomentarla-en-las-aul-1" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline">Entrevista a Ron Ritchhart</a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
