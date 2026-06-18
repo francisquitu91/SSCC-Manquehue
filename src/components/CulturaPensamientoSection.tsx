@@ -23,7 +23,7 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100">
       {/* Header with back button */}
       <div className="bg-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -46,14 +46,14 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
           <div className="flex overflow-x-auto hide-scrollbar">
             <button
               onClick={() => scrollToSection('que-es')}
-              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-purple-700 hover:bg-purple-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-purple-700 flex-shrink-0"
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-blue-700 flex-shrink-0"
             >
               <Lightbulb className="w-5 h-5" />
               <span className="font-semibold">¿Qué es?</span>
             </button>
             <button
               onClick={() => scrollToSection('como-vivimos')}
-              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-indigo-700 hover:bg-indigo-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-indigo-700 flex-shrink-0"
+              className="flex items-center space-x-2 px-6 py-4 text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-all duration-300 whitespace-nowrap border-b-2 border-transparent hover:border-blue-700 flex-shrink-0"
             >
               <Brain className="w-5 h-5" />
               <span className="font-semibold">Cómo la vivimos</span>
@@ -85,51 +85,42 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
         
         {/* ¿Qué es? Section */}
         <div id="que-es" className={`bg-white rounded-lg shadow-lg overflow-hidden mb-12 transition-all duration-1000 delay-500 scroll-mt-24 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                <Lightbulb className="w-8 h-8 text-purple-600" />
+                <Lightbulb className="w-8 h-8 text-blue-600" />
               </div>
               <h2 className="text-3xl font-bold text-white">¿Qué es la Cultura de Pensamiento?</h2>
             </div>
           </div>
 
           <div className="p-8 md:p-12">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
-                <p>
-                  Una Cultura de Pensamiento es un enfoque educativo en el que el pensamiento crítico, creativo y reflexivo es valorado, promovido y visibilizado de manera intencionada en la vida cotidiana.
-                </p>
-                <p>
-                  Este enfoque busca transformar el aprendizaje, pasando de la memorización a la comprensión profunda, donde los estudiantes no solo adquieren conocimientos, sino que desarrollan la capacidad de pensar sobre lo que aprenden y cómo lo aprenden.
-                </p>
-                <p>
-                  Para ello, se utilizan herramientas, tales como, rutinas y llaves de pensamiento, organizadores gráficos, entre otras, que permiten hacer visible el pensamiento, evidenciando los procesos mentales, ideas y el razonamiento de los estudiantes.
-                </p>
-                <p>
-                  En este contexto, el aula se transforma en una comunidad de aprendizaje, donde se fomenta la reflexión, se cuestiona el conocimiento y se construyen significados de manera cooperativa. Se promueve el desarrollo de habilidades de pensamiento crítico, habilidades creativas y la metacognición (pensar sobre el propio pensamiento).
-                </p>
-                <p>
-                  Este enfoque, impulsado por investigadores del Proyecto Zero de Harvard como David Perkins y Ron Ritchhart, busca formar aprendices autónomos, capaces de aplicar el pensamiento de manera eficaz en distintos contextos.
-                </p>
-              </div>
-              <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src="https://i.postimg.cc/ryf35G2T/ninosprofe.jpg"
-                  alt="Estudiantes en el aula"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+            <div className="space-y-6 text-gray-700 leading-relaxed text-lg text-justify">
+              <p>
+                Una Cultura de Pensamiento es un enfoque educativo en el que el pensamiento crítico, creativo y reflexivo es valorado, promovido y visibilizado de manera intencionada en la vida cotidiana.
+              </p>
+              <p>
+                Este enfoque busca transformar el aprendizaje, pasando de la memorización a la comprensión profunda, donde los estudiantes no solo adquieren conocimientos, sino que desarrollan la capacidad de pensar sobre lo que aprenden y cómo lo aprenden.
+              </p>
+              <p>
+                Para ello, se utilizan herramientas, tales como, rutinas y llaves de pensamiento, organizadores gráficos, entre otras, que permiten hacer visible el pensamiento, evidenciando los procesos mentales, ideas y el razonamiento de los estudiantes.
+              </p>
+              <p>
+                En este contexto, el aula se transforma en una comunidad de aprendizaje, donde se fomenta la reflexión, se cuestiona el conocimiento y se construyen significados de manera cooperativa. Se promueve el desarrollo de habilidades de pensamiento crítico, habilidades creativas y la metacognición (pensar sobre el propio pensamiento).
+              </p>
+              <p>
+                Este enfoque, impulsado por investigadores del Proyecto Zero de Harvard como David Perkins y Ron Ritchhart, busca formar aprendices autónomos, capaces de aplicar el pensamiento de manera eficaz en distintos contextos.
+              </p>
             </div>
           </div>
         </div>
 
         {/* Cómo la vivimos Section */}
         <div id="como-vivimos" className={`bg-white rounded-lg shadow-lg overflow-hidden mb-12 transition-all duration-1000 delay-600 scroll-mt-24 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 p-6">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                <Brain className="w-8 h-8 text-indigo-600" />
+                <Brain className="w-8 h-8 text-blue-600" />
               </div>
               <h2 className="text-3xl font-bold text-white">Cómo la vivimos</h2>
             </div>
@@ -137,14 +128,7 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
 
           <div className="p-8 md:p-12">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden shadow-lg order-2 lg:order-1">
-                <img
-                  src="https://i.postimg.cc/fLZpfBbR/ninosjugando.jpg"
-                  alt="Aprendizaje colaborativo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="space-y-6 text-gray-700 leading-relaxed text-lg order-1 lg:order-2">
+              <div className="space-y-6 text-gray-700 leading-relaxed text-lg text-justify">
                 <p>
                   En nuestro Colegio vivimos la Cultura de Pensamiento a través de la implementación, desde hace más de 11 años, del Modelo VESS (Vida Equilibrada con Sentido y Sabiduría).
                 </p>
@@ -160,6 +144,13 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
                 <p>
                   Formamos parte de la Red de Colegios VESS, una comunidad internacional de aprendizaje que colabora para sostener cambios profundos y duraderos en educación.
                 </p>
+              </div>
+              <div className="relative h-64 lg:h-80 rounded-lg overflow-hidden shadow-lg">
+                <img
+                  src="https://i.postimg.cc/fLZpfBbR/ninosjugando.jpg"
+                  alt="Aprendizaje colaborativo"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -178,8 +169,8 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
 
           <div className="p-8 md:p-12">
             <div className="space-y-8">
-              <div className="grid lg:grid-cols-2 gap-8 items-center">
-                <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
+              <div className="grid lg:grid-cols-2 gap-8 items-start">
+                <div className="space-y-6 text-gray-700 leading-relaxed text-lg text-justify">
                   <p>
                     Nuestro principal objetivo es desarrollar al máximo el potencial de cada uno de nuestros estudiantes, que sean autónomos en su aprendizaje, reflexivos y conscientes de sus procesos, abiertos al cambio, comprometidos con su entorno.
                   </p>
@@ -197,7 +188,7 @@ const CulturaPensamientoSection: React.FC<CulturaPensamientoSectionProps> = ({ o
               </div>
 
               {/* Bibliografía Section */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 border-l-4 border-blue-600">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-8 border-l-4 border-blue-600">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6">Bibliografía para profundizar</h3>
                 <ul className="space-y-4 text-gray-700">
                   <li className="flex items-start">
