@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit2, Trash2, Save, X, Upload, Loader2, FileText, AlertCircle, Link as LinkIcon } from 'lucide-react';
 import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
-import { buildDriveDownloadUrl, normalizeRouteSlug, type DocumentSourceType } from '../lib/institutionalDocuments';
+import { buildDriveDownloadUrl, dedupeInstitutionalDocuments, normalizeRouteSlug, type DocumentSourceType } from '../lib/institutionalDocuments';
 
 interface InstitutionalDocumentsManagementProps {
   onBack: () => void;
@@ -106,7 +106,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
 
       if (fetchedData.length === 0) throw new Error('No fue posible cargar documentos');
 
-      setDocuments(fetchedData);
+      setDocuments(dedupeInstitutionalDocuments(fetchedData as Document[]));
     } catch (error) {
       console.error('Error fetching documents:', error);
       setError('Error al cargar los documentos');

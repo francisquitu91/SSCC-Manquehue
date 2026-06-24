@@ -113,12 +113,26 @@ export function getDocumentDownloadUrl(doc: InstitutionalDocumentRecord): string
   return doc.file_url;
 }
 
+export function dedupeInstitutionalDocuments<T extends InstitutionalDocumentRecord>(documents: T[]): T[] {
+  const seen = new Set<string>();
+
+  return documents.filter((doc) => {
+    if (!doc.id || seen.has(doc.id)) {
+      return false;
+    }
+
+    seen.add(doc.id);
+    return true;
+  });
+}
+
 export function mergeDocumentsWithProjections(
   primaryDocuments: InstitutionalDocumentRecord[],
   projections: InstitutionalDocumentProjection[]
 ): ProjectedInstitutionalDocument[] {
+  const uniquePrimaryDocuments = dedupeInstitutionalDocuments(primaryDocuments);
   const projectionBySourceId = new Map<string, InstitutionalDocumentProjection>();
-  const primaryIds = new Set(primaryDocuments.map((doc) => doc.id));
+  const primaryIds = new Set(uniquePrimaryDocuments.map((doc) => doc.id));
 
   for (const projection of projections) {
     if (projection.source_document_id) {
@@ -126,35 +140,38 @@ export function mergeDocumentsWithProjections(
     }
   }
 
-  const mergedPrimary = primaryDocuments.map((doc) => {
-    const projection = projectionBySourceId.get(doc.id);
+  const mergedPrimary = uniquePrimaryDocuments
+    .filter((doc) => !(doc.is_hidden ?? false))
+    .map((doc) => {
+      const projection = projectionBySourceId.get(doc.id);
 
-    if (!projection) {
+      if (!projection) {
+        return {
+          ...doc,
+          source_type: doc.source_type || 'storage',
+          open_in_fullscreen: doc.open_in_fullscreen ?? true,
+          is_hidden: doc.is_hidden ?? false,
+          is_projection_orphan: false,
+          source_document_id: doc.id,
+        } satisfies ProjectedInstitutionalDocument;
+      }
+
       return {
         ...doc,
-        source_type: doc.source_type || 'storage',
-        open_in_fullscreen: doc.open_in_fullscreen ?? true,
-        is_hidden: doc.is_hidden ?? false,
-        is_projection_orphan: false,
+        source_type: 'drive',
+        external_view_url: projection.external_view_url,
+        external_download_url: projection.external_download_url,
+        route_slug: projection.route_slug,
+        open_in_fullscreen: projection.open_in_fullscreen,
+        is_hidden: Boolean(projection.is_hidden) || Boolean(doc.is_hidden),
+        projection_id: projection.id,
         source_document_id: doc.id,
+        is_projection_orphan: false,
       } satisfies ProjectedInstitutionalDocument;
-    }
-
-    return {
-      ...doc,
-      source_type: 'drive',
-      external_view_url: projection.external_view_url,
-      external_download_url: projection.external_download_url,
-      route_slug: projection.route_slug,
-      open_in_fullscreen: projection.open_in_fullscreen,
-      is_hidden: Boolean(projection.is_hidden) || Boolean(doc.is_hidden),
-      projection_id: projection.id,
-      source_document_id: doc.id,
-      is_projection_orphan: false,
-    } satisfies ProjectedInstitutionalDocument;
-  });
+    });
 
   const orphanProjections = projections
+    .filter((projection) => !projection.is_hidden)
     .filter((projection) => !projection.source_document_id || !primaryIds.has(projection.source_document_id))
     .map((projection) => {
       const syntheticId = `projection-${projection.id}`;
