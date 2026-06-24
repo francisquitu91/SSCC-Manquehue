@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Users, ExternalLink } from 'lucide-react';
-import { driveRoutesSupabase } from '../lib/supabase';
+import { driveRoutesSupabase, supabase } from '../lib/supabase';
 
 interface ComunidadSectionProps {
   onBack: () => void;

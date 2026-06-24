@@ -181,16 +181,39 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     try {
       setUploading(true);
 
-      let fileUrl = formData.external_view_url.trim();
-      let fileName = formData.file?.name || `${formData.title}.gdrive`;
-      let fileType = formData.source_type === 'drive' ? 'application/vnd.google-apps.document' : '';
-      let fileSize = 0;
+      const existingDocument = editingId
+        ? documents.find((doc) => doc.id === editingId)
+        : null;
 
-      if (formData.source_type === 'storage' && formData.file) {
-        fileUrl = await uploadFile(formData.file);
-        fileName = formData.file.name;
-        fileType = formData.file.type;
-        fileSize = formData.file.size;
+      let fileUrl = '';
+      let fileName = `${formData.title}.gdrive`;
+      let fileType = '';
+      let fileSize: number | null = null;
+
+      if (formData.source_type === 'storage') {
+        if (formData.file) {
+          fileUrl = await uploadFile(formData.file);
+          fileName = formData.file.name;
+          fileType = formData.file.type;
+          fileSize = formData.file.size;
+        } else if (existingDocument?.file_url) {
+          fileUrl = existingDocument.file_url;
+          fileName = existingDocument.file_name || fileName;
+          fileType = existingDocument.file_type || fileType;
+          fileSize = existingDocument.file_size ?? fileSize;
+        } else {
+          setError('No existe un archivo asociado a este documento para conservarlo al guardar.');
+          return;
+        }
+      } else {
+        fileUrl = formData.external_view_url.trim() || existingDocument?.file_url || existingDocument?.external_view_url || '';
+        if (!fileUrl) {
+          setError('Debe ingresar el enlace de visualización de Google Drive o conservar uno existente.');
+          return;
+        }
+        fileName = `${formData.title}.gdrive`;
+        fileType = 'application/vnd.google-apps.document';
+        fileSize = null;
       }
 
       const normalizedRouteSlug = normalizeRouteSlug(formData.route_slug || formData.title);
@@ -211,6 +234,10 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
           category: finalCategory,
           title: formData.title,
           description: formData.description || null,
+          file_url: fileUrl,
+          file_name: fileName,
+          file_type: fileType,
+          file_size: fileSize,
           order_index: formData.order_index,
           source_type: formData.source_type,
           external_view_url: formData.source_type === 'drive' ? formData.external_view_url.trim() : null,
@@ -221,24 +248,9 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
           updated_at: new Date().toISOString()
         };
 
-        // Only update file fields if a new file was uploaded
-        if (formData.source_type === 'storage' && formData.file) {
-          updateData.file_url = fileUrl;
-          updateData.file_name = fileName;
-          updateData.file_type = fileType;
-          updateData.file_size = fileSize;
-        }
-
-        if (formData.source_type === 'drive') {
-          updateData.file_url = fileUrl;
-          updateData.file_name = fileName;
-          updateData.file_type = fileType;
-          updateData.file_size = null;
-        }
-
         const { error: updateError } = await driveRoutesSupabase
           .from('institutional_documents')
-          .upsert(updateData)
+          .update(updateData)
           .eq('id', editingId);
         
         if (updateError) throw updateError;
