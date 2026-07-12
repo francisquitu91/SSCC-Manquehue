@@ -112,11 +112,17 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
       ]);
 
       const secondaryData = secondaryResult.status === 'fulfilled' && !secondaryResult.value.error
-        ? (secondaryResult.value.data || []) as Document[]
+        ? ((secondaryResult.value.data || []) as Document[]).map((doc) => ({
+            ...doc,
+            database_origin: 'N' as const,
+          }))
         : [];
 
       const primaryData = primaryResult.status === 'fulfilled' && !primaryResult.value.error
-        ? (primaryResult.value.data || []) as Document[]
+        ? ((primaryResult.value.data || []) as Document[]).map((doc) => ({
+            ...doc,
+            database_origin: 'A' as const,
+          }))
         : [];
 
       if (secondaryResult.status === 'rejected' && primaryResult.status === 'rejected') {
@@ -304,16 +310,7 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                           key={doc.id}
                           className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 hover:border-blue-300 group"
                         >
-                          {/* Source badges hidden - section 0 manages Drive/route config */}
-                          {doc.is_projection_orphan && (
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                                Proyección huérfana
-                              </span>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex items-center space-x-3 flex-1 min-w-0">
                               <span className="text-3xl flex-shrink-0">{getFileIcon(doc.file_type)}</span>
                               <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors break-words">
@@ -321,7 +318,10 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                               </h3>
                             </div>
 
-                            <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end" />
+                          </div>
+
+                          <div className="flex items-center justify-end gap-2 flex-shrink-0">
                               <button
                                 onClick={() => openDocument(doc)}
                                 className="flex items-center space-x-2 px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-300"
@@ -336,7 +336,6 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                                 <Download className="w-4 h-4" />
                                 <span className="hidden sm:inline">Descargar</span>
                               </button>
-                            </div>
                           </div>
                         </div>
                       ))}

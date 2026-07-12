@@ -235,9 +235,6 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                   </ul>
                 </div>
               </div>
-              <a href="https://intranetsscc-1.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-800 uppercase whitespace-nowrap hover:text-blue-700 font-medium transition-colors">
-                Intranet
-              </a>
               {/* CALENDARIOS - Dropdown */}
               <div className="relative group">
                 <button
@@ -357,11 +354,6 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                   </div>
                 )}
               </div>
-
-              {/* Intranet */}
-              <a href="https://intranetsscc-1.onrender.com/" target="_blank" rel="noopener noreferrer" className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-sm font-medium text-gray-800">
-                Intranet
-              </a>
 
               {/* Calendarios - Mobile Dropdown */}
               <div className="block w-full">

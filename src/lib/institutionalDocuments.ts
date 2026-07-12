@@ -1,4 +1,5 @@
 export type DocumentSourceType = 'storage' | 'drive';
+export type DocumentDatabaseOrigin = 'A' | 'N';
 
 export interface InstitutionalDocumentRecord {
   id: string;
@@ -17,6 +18,7 @@ export interface InstitutionalDocumentRecord {
   route_slug?: string | null;
   open_in_fullscreen?: boolean | null;
   is_hidden?: boolean | null;
+  database_origin?: DocumentDatabaseOrigin | null;
 }
 
 export interface InstitutionalDocumentProjection {
@@ -38,6 +40,9 @@ export interface ProjectedInstitutionalDocument extends InstitutionalDocumentRec
   source_document_id?: string | null;
   is_projection_orphan?: boolean;
 }
+
+const LEGACY_SUPABASE_HOST = 'idhwoewtblzebdxtlkuu.supabase.co';
+const PRIMARY_SUPABASE_HOST = 'ntncdusmihemyaqrzajm.supabase.co';
 
 const DRIVE_ID_PATTERNS = [
   /\/d\/([a-zA-Z0-9_-]{20,})/,
@@ -113,6 +118,29 @@ export function getDocumentDownloadUrl(doc: InstitutionalDocumentRecord): string
   return doc.file_url;
 }
 
+export function getDocumentDatabaseOrigin(doc: InstitutionalDocumentRecord): DocumentDatabaseOrigin {
+  if (doc.database_origin === 'A' || doc.database_origin === 'N') {
+    return doc.database_origin;
+  }
+
+  const searchableValues = [doc.external_view_url, doc.external_download_url, doc.file_url]
+    .filter((value): value is string => Boolean(value));
+
+  if (searchableValues.some((value) => value.includes(LEGACY_SUPABASE_HOST))) {
+    return 'A';
+  }
+
+  if (searchableValues.some((value) => value.includes(PRIMARY_SUPABASE_HOST))) {
+    return 'N';
+  }
+
+  if (doc.projection_id || doc.source_type === 'drive') {
+    return 'N';
+  }
+
+  return 'A';
+}
+
 export function dedupeInstitutionalDocuments<T extends InstitutionalDocumentRecord>(documents: T[]): T[] {
   const seen = new Set<string>();
 
@@ -153,6 +181,7 @@ export function mergeDocumentsWithProjections(
           is_hidden: doc.is_hidden ?? false,
           is_projection_orphan: false,
           source_document_id: doc.id,
+          database_origin: doc.database_origin ?? null,
         } satisfies ProjectedInstitutionalDocument;
       }
 
@@ -167,6 +196,7 @@ export function mergeDocumentsWithProjections(
         projection_id: projection.id,
         source_document_id: doc.id,
         is_projection_orphan: false,
+        database_origin: doc.database_origin ?? 'N',
       } satisfies ProjectedInstitutionalDocument;
     });
 
@@ -196,6 +226,7 @@ export function mergeDocumentsWithProjections(
         projection_id: projection.id,
         source_document_id: projection.source_document_id,
         is_projection_orphan: true,
+        database_origin: 'N',
       } satisfies ProjectedInstitutionalDocument;
     });
 

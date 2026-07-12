@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Upload, FileText, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { driveRoutesSupabase } from '../lib/supabase';
 
 interface ProyectoEducativoDocumentoManagementProps {
   onBack: () => void;
@@ -19,7 +19,7 @@ const ProyectoEducativoDocumentoManagement: React.FC<ProyectoEducativoDocumentoM
   const loadCurrentDocument = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.storage
+      const { data, error } = await driveRoutesSupabase.storage
         .from('images')
         .list('proyecto_educativo', {
           limit: 1,
@@ -63,14 +63,14 @@ const ProyectoEducativoDocumentoManagement: React.FC<ProyectoEducativoDocumentoM
 
       // Eliminar documento anterior si existe
       if (currentDocument) {
-        await supabase.storage
+        await driveRoutesSupabase.storage
           .from('images')
           .remove([`proyecto_educativo/${currentDocument.name}`]);
       }
 
       // Subir nuevo documento
       const fileName = `proyecto_educativo_${Date.now()}.pdf`;
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await driveRoutesSupabase.storage
         .from('images')
         .upload(`proyecto_educativo/${fileName}`, file, {
           cacheControl: '3600',
@@ -101,7 +101,7 @@ const ProyectoEducativoDocumentoManagement: React.FC<ProyectoEducativoDocumentoM
 
     try {
       setLoading(true);
-      const { error } = await supabase.storage
+      const { error } = await driveRoutesSupabase.storage
         .from('images')
         .remove([`proyecto_educativo/${currentDocument.name}`]);
 
@@ -121,7 +121,7 @@ const ProyectoEducativoDocumentoManagement: React.FC<ProyectoEducativoDocumentoM
 
   const getDocumentUrl = () => {
     if (!currentDocument) return null;
-    const { data } = supabase.storage
+    const { data } = driveRoutesSupabase.storage
       .from('images')
       .getPublicUrl(`proyecto_educativo/${currentDocument.name}`);
     return data.publicUrl;
