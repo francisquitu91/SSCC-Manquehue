@@ -229,7 +229,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                     </li>
                     <li>
                       <button onClick={() => handleNavigation('admision-kinder-ii')} className="w-full text-left px-3 py-2 text-xs text-white rounded hover:bg-blue-700 transition-colors">
-                        Admisión Kínder a II°
+                        Admisión Kínder a I medio
                       </button>
                     </li>
                   </ul>
@@ -349,7 +349,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                       Admisión Pre Kínder
                     </button>
                     <button onClick={() => handleNavigation('admision-kinder-ii')} className="block w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-sm font-medium text-gray-700">
-                      Admisión Kínder a II°
+                      Admisión Kínder a I medio
                     </button>
                   </div>
                 )}
