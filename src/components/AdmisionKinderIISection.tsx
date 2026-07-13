@@ -126,7 +126,6 @@ export default function AdmisionKinderIISection({ onBack }: AdmisionKinderIISect
         <div className={`transition-all duration-1000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-900">Calendario de admisión</h2>
-            <p className="mt-2 text-slate-600">Haz clic en cada etapa para ver su detalle.</p>
           </div>
 
           <div className="overflow-hidden rounded-3xl border border-slate-300 bg-white shadow-xl">
