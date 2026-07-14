@@ -1,6 +1,8 @@
 export type DocumentSourceType = 'storage' | 'drive';
 export type DocumentDatabaseOrigin = 'A' | 'N';
 
+const RECENT_DOCUMENT_IDS_STORAGE_KEY = 'institutional-documents:recent-document-ids';
+
 export interface InstitutionalDocumentRecord {
   id: string;
   category: string;
@@ -116,6 +118,53 @@ export function getDocumentDownloadUrl(doc: InstitutionalDocumentRecord): string
   }
 
   return doc.file_url;
+}
+
+function readRecentDocumentIds(): string[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const rawValue = window.localStorage.getItem(RECENT_DOCUMENT_IDS_STORAGE_KEY);
+    if (!rawValue) {
+      return [];
+    }
+
+    const parsedValue = JSON.parse(rawValue);
+    if (!Array.isArray(parsedValue)) {
+      return [];
+    }
+
+    return parsedValue.filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+  } catch {
+    return [];
+  }
+}
+
+function writeRecentDocumentIds(documentIds: string[]) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.setItem(RECENT_DOCUMENT_IDS_STORAGE_KEY, JSON.stringify(documentIds));
+}
+
+export function isInstitutionalDocumentRecent(doc: Pick<InstitutionalDocumentRecord, 'id'>): boolean {
+  return readRecentDocumentIds().includes(doc.id);
+}
+
+export function setInstitutionalDocumentRecent(documentId: string, isRecent: boolean) {
+  const currentIds = readRecentDocumentIds();
+  const nextIds = isRecent
+    ? Array.from(new Set([...currentIds, documentId]))
+    : currentIds.filter((id) => id !== documentId);
+
+  writeRecentDocumentIds(nextIds);
+}
+
+export function clearInstitutionalDocumentRecent(documentId: string) {
+  setInstitutionalDocumentRecent(documentId, false);
 }
 
 export function getDocumentDatabaseOrigin(doc: InstitutionalDocumentRecord): DocumentDatabaseOrigin {

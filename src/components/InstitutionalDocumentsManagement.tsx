@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit2, Trash2, Save, X, Upload, Loader2, FileText, AlertCircle, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, Save, X, Upload, Loader2, FileText, AlertCircle, Link as LinkIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import { driveRoutesSupabase, supabase } from '../lib/supabase';
 import { optimizeFile } from '../lib/fileOptimization';
-import { buildDriveDownloadUrl, dedupeInstitutionalDocuments, normalizeRouteSlug, type DocumentSourceType } from '../lib/institutionalDocuments';
+import { buildDriveDownloadUrl, clearInstitutionalDocumentRecent, dedupeInstitutionalDocuments, isInstitutionalDocumentRecent, normalizeRouteSlug, setInstitutionalDocumentRecent, type DocumentSourceType } from '../lib/institutionalDocuments';
 
 interface InstitutionalDocumentsManagementProps {
   onBack: () => void;
@@ -40,6 +40,7 @@ interface DocumentForm {
   route_slug: string;
   open_in_fullscreen: boolean;
   is_hidden: boolean;
+  is_recent: boolean;
 }
 
 const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagementProps> = ({ onBack }) => {
@@ -60,14 +61,15 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     title: '',
     description: '',
     file: null,
-    order_index: 0,
+    order_index: 1,
     subcategory: 'Todos',
     source_type: 'storage',
     external_view_url: '',
     external_download_url: '',
     route_slug: '',
     open_in_fullscreen: true,
-    is_hidden: false
+    is_hidden: false,
+    is_recent: false
   });
 
   const categories = [
@@ -78,6 +80,92 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     'Otros',
     'Listas útiles escolares'
   ];
+
+  const getBaseCategory = (category: string) => {
+    if (category.startsWith('Listas útiles escolares')) {
+      return 'Listas útiles escolares';
+    }
+
+    return category;
+  };
+
+  const sortDocuments = (docs: Document[]) => {
+    return [...docs].sort((left, right) => {
+      const leftRecent = isInstitutionalDocumentRecent(left);
+      const rightRecent = isInstitutionalDocumentRecent(right);
+
+      if (leftRecent !== rightRecent) {
+        return leftRecent ? -1 : 1;
+      }
+
+      const leftOrder = Number.isFinite(left.order_index) ? left.order_index : Number.MAX_SAFE_INTEGER;
+      const rightOrder = Number.isFinite(right.order_index) ? right.order_index : Number.MAX_SAFE_INTEGER;
+
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      return left.title.localeCompare(right.title, 'es', { sensitivity: 'base' });
+    });
+  };
+
+  const getDocumentsInCategory = (category: string) => {
+    return sortDocuments(documents.filter((doc) => getBaseCategory(doc.category) === category));
+  };
+
+  const getRecentDocumentsInCategory = (category: string) => {
+    return getDocumentsInCategory(category).filter((doc) => isInstitutionalDocumentRecent(doc));
+  };
+
+  const getRegularDocumentsInCategory = (category: string) => {
+    return getDocumentsInCategory(category).filter((doc) => !isInstitutionalDocumentRecent(doc));
+  };
+
+  const normalizeCategoryOrder = async (category: string, orderedDocuments: Document[]) => {
+    const updates = orderedDocuments.map((doc, index) =>
+      driveRoutesSupabase
+        .from('institutional_documents')
+        .update({ order_index: index + 1 })
+        .eq('id', doc.id)
+    );
+
+    const results = await Promise.all(updates);
+    const updateError = results.find((result) => result.error)?.error;
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    setSuccess(`Orden actualizado en ${category}`);
+    fetchDocuments();
+  };
+
+  const moveDocument = async (doc: Document, direction: 'up' | 'down') => {
+    const category = getBaseCategory(doc.category);
+    const orderedDocuments = getRegularDocumentsInCategory(category);
+    const currentIndex = orderedDocuments.findIndex((item) => item.id === doc.id);
+
+    if (currentIndex === -1) {
+      return;
+    }
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= orderedDocuments.length) {
+      return;
+    }
+
+    const reorderedDocuments = [...orderedDocuments];
+    [reorderedDocuments[currentIndex], reorderedDocuments[targetIndex]] = [reorderedDocuments[targetIndex], reorderedDocuments[currentIndex]];
+
+    try {
+      setError(null);
+      setSuccess(null);
+      await normalizeCategoryOrder(category, reorderedDocuments);
+    } catch (error: any) {
+      console.error('Error reordering document:', error);
+      setError(error.message || 'Error al reordenar el documento');
+    }
+  };
 
   useEffect(() => {
     fetchDocuments();
@@ -254,10 +342,11 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
           .eq('id', editingId);
         
         if (updateError) throw updateError;
+        setInstitutionalDocumentRecent(editingId, formData.is_recent);
         setSuccess('Documento actualizado exitosamente');
       } else {
         // Insert new document
-        const { error } = await driveRoutesSupabase
+        const { data: insertedDocument, error } = await driveRoutesSupabase
           .from('institutional_documents')
           .insert([{ 
             category: finalCategory,
@@ -274,9 +363,14 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
             route_slug: normalizedRouteSlug || null,
             open_in_fullscreen: formData.open_in_fullscreen,
             is_hidden: formData.is_hidden
-          }]);
+          }])
+          .select('id')
+          .single();
 
         if (error) throw error;
+        if (insertedDocument?.id) {
+          setInstitutionalDocumentRecent(insertedDocument.id, formData.is_recent);
+        }
         setSuccess('Documento agregado exitosamente');
       }
 
@@ -286,14 +380,15 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
         title: '',
         description: '',
         file: null,
-        order_index: 0,
+        order_index: 1,
         subcategory: 'Todos',
         source_type: 'storage',
         external_view_url: '',
         external_download_url: '',
         route_slug: '',
         open_in_fullscreen: true,
-        is_hidden: false
+        is_hidden: false,
+        is_recent: false
       });
       setIsEditing(false);
       setEditingId(null);
@@ -328,7 +423,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       external_download_url: doc.external_download_url || '',
       route_slug: doc.route_slug || '',
       open_in_fullscreen: doc.open_in_fullscreen ?? true,
-      is_hidden: doc.is_hidden ?? false
+      is_hidden: doc.is_hidden ?? false,
+      is_recent: isInstitutionalDocumentRecent(doc)
     });
     setEditingId(doc.id);
     setIsEditing(true);
@@ -351,6 +447,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
         .eq('id', id);
       
       if (deleteError) throw deleteError;
+      clearInstitutionalDocumentRecent(id);
 
       if (storageFilePath) {
         await driveRoutesSupabase.storage
@@ -373,14 +470,15 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
       title: '',
       description: '',
       file: null,
-      order_index: 0,
+      order_index: 1,
       subcategory: 'Todos',
       source_type: 'storage',
       external_view_url: '',
       external_download_url: '',
       route_slug: '',
       open_in_fullscreen: true,
-      is_hidden: false
+      is_hidden: false,
+      is_recent: false
     });
     setIsEditing(false);
     setEditingId(null);
@@ -395,6 +493,8 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     if (mb >= 1) return `${mb.toFixed(2)} MB`;
     return `${kb.toFixed(2)} KB`;
   };
+
+  const orderedDocuments = sortDocuments(documents);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -481,9 +581,9 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                 <input
                   type="number"
                   value={formData.order_index}
-                  onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, order_index: Math.max(1, parseInt(e.target.value || '1', 10) || 1) })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  min="0"
+                  min="1"
                 />
               </div>
             </div>
@@ -650,16 +750,30 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
               </div>
 
               <div className="flex items-center mt-8 md:mt-0">
-                <label className="inline-flex items-center gap-3 text-sm font-medium text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={formData.open_in_fullscreen}
-                    onChange={(e) => setFormData({ ...formData, open_in_fullscreen: e.target.checked })}
-                    className="w-4 h-4 text-blue-600 rounded"
-                  />
-                  Abrir en visor de pantalla completa
-                </label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, is_recent: !formData.is_recent })}
+                  className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                    formData.is_recent
+                      ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {formData.is_recent ? 'Quitar reciente' : 'Poner como reciente'}
+                </button>
               </div>
+            </div>
+
+            <div className="flex items-center">
+              <label className="inline-flex items-center gap-3 text-sm font-medium text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={formData.open_in_fullscreen}
+                  onChange={(e) => setFormData({ ...formData, open_in_fullscreen: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                Abrir en visor de pantalla completa
+              </label>
             </div>
 
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
@@ -726,6 +840,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuente</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visibilidad</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridad</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archivo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ruta</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tamaño</th>
@@ -734,7 +849,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {documents.map((doc) => (
+                  {orderedDocuments.map((doc) => (
                     <tr key={doc.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm font-medium text-gray-900">{doc.category}</span>
@@ -756,6 +871,11 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${isInstitutionalDocumentRecent(doc) ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                          {isInstitutionalDocumentRecent(doc) ? 'Reciente' : 'Normal'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm text-gray-600">{doc.file_name}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -765,7 +885,29 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
                         <span className="text-sm text-gray-600">{formatFileSize(doc.file_size)}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600">{doc.order_index}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-600 w-8 text-center">{doc.order_index}</span>
+                          <div className="flex flex-col gap-1">
+                            <button
+                              type="button"
+                              onClick={() => moveDocument(doc, 'up')}
+                              disabled={isInstitutionalDocumentRecent(doc) || doc.order_index <= 1}
+                              className="p-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                              aria-label="Mover documento hacia arriba"
+                            >
+                              <ChevronUp className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveDocument(doc, 'down')}
+                              disabled={isInstitutionalDocumentRecent(doc) || doc.order_index >= getRegularDocumentsInCategory(getBaseCategory(doc.category)).length}
+                              className="p-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                              aria-label="Mover documento hacia abajo"
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button

@@ -5,6 +5,7 @@ import { handleProtectedDownload } from '../lib/downloadRateLimit';
 import {
   getDocumentDownloadUrl,
   getDocumentViewUrl,
+  isInstitutionalDocumentRecent,
   mergeDocumentsWithProjections,
   type InstitutionalDocumentProjection,
   type ProjectedInstitutionalDocument,
@@ -206,6 +207,28 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     }
   }
 
+  const sortDocuments = (docs: Document[]) => {
+    return [...docs].sort((left, right) => {
+      const leftRecent = isInstitutionalDocumentRecent(left);
+      const rightRecent = isInstitutionalDocumentRecent(right);
+
+      if (leftRecent !== rightRecent) {
+        return leftRecent ? -1 : 1;
+      }
+
+      const leftOrder = Number.isFinite(left.order_index) ? left.order_index : Number.MAX_SAFE_INTEGER;
+      const rightOrder = Number.isFinite(right.order_index) ? right.order_index : Number.MAX_SAFE_INTEGER;
+
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      return left.title.localeCompare(right.title, 'es', { sensitivity: 'base' });
+    });
+  };
+
+  filteredDocuments = sortDocuments(filteredDocuments);
+
   const groupedDocuments = filteredDocuments.reduce((acc, doc) => {
     // Normalize old 2025 category to 2026 for display/grouping
     const key = doc.category === MATR_2025 ? MATR_2026 : doc.category;
@@ -292,6 +315,8 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
             ) : (
               Object.entries(groupedDocuments).map(([category, docs], index) => {
                 const color = getCategoryColor(category);
+                const recentDocuments = docs.filter((doc) => isInstitutionalDocumentRecent(doc));
+                const regularDocuments = docs.filter((doc) => !isInstitutionalDocumentRecent(doc));
                 return (
                   <div
                     key={category}
@@ -304,42 +329,106 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
                       {category}
                     </h2>
 
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {docs.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 hover:border-blue-300 group"
-                        >
-                          <div className="flex items-start justify-between gap-4 mb-3">
-                            <div className="flex items-center space-x-3 flex-1 min-w-0">
-                              <span className="text-3xl flex-shrink-0">{getFileIcon(doc.file_type)}</span>
-                              <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors break-words">
-                                {doc.title}
-                              </h3>
+                    {recentDocuments.length > 0 && (
+                      <div className="mb-5">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <div className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                            Recientes
+                          </div>
+                          <span className="text-xs text-gray-500">Se muestran primero dentro de la categoría</span>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {recentDocuments.map((doc) => (
+                            <div
+                              key={doc.id}
+                              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-emerald-200 hover:border-emerald-300 group"
+                            >
+                              <div className="flex items-start justify-between gap-4 mb-3">
+                                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                                  <span className="text-3xl flex-shrink-0">{getFileIcon(doc.file_type)}</span>
+                                  <div className="min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors break-words">
+                                        {doc.title}
+                                      </h3>
+                                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+                                        Reciente
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end" />
+                              </div>
+
+                              <div className="flex items-center justify-end gap-2 flex-shrink-0">
+                                  <button
+                                    onClick={() => openDocument(doc)}
+                                    className="flex items-center space-x-2 px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-300"
+                                  >
+                                    <Maximize2 className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Ver archivo</span>
+                                  </button>
+                                  <button
+                                    onClick={handleProtectedDownload(getDocumentDownloadUrl(doc), doc.file_name)}
+                                    className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105"
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Descargar</span>
+                                  </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {regularDocuments.length > 0 && recentDocuments.length > 0 && (
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <div className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                          Documentos
+                        </div>
+                      </div>
+                    )}
+
+                    {regularDocuments.length > 0 && (
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {regularDocuments.map((doc) => (
+                          <div
+                            key={doc.id}
+                            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 border border-gray-200 hover:border-blue-300 group"
+                          >
+                            <div className="flex items-start justify-between gap-4 mb-3">
+                              <div className="flex items-center space-x-3 flex-1 min-w-0">
+                                <span className="text-3xl flex-shrink-0">{getFileIcon(doc.file_type)}</span>
+                                <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors break-words">
+                                  {doc.title}
+                                </h3>
+                              </div>
+
+                              <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end" />
                             </div>
 
-                            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end" />
+                            <div className="flex items-center justify-end gap-2 flex-shrink-0">
+                                <button
+                                  onClick={() => openDocument(doc)}
+                                  className="flex items-center space-x-2 px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-300"
+                                >
+                                  <Maximize2 className="w-4 h-4" />
+                                  <span className="hidden sm:inline">Ver archivo</span>
+                                </button>
+                                <button
+                                  onClick={handleProtectedDownload(getDocumentDownloadUrl(doc), doc.file_name)}
+                                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105"
+                                >
+                                  <Download className="w-4 h-4" />
+                                  <span className="hidden sm:inline">Descargar</span>
+                                </button>
+                            </div>
                           </div>
-
-                          <div className="flex items-center justify-end gap-2 flex-shrink-0">
-                              <button
-                                onClick={() => openDocument(doc)}
-                                className="flex items-center space-x-2 px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-300"
-                              >
-                                <Maximize2 className="w-4 h-4" />
-                                <span className="hidden sm:inline">Ver archivo</span>
-                              </button>
-                              <button
-                                onClick={handleProtectedDownload(getDocumentDownloadUrl(doc), doc.file_name)}
-                                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105"
-                              >
-                                <Download className="w-4 h-4" />
-                                <span className="hidden sm:inline">Descargar</span>
-                              </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })
