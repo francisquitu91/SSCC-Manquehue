@@ -73,7 +73,7 @@ export default function AnnouncementPopup() {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 flex items-center justify-between rounded-t-2xl">
+        <div style={{ backgroundColor: '#20335f' }} className="px-6 py-5 flex items-center justify-between rounded-t-2xl">
           <h2 className="text-2xl font-bold text-white">{announcement.title}</h2>
           <button
             onClick={handleClose}
