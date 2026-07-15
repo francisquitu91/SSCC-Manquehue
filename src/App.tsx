@@ -46,6 +46,7 @@ import RecursosDigitalesManagement from './components/RecursosDigitalesManagemen
 import FechasImportantesSection from './components/FechasImportantesSection';
 import FechasImportantesManagement from './components/FechasImportantesManagement';
 import AnnouncementPopup from './components/AnnouncementPopup';
+import AnnouncementInfoSection from './components/AnnouncementInfoSection';
 import AnnouncementManagement from './components/AnnouncementManagement';
 import LogoManagement from './components/LogoManagement';
 import StorageOptimizer from './components/StorageOptimizer';
@@ -602,12 +603,14 @@ function App() {
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
                 onClick={() => handlePageChange('historia-colegio')}
-                className="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-bold text-white bg-transparent border-2 border-white rounded-none overflow-hidden transition-all duration-300 hover:bg-white hover:text-gray-800 drop-shadow-lg uppercase tracking-wide"
+                className="hidden sm:inline-flex group relative items-center justify-center px-8 py-3 text-sm font-bold text-white bg-transparent border-2 border-white rounded-none overflow-hidden transition-all duration-300 hover:bg-white hover:text-gray-800 drop-shadow-lg uppercase tracking-wide"
               >
                 <span className="relative z-10 flex items-center">
                   VER MÁS
                 </span>
               </button>
+
+              <AnnouncementInfoSection />
               
               <button
                 onClick={() => {
