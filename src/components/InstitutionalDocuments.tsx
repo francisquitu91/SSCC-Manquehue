@@ -58,6 +58,7 @@ const InstitutionalDocuments: React.FC<InstitutionalDocumentsProps> = ({ onBack 
     { id: 'Documentos, protocolos y reglamentos del Colegio', name: 'Protocolos y Reglamentos', color: 'purple' },
     { id: 'Circulares', name: 'Circulares', color: 'indigo' },
     { id: 'Seguros escolares', name: 'Seguros Escolares', color: 'orange' },
+    { id: 'Planes', name: 'Planes', color: 'amber' },
     { id: 'Listas útiles escolares', name: 'Listas útiles escolares', color: 'teal' },
     { id: 'Otros', name: 'Otros', color: 'gray' }
   ];

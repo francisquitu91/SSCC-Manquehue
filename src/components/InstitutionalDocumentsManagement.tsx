@@ -77,6 +77,7 @@ const InstitutionalDocumentsManagement: React.FC<InstitutionalDocumentsManagemen
     'Documentos, protocolos y reglamentos del Colegio',
     'Circulares',
     'Seguros escolares',
+    'Planes',
     'Otros',
     'Listas útiles escolares'
   ];
