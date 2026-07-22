@@ -150,7 +150,25 @@ function writeRecentDocumentIds(documentIds: string[]) {
   window.localStorage.setItem(RECENT_DOCUMENT_IDS_STORAGE_KEY, JSON.stringify(documentIds));
 }
 
-export function isInstitutionalDocumentRecent(doc: Pick<InstitutionalDocumentRecord, 'id'>): boolean {
+import { driveRoutesSupabase } from './supabase';
+
+export async function persistInstitutionalDocumentRecent(documentId: string, isRecent: boolean) {
+  try {
+    await driveRoutesSupabase
+      .from('institutional_documents')
+      .update({ is_recent: isRecent, updated_at: new Date().toISOString() })
+      .eq('id', documentId);
+  } catch (err) {
+    console.warn('Error persisting is_recent to Supabase:', err);
+  }
+}
+
+export function isInstitutionalDocumentRecent(doc: Pick<InstitutionalDocumentRecord, 'id' | 'is_recent'>): boolean {
+  // Prefer server-side flag when available
+  if (typeof (doc as any).is_recent === 'boolean') {
+    return Boolean((doc as any).is_recent);
+  }
+
   return readRecentDocumentIds().includes(doc.id);
 }
 
@@ -161,6 +179,11 @@ export function setInstitutionalDocumentRecent(documentId: string, isRecent: boo
     : currentIds.filter((id) => id !== documentId);
 
   writeRecentDocumentIds(nextIds);
+
+  // Fire-and-forget: persist to Supabase so incognito / other browsers see it
+  if (typeof window !== 'undefined') {
+    void persistInstitutionalDocumentRecent(documentId, isRecent);
+  }
 }
 
 export function clearInstitutionalDocumentRecent(documentId: string) {
