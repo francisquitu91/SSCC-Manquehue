@@ -118,7 +118,7 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                 <div className="ml-2 sm:ml-4 md:ml-6 leading-tight -mt-4 sm:-mt-6">
                   <div className="text-sm sm:text-base md:text-xl lg:text-2xl text-gray-900 uppercase font-sans">
                     <span className="font-normal">COLEGIO </span>
-                    <span className="font-extrabold">SS.CC.</span>
+                    <span className="font-extrabold">SSCC</span>
                     <span className="font-normal"> MANQUEHUE</span>
                   </div>
                 </div>
