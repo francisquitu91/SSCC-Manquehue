@@ -51,13 +51,13 @@ const Navbar: React.FC<NavbarProps> = ({ onPageChange }) => {
                 <span className="text-xs lg:hidden">Email</span>
               </div>
               <a 
-                href="https://www.instagram.com/colegioss.cc.manquehue/" 
+                href="https://www.instagram.com/colegiossccmanquehue/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center space-x-1 sm:space-x-2 hover:text-blue-300 transition-colors"
               >
                 <Instagram className="w-4 h-4 text-white" />
-                <span className="text-xs hidden xl:inline">@colegioss.cc.manquehue</span>
+                <span className="text-xs hidden xl:inline">@colegiossccmanquehue</span>
                 <span className="text-xs xl:hidden">Instagram</span>
               </a>
               <a 
